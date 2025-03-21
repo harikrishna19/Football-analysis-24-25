@@ -5,7 +5,8 @@
 
 library(ggplot2)
 library(ggthemes)
-
+library(patchwork)
+library(dplyr)
 
 
 
@@ -13,7 +14,7 @@ library(ggthemes)
 # Graphs Liverpool Analysis-Time Ranges -----------------------------------------------
 
 
-liv_match_summaries %>%
+goal_ranges<- liv_match_summaries %>%
   dplyr::filter(Team == "Liverpool", Event_Type %in% c("Goal", "Penalty")) %>%
   dplyr::select(Team, Event_Half, Event_Type, Event_Players, Event_Time) %>%
   dplyr::mutate(Time_Range = factor(dplyr::case_when(
@@ -34,15 +35,14 @@ liv_match_summaries %>%
     x = "Time Range (Minutes)",
     y = "Goal/Penalty Count",
     caption ="Built by: Hari Krishna"
-  ) +
-  theme_clean()  # Clean theme for better visuals
+  ) +theme_clean()  # Clean theme for better visuals
 
 
 
 
 # Goal Scorers for Liverpool ----------------------------------------------
-
-liv_match_summaries %>%
+#unique goal scoresers for liverpool
+Goal_Scorers=liv_match_summaries %>%
   dplyr::filter(Team == "Liverpool", Event_Type %in% c("Goal", "Penalty")) %>%
   dplyr::select(Team, Event_Half, Event_Type, Event_Players, Event_Time) %>% 
   dplyr::count(Event_Players, name = "Goals Scored") %>%
@@ -50,8 +50,28 @@ liv_match_summaries %>%
 
 
 
+Goal_Scorers$Event_Players1 <- gsub(".*Assist: | Kick -  " , "", Goal_Scorers$Event_Players)
 
 
+
+
+goal_scorers<-Goal_Scorers %>%
+  dplyr::count(Event_Players1, name = "Goals Scored") %>%
+  dplyr::arrange(desc(`Goals Scored`)) %>%
+  dplyr::mutate(Event_Players1 = factor(Event_Players1, levels = rev(Event_Players1))) %>%  # Preserve order
+  ggplot(aes(x = Event_Players1, y = `Goals Scored`)) +
+  geom_col(fill = "red") +
+  coord_flip() +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +  # Ensure integer breaks
+  labs(
+    title = "Top Goal Scorers for Liverpool 2024/25 season",
+    x = "Players",
+    y = "Goals Scored",
+    caption ="Built by: Hari Krishna"
+  ) +
+  theme_clean()
+
+goal_ranges/goal_scorers
 
 
 
