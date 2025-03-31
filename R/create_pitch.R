@@ -32,6 +32,16 @@
     geom_point(data = formation_4231, aes(x, y), color = "red", size = 5) +
     geom_text(data = formation_4231, aes(x, y, label = label), vjust = -1, color = "red") +
     labs(
-      title = "Liverpool FC 4-2-3-1 Formation")
+      title = "Liverpool FC 4-2-3-1 Formation",
+      caption = "Diogo Jota leads the attack, while Mohamed Salah and Luis Díaz operate on the flanks.\n
+                Szoboszlai plays as the No. 10,supported by a double pivot of Mac Allister & Gravenberch in midfield.\n
+                In defense,Arnold & Robertson occupy the full-back positions, with Konaté and Van Dijk forming the center-back pairing.\n
+                Alisson Becker remains the first-choice goalkeeper."
+    ) +
+    theme(
+      plot.title = element_text(hjust = 0.5, face = "bold", size = 14),  # Center title and make it bold
+      plot.caption = element_text(hjust = 0.3, size = 8, face = "bold", color = "black", lineheight = 1.2)  # Center caption with proper spacing
+    )
+  
   
   

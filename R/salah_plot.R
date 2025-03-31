@@ -14,28 +14,18 @@ df_filtered$Event_Players[df_filtered$Event_Players == "Alexis Mac Allister Assi
 
 df_filtered[19, "Event_Players"] <- "Mohamed Salah Assist:Luiz Diaz"
 
-df_filtered %>%
-  filter(str_detect(Event_Players, "Mohamed Salah$",),Event_Type %in% c("Goal","Penalty"))
 
 
-View(df_filtered)
+
+
 
 # Keywords to filter and match order
 players1 <- c("Mohamed Salah Assist", "Mohamed Salah Penalty Kick", "Mohamed Salah")
 
-# Extract exact matches from Event_Players
-df_filtered_ordered <- df_filtered %>%
-  mutate(selected_players = str_extract(Event_Players, str_c(players1, collapse = "|"))) %>%
-  filter(!is.na(selected_players)) %>%  # Keep only matched values
-  arrange(match(selected_players, players1))  # Order by players1 sequence
 
-# Print the output
-print(df_filtered_ordered)
 
-df_filtered_ordered$Matchweek<-parse_number(df_filtered_ordered$Matchweek)
 
-df_filtered_ordered <- df_filtered_ordered %>%
-  mutate(Team_Names = if_else(Home_Team != "Liverpool", toupper(substr(Home_Team,1,3)), if_else(Away_Team != "Liverpool", toupper(substr(Away_Team,1,3)), NA_character_)))
+
 
 
 
@@ -44,11 +34,12 @@ df_filtered_ordered <- df_filtered %>%
   filter(!is.na(selected_players)) %>%  # Keep only matched values
   arrange(Matchweek,match(selected_players, players1))  # Order by players1 sequence
 
+df_filtered_ordered$Matchweek<-parse_number(df_filtered_ordered$Matchweek)
+
+df_filtered_ordered <- df_filtered_ordered %>%
+  mutate(Team_Names = if_else(Home_Team != "Liverpool", toupper(substr(Home_Team,1,3)), if_else(Away_Team != "Liverpool", toupper(substr(Away_Team,1,3)), NA_character_)))
+
 df_filtered_ordered<-df_filtered_ordered %>% arrange(Matchweek)
-
-
-
-
 
 
 
@@ -60,8 +51,11 @@ category_counts <- c("Goals & Assists" = 35,  # Combined Non-Penalty Goals & Ass
                      "Penalty Goals" = 9)  # Separate Penalty Goals
 
 # Create an expanded data frame where each row represents a tile
-df <- data.frame(
-  category = rep(names(category_counts), times = category_counts)
+df <- 
+df_filtered_ordered %>%  mutate(category = case_when(
+    selected_players %in% c("Mohamed Salah","Mohamed Salah Assist") ~ "Goals & Assists",
+    selected_players =="Mohamed Salah Penalty Kick"~ "Penalty Goals"
+  )
 )
 
 # Compute grid positions, ensuring "Penalty Goals" is at the bottom
@@ -78,19 +72,24 @@ df <- df %>%
   ungroup()
 
 # Define text labels
-df$label <- df_filtered_ordered$Team_Names  # You can modify this to actual team names if available
+df$label <- paste(df_filtered_ordered$Team_Names,df_filtered_ordered$Matchweek,sep=",")   # You can modify this to actual team names if available
+
 
 # Plot with ggplot2
 final_plot <- ggplot(df, aes(x, y, fill = category)) +
-  geom_tile(color = "white", size = 0.8) +  # Creates grid squares
+  geom_tile(color = "black", size = 2.5) +  # Creates grid squares
   geom_text(aes(label = label), size = 3, color = "black") +  # Add text inside each tile
   scale_fill_manual(values = c(
-    "Goals & Assists" = "#3357FF",  # Blue (Combined Non-Penalty Goals & Assists)
-    "Penalty Goals" = "#33FF57"  # Green (Bottom)
+    "Goals & Assists" = "green",  # Blue (Combined Non-Penalty Goals & Assists)
+    "Penalty Goals" = "red"  # Green (Bottom)
   )) +
-  theme_void() +  # Removes axes and background
+  theme_void() + 
+  theme(
+    plot.caption = element_text(hjust = 0.5, size = 10, face = "bold.italic", color = "black")  # Align left, italicized, and readable
+  )+
   coord_fixed() +  # Ensures square aspect ratio
-  ggtitle("Mohamed Salah's Goals & Assists in the 24/25 Premier League Season")
+  labs(title="Salah Goals & Assists by in the 24/25 Premier League Season",
+       caption="***Text in the box denotes Team Scored/Assisted and Match Week")
 
 # Display the plot
 print(final_plot)

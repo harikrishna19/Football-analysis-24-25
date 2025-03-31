@@ -26,7 +26,8 @@ liv_match_summaries2 <-worldfootballR::fb_match_summary(match_url = match_urls[2
 
 liv_match_summaries
 liv_match_summaries<-rbind(liv_match_summaries,liv_match_summaries2)
-write.csv(liv_match_summaries,"match_summaries.csv")
+write.csv(liv_match_summaries3,"match_summaries.csv")
+
 
 
 
