@@ -43,8 +43,6 @@ df_filtered_ordered<-df_filtered_ordered %>% arrange(Matchweek)
 
 
 
-library(ggplot2)
-library(dplyr)
 
 # Define category counts
 category_counts <- c("Goals & Assists" = 35,  # Combined Non-Penalty Goals & Assists
