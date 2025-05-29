@@ -91,37 +91,78 @@ league_positions <- league_table %>%
 
 
 
+# Plot 1 Viz --------------------------------------------------------------
 
-# We'll reverse the y-axis since position 1 should be at the top
-p <- league_positions %>%
-  filter(Wk <= max(Wk)) %>%   # filter out incomplete weeks if needed
-  ggplot(aes(x = -Position, y = cPoints, fill = Team)) +
-  geom_col(width = 0.7) +
-  coord_flip() +
+
+# To show of the bottom 3 with Spurs and Manchester United
+# relegated 3 and including spurs and Manchester united
+
+plot_5<-league_positions %>% 
+  filter(Team %in% c("Tottenham", "Southampton", "Ipswich Town", "Manchester Utd")) %>%
+  mutate(Wk = as.numeric(Wk)) %>%
+  ggplot(aes(x = Wk, y = Position, group = Team, color = Team)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  scale_x_continuous(breaks = 1:38) +
+  scale_y_reverse(breaks = 1:max(league_positions$Position)) +
   labs(
-    title = "Premier League Standings: Matchweek {closest_state}",
-    x = "Position",
-    y = "Points"
+    title = "Team Positions by Matchweek",
+    x = "Matchweek", y = "Position"
   ) +
-  scale_x_continuous(
-    breaks = -rev(1:20),
-    labels = rev(1:20)
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(legend.position = "none") +
-  transition_states(Wk, transition_length = 2, state_length = 1, wrap = FALSE) +
-  ease_aes('cubic-in-out')
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  transition_reveal(Wk)
 
-# Video output
 animate(
-  p + enter_fade() + exit_fly(y_loc = 1),
+  fps = 10,
+  duration = 10,
+  width = 1200,   # Increase width here
+  height = 600,
+  plot_5 + enter_fade() + exit_fly(y_loc = 1),
   renderer = av_renderer()
 )
 
 
-anim <- ggplot(mtcars, aes(mpg, disp)) +
-  geom_point(aes(color = gear)) +
-  transition_states(gear, transition_length = 2, state_length = 1) +
-  enter_fade() +
-  exit_fade()
-animate(anim)
+
+# Plot 2 Viz --------------------------------------------------------------
+
+# We'll reverse the y-axis since position 1 should be at the top
+all_teams<-# Assign each team a vertical offset
+  team_offsets <- league_positions %>%
+  distinct(Team) %>%
+  mutate(offset = (row_number() - 1) * 25)  # Adjust spacing as needed
+
+# Join with main data
+plot_data <- league_positions %>%
+  mutate(Wk = as.numeric(Wk)) %>%
+  left_join(team_offsets, by = "Team") %>%
+  mutate(Position_offset = offset - Position)  # Invert so 1st is still top
+
+all_teams<-ggplot(plot_data, aes(x = Wk, y = Position_offset, group = Team, color = Team)) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2) +
+  labs(
+    title = "Team Positions Over Time (Separated by Team)",
+    x = "Matchweek", y = NULL
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    panel.grid.major.y = element_blank()
+  ) +
+  transition_reveal(Wk)
+
+
+animate(
+  fps = 10,
+  duration = 10,
+  width = 1200,   # Increase width here
+  height = 600,
+  all_teams + enter_fade() + exit_fly(y_loc = 1),
+  renderer = av_renderer()
+)
+
+
+
+

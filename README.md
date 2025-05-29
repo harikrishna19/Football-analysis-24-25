@@ -1,12 +1,23 @@
-# Football-analysis-24-25
+# Football-Viz
 
-Football-Project
+## Idea of combining soccer data with amazing visulaizations
 
-Liverpool Analysis 2024-25 Premier League season Visual Infographic
+1.**Liverpool Analysis 2024-25 Premier League season Visual Infographic**
 
-1.  Liverpool Formations
-2.  Goals scored by Time Ranges
-3.  Top Goal scorers in 2024/25 season
-4.  Salah scoring by Team/Match Week
+-   Liverpool Formations
 
-![](final_infographic.png)
+-   Goals scored by Time Ranges
+
+-   Top Goal scorers in 2024/25 season
+
+-   Salah scoring by Team/Match Week
+
+![](images/01-liverpool_infographic.png)
+
+2**.Premier League 2024/25 Season using {gganimate}**
+
+Draft visuals-Work In progress
+
+Team Positions by Match Week
+
+![](images/agg_anim.webm)
