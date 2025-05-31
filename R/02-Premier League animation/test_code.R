@@ -150,3 +150,114 @@ animate(
    enter_fade() +
    exit_fade()
 animate(anim)
+
+
+
+
+
+
+
+
+
+
+
+
+# Load libraries
+# Load required libraries
+library(ggplot2)
+library(ggimage)
+
+# Built-in emoji dataset from ggimage
+head(emoji)  # Explore what's available
+
+# Sample data with emojis
+df <- data.frame(
+  x = 1:5,
+  y = c(3, 5, 2, 6, 4),
+  emoji = c("⚽","🟨","🟥",1,2),
+  label = c("Smile", "Cool", "Laugh", "Wink", "Heart")
+)
+
+# Plot using emojis
+ggplot(df, aes(x, y)) +
+  geom_image(aes(image = emoji), size = 0.1) +
+  geom_text(aes(label = label), vjust = -1) +
+  theme_minimal()
+
+
+
+
+
+
+
+
+
+# Load libraries
+library(ggplot2)
+library(ggimage)
+library(gganimate)
+library(dplyr)
+
+# Use built-in emoji dataset
+data("emoji", package = "ggimage")
+
+# Create sample data
+set.seed(123)
+df <- data.frame(
+  time = rep(1:10, each = 5),
+  id = rep(1:5, times = 10),
+  x = rep(1:5, times = 10),
+  y = runif(50, 1, 10),
+  emoji = rep(emoji$emoji[1:5], times = 10)
+)
+
+# Create animated plot
+p <- ggplot(df, aes(x, y, group = id)) +
+  geom_image(aes(image = emoji), size = 0.08) +
+  theme_minimal() +
+  labs(title = "Time: {frame_time}") +
+  transition_time(time) +
+  ease_aes('linear')
+
+# Render animation (in RStudio Viewer or as GIF)
+animate(p, renderer = gifski_renderer(), width = 500, height = 400)
+
+
+
+
+
+
+
+
+
+
+
+library(dplyr)
+
+df <- data.frame(
+  Team = c("A", "A", "B", "B", "A", "B"),
+  Wk = c(3, 1, 2, 3, 2, 1),
+  Score = c(5, 3, 4, 6, 4, 2)
+)
+
+split_df <- df %>%
+  group_by(Wk) %>%
+  arrange(Wk, .by_group = TRUE) %>%
+  group_split()
+
+split_df
+
+
+# Simulating a small example
+my_list <- list(
+  data.frame(Wk = c(1, 1)),
+  data.frame(Wk = c(3, 3)),
+  data.frame(Wk = c(10, 10)),
+  data.frame(Wk = c(4, 4))
+)
+
+my_list[order(sapply(my_list, function(x) unique(x$Wk)))]
+
+# Check order
+sapply(sorted_list, function(x) unique(x$Wk))
+# Expected output: 1 3 4 10

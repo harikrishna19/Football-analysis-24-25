@@ -16,6 +16,9 @@ library(worldfootballR)
 library(magrittr)
 library(dplyr)
 library(tidyr)
+library(ggimage)
+library(rvest)
+
 
 
 # Extract results data for 2025 season ------------------------------------
@@ -98,25 +101,27 @@ league_positions <- league_table %>%
 # relegated 3 and including spurs and Manchester united
 
 plot_5<-league_positions %>% 
-  filter(Team %in% c("Tottenham", "Southampton", "Ipswich Town", "Manchester Utd")) %>%
+  filter(Team %in% c("Tottenham", "Southampton", "Ipswich Town", "Manchester Utd","Wolves","Leicester City")) %>%
   mutate(Wk = as.numeric(Wk)) %>%
   ggplot(aes(x = Wk, y = Position, group = Team, color = Team)) +
   geom_line(linewidth = 1) +
   geom_point(size = 2) +
   scale_x_continuous(breaks = 1:38) +
+  scale_color_manual(values=c("blue", "lightblue", "red","pink", "grey", "yellow"))+
   scale_y_reverse(breaks = 1:max(league_positions$Position)) +
   labs(
-    title = "Team Positions by Matchweek",
+    title = "Team Positions by Matchweek-Bottom 6 teams",
+    subtitle = "This year bottom 6 includes Tottenham and Manchester United",
     x = "Matchweek", y = "Position"
   ) +
-  theme_minimal() +
+  ggthemes::theme_fivethirtyeight() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   transition_reveal(Wk)
 
 animate(
   fps = 10,
   duration = 10,
-  width = 1200,   # Increase width here
+  width = 800,   # Increase width here
   height = 600,
   plot_5 + enter_fade() + exit_fly(y_loc = 1),
   renderer = av_renderer()
@@ -151,7 +156,7 @@ all_teams<-ggplot(plot_data, aes(x = Wk, y = Position_offset, group = Team, colo
     axis.ticks.y = element_blank(),
     panel.grid.major.y = element_blank()
   ) +
-  transition_reveal(Wk)
+  transition_states(Wk)
 
 
 animate(
