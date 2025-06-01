@@ -18,6 +18,7 @@ library(dplyr)
 library(tidyr)
 library(ggimage)
 library(rvest)
+library(magick)
 
 
 
@@ -115,59 +116,90 @@ plot_5<-league_positions %>%
     x = "Matchweek", y = "Position"
   ) +
   ggthemes::theme_fivethirtyeight() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  transition_reveal(Wk)
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-animate(
-  fps = 10,
-  duration = 10,
-  width = 800,   # Increase width here
-  height = 600,
-  plot_5 + enter_fade() + exit_fly(y_loc = 1),
-  renderer = av_renderer()
-)
-
+plot_5
+# Plot 1 to be roughly finalised either plot or table 
 
 
 # Plot 2 Viz --------------------------------------------------------------
-
-# We'll reverse the y-axis since position 1 should be at the top
-all_teams<-# Assign each team a vertical offset
-  team_offsets <- league_positions %>%
-  distinct(Team) %>%
-  mutate(offset = (row_number() - 1) * 25)  # Adjust spacing as needed
-
-# Join with main data
-plot_data <- league_positions %>%
-  mutate(Wk = as.numeric(Wk)) %>%
-  left_join(team_offsets, by = "Team") %>%
-  mutate(Position_offset = offset - Position)  # Invert so 1st is still top
-
-all_teams<-ggplot(plot_data, aes(x = Wk, y = Position_offset, group = Team, color = Team)) +
+league_positions <- league_positions %>%
+  mutate(
+    Wk = as.numeric(Wk),
+    PositionLabel = as.character(round(Position))  # or as.character(as.integer(Position))
+  )
+# # We'll reverse the y-axis since position 1 should be at the top
+all_teams<-
+  ggplot(league_positions, aes(x = Wk, y = Position, group = Team, color = Team)) +
   geom_line(linewidth = 1.2) +
   geom_point(size = 2) +
+  geom_text(aes(label = PositionLabel), vjust = -0.8, size = 5)+
   labs(
-    title = "Team Positions Over Time (Separated by Team)",
+    title = "Team Positions Over Time",
+    subtitle = 'Matchweek: {as.integer(frame_along)}',  # ✅ no decimal in subtitle
     x = "Matchweek", y = NULL
   ) +
+  scale_x_continuous(breaks = 1:38) +
+  scale_y_reverse(breaks = 1:max(league_positions$Position)) +  # Top position at top
   theme_minimal(base_size = 12) +
   theme(
     axis.text.y = element_blank(),
     axis.ticks.y = element_blank(),
     panel.grid.major.y = element_blank()
+  )+transition_reveal(along = Wk,keep_last = T)
+
+
+
+league_positions$Wk<-as.numeric(league_positions$Wk)
+
+
+# Ensure data is ordered by matchweek
+league_positions_anim <- league_positions %>%
+  group_by(Wk) %>%
+  mutate(
+    TeamFactor = factor(Team, levels = rev(unique(Team[order(cPoints)]))),  # dynamic per Wk
+    fill_color = ifelse(cPoints >= 60, "highlight", "normal"),
+    WkLabel = paste("Matchweek", Wk)
+  ) %>%
+  ungroup()
+
+
+# Create the animated tile plot
+p <- ggplot(league_positions_anim , aes(x = "cPoints", y = TeamFactor)) +
+  geom_tile(aes(fill = fill_color), width = 1, height = 0.9) +
+  geom_text(aes(label = round(cPoints, 0)), color = "black", size = 6) +
+  scale_fill_manual(values = c("highlight" = "lightgreen", "normal" = "white")) +
+  scale_y_discrete(
+    name = NULL,
+    labels = paste0(
+      "<img src='", unique(league_positions_anim$team_imgs.y), 
+      "' width='20' />"
+    )
   ) +
-  transition_states(Wk)
+  theme_minimal() +
+  theme(
+    axis.text.y = element_markdown(color = "black", size = 11),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    legend.position = "none"
+  ) +
+  labs(title = "Cumulative Points by Mßatchweek", 
+       subtitle = "{closest_state}") +
+  transition_states(Wk, transition_length = 2, state_length = 1, wrap = FALSE)+enter_fade() + exit_fade()
+
+# Animate both using magick_renderer
+plot_1 <- animate(all_teams, fps = 5, width = 800, height = 600, nframes = 38, renderer = magick_renderer())
+plot_2 <- animate(p, fps = 5, width = 800, height = 600, nframes = 38, renderer = magick_renderer())
 
 
-animate(
-  fps = 10,
-  duration = 10,
-  width = 1200,   # Increase width here
-  height = 600,
-  all_teams + enter_fade() + exit_fly(y_loc = 1),
-  renderer = av_renderer()
-)
 
+# Combine frames side-by-side
+combined <- image_append(c(plot_1[1], plot_2[1]))
+for (i in 2:38) {
+  combined <- c(combined, image_append(c(plot_1[i], plot_2[i])))
+}
 
 
 
