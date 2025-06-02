@@ -19,6 +19,7 @@ library(tidyr)
 library(ggimage)
 library(rvest)
 library(magick)
+library(ggtext)
 
 
 
@@ -94,7 +95,7 @@ league_positions <- league_table %>%
   ungroup()
 
 
-
+source("./R/02-Premier League animation/team_details.R")
 # Plot 1 Viz --------------------------------------------------------------
 
 
@@ -129,8 +130,10 @@ league_positions <- league_positions %>%
     PositionLabel = as.character(round(Position))  # or as.character(as.integer(Position))
   )
 # # We'll reverse the y-axis since position 1 should be at the top
+
+league_positions$Team<-factor(league_positions$Team, levels = hex_codes$Team)
 all_teams<-
-  ggplot(league_positions, aes(x = Wk, y = Position, group = Team, color = Team)) +
+  ggplot(league_positions, aes(x = Wk, y = Position,color=Team,fill = Team) ) +
   geom_line(linewidth = 1.2) +
   geom_point(size = 2) +
   geom_text(aes(label = PositionLabel), vjust = -0.8, size = 5)+
@@ -140,6 +143,7 @@ all_teams<-
     x = "Matchweek", y = NULL
   ) +
   scale_x_continuous(breaks = 1:38) +
+  scale_colour_manual(values = setNames(league_positions$Codes, league_positions$Team)) +
   scale_y_reverse(breaks = 1:max(league_positions$Position)) +  # Top position at top
   theme_minimal(base_size = 12) +
   theme(
@@ -150,32 +154,29 @@ all_teams<-
 
 
 
-league_positions$Wk<-as.numeric(league_positions$Wk)
-
 
 # Ensure data is ordered by matchweek
 league_positions_anim <- league_positions %>%
-  group_by(Wk) %>%
   mutate(
-    TeamFactor = factor(Team, levels = rev(unique(Team[order(cPoints)]))),  # dynamic per Wk
-    fill_color = ifelse(cPoints >= 60, "highlight", "normal"),
+    fill_color = ifelse(Position %in% c(1,2,3,4,5,17), "CL",
+                ifelse(Position %in% c(6,7,12),"EL", 
+                ifelse(Wk==38 &cPoints<=25,"relegation","normal"))),
     WkLabel = paste("Matchweek", Wk)
   ) %>%
   ungroup()
-
-
+league_positions_anim$Team <- factor(league_positions$Team, levels = hex_codes$Team)
 # Create the animated tile plot
-p <- ggplot(league_positions_anim , aes(x = "cPoints", y = TeamFactor)) +
+p <- ggplot(league_positions_anim , aes(x = "cPoints", y = Team),fill=Team) +
   geom_tile(aes(fill = fill_color), width = 1, height = 0.9) +
   geom_text(aes(label = round(cPoints, 0)), color = "black", size = 6) +
-  scale_fill_manual(values = c("highlight" = "lightgreen", "normal" = "white")) +
+  scale_fill_manual(values = c("CL" = "blue","EL"="orange","relegation" = "red","normal"="white")) +
   scale_y_discrete(
     name = NULL,
+    limits = rev(levels(factor(league_positions_anim$Team))),
     labels = paste0(
-      "<img src='", unique(league_positions_anim$team_imgs.y), 
-      "' width='20' />"
+      "<img src='", rev(unique(hex_codes$team_imgs)), "' width='20' />"
     )
-  ) +
+  )   +
   theme_minimal() +
   theme(
     axis.text.y = element_markdown(color = "black", size = 11),
@@ -185,7 +186,7 @@ p <- ggplot(league_positions_anim , aes(x = "cPoints", y = TeamFactor)) +
     panel.grid = element_blank(),
     legend.position = "none"
   ) +
-  labs(title = "Cumulative Points by Mßatchweek", 
+  labs(title = "Cumulative Points by Matchweek", 
        subtitle = "{closest_state}") +
   transition_states(Wk, transition_length = 2, state_length = 1, wrap = FALSE)+enter_fade() + exit_fade()
 
@@ -201,5 +202,6 @@ for (i in 2:38) {
   combined <- c(combined, image_append(c(plot_1[i], plot_2[i])))
 }
 
+image_write(combined,"combined.gif")
 
 

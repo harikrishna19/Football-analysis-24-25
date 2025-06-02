@@ -30,4 +30,4 @@ Draft visuals-Work In progress
 
 -   2 Visuals for the season 24/25
 
-![](images/gganim.webm)
+    ![](output_video1.mp4)
