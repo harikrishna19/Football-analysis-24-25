@@ -20,7 +20,7 @@ library(ggimage)
 library(rvest)
 library(magick)
 library(ggtext)
-
+library(av)
 
 
 # Extract results data for 2025 season ------------------------------------
@@ -28,8 +28,6 @@ library(ggtext)
 pl_2025<-worldfootballR::fb_match_results("ENG",gender = "M",season_end_year = 2025,tier = "1st")
 
 
-# View the data -----------------------------------------------------------
-View(pl_2025)
 
 # 1. Create long format for easier processing
 matches_long <- pl_2025 %>%
@@ -129,6 +127,7 @@ league_positions <- league_positions %>%
     Wk = as.numeric(Wk),
     PositionLabel = as.character(round(Position))  # or as.character(as.integer(Position))
   )
+
 # # We'll reverse the y-axis since position 1 should be at the top
 
 league_positions$Team<-factor(league_positions$Team, levels = hex_codes$Team)
@@ -159,8 +158,9 @@ all_teams<-
 league_positions_anim <- league_positions %>%
   mutate(
     fill_color = ifelse(Position %in% c(1,2,3,4,5,17), "CL",
-                ifelse(Position %in% c(6,7,12),"EL", 
-                ifelse(Wk==38 &cPoints<=25,"relegation","normal"))),
+                ifelse(Position %in% c(6,12),"EL",
+                ifelse(Position==7,"Conf",
+                ifelse(Wk==38 &cPoints<=25,"relegation","normal")))),
     WkLabel = paste("Matchweek", Wk)
   ) %>%
   ungroup()
@@ -169,7 +169,7 @@ league_positions_anim$Team <- factor(league_positions$Team, levels = hex_codes$T
 p <- ggplot(league_positions_anim , aes(x = "cPoints", y = Team),fill=Team) +
   geom_tile(aes(fill = fill_color), width = 1, height = 0.9) +
   geom_text(aes(label = round(cPoints, 0)), color = "black", size = 6) +
-  scale_fill_manual(values = c("CL" = "blue","EL"="orange","relegation" = "red","normal"="white")) +
+  scale_fill_manual(values = c("CL" = "blue","EL"="orange","Conf"="green","relegation" = "red","normal"="white")) +
   scale_y_discrete(
     name = NULL,
     limits = rev(levels(factor(league_positions_anim$Team))),
@@ -203,5 +203,4 @@ for (i in 2:38) {
 }
 
 image_write(combined,"combined.gif")
-
 
