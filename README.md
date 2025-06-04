@@ -1,9 +1,3 @@
----
-output: 
-  html_document: 
-    toc: true
----
-
 # Football-Viz
 
 ## Idea of combining soccer data with amazing visualizations
@@ -18,7 +12,7 @@ output:
 
 -   Salah scoring by Team/Match Week
 
-![](images/01-liverpool_infographic.png)
+![Liverppol Infographic 24/25 season](images/01-liverpool_infographic.png)
 
 2.  **Premier League 2024/25 Season using {gganimate}**
 
