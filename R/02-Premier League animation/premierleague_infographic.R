@@ -1,13 +1,3 @@
-#Inforgaphic to show premier league
-
-# Data Pull 
-
-# showing insights
-
-# Use grammar of graphics package extensions
-
-# June 1st TBD Infographic release
-
 
 # Load required packages --------------------------------------------------
 library(gganimate)
@@ -29,7 +19,7 @@ pl_2025<-worldfootballR::fb_match_results("ENG",gender = "M",season_end_year = 2
 
 
 
-# 1. Create long format for easier processing
+# 1. Create long format for easier processing for PL data based on points
 matches_long <- pl_2025 %>%
   mutate(
     HomePoints = case_when(
@@ -139,7 +129,8 @@ all_teams<-
   labs(
     title = "Team Positions Over Time",
     subtitle = 'Matchweek: {as.integer(frame_along)}',  # ✅ no decimal in subtitle
-    x = "Matchweek", y = NULL
+    caption="Data from {worldfootballR} package",
+        x = "Matchweek", y = NULL
   ) +
   scale_x_continuous(breaks = 1:38) +
   scale_colour_manual(values = setNames(league_positions$Codes, league_positions$Team)) +
@@ -148,7 +139,10 @@ all_teams<-
   theme(
     axis.text.y = element_blank(),
     axis.ticks.y = element_blank(),
-    panel.grid.major.y = element_blank()
+    panel.grid.major.y = element_blank(),
+    plot.title = element_text(face = "bold"),
+    plot.subtitle = element_text(face = "bold"),
+    plot.caption = element_text(face = "italic") 
   )+transition_reveal(along = Wk,keep_last = T)
 
 
@@ -165,11 +159,25 @@ league_positions_anim <- league_positions %>%
   ) %>%
   ungroup()
 league_positions_anim$Team <- factor(league_positions$Team, levels = hex_codes$Team)
-# Create the animated tile plot
+# Create the animated tile plot for league table
 p <- ggplot(league_positions_anim , aes(x = "cPoints", y = Team),fill=Team) +
   geom_tile(aes(fill = fill_color), width = 1, height = 0.9) +
   geom_text(aes(label = round(cPoints, 0)), color = "black", size = 6) +
-  scale_fill_manual(values = c("CL" = "blue","EL"="orange","Conf"="green","relegation" = "red","normal"="white")) +
+  scale_fill_manual(
+    name = "Qualification",
+    values = c(
+      "CL" = "green",
+      "EL" = "orange",
+      "Conf" = "yellow",
+      "relegation" = "red"
+    ),
+    labels = c(
+      "CL" = "Champions League",
+      "EL" = "Europa League",
+      "Conf" = "Conference League",
+      "relegation" = "Relegation"
+    )
+  ) +
   scale_y_discrete(
     name = NULL,
     limits = rev(levels(factor(league_positions_anim$Team))),
@@ -184,9 +192,12 @@ p <- ggplot(league_positions_anim , aes(x = "cPoints", y = Team),fill=Team) +
     axis.ticks.x = element_blank(),
     axis.title = element_blank(),
     panel.grid = element_blank(),
-    legend.position = "none"
+    plot.title = element_text(face = "bold"),
+    plot.subtitle = element_text(face = "bold"),
+    plot.caption = element_text(face = "italic")  # optional styling
   ) +
-  labs(title = "Cumulative Points by Matchweek", 
+  labs(title = "Premier league2024/25 season: Cumulative Points by Matchweek", 
+       caption = "Plot by Hari Krishna",
        subtitle = "{closest_state}") +
   transition_states(Wk, transition_length = 2, state_length = 1, wrap = FALSE)+enter_fade() + exit_fade()
 
@@ -196,11 +207,12 @@ plot_2 <- animate(p, fps = 5, width = 800, height = 600, nframes = 38, renderer 
 
 
 
-# Combine frames side-by-side
+# Combine frames side-by-side match week plot and league table
 combined <- image_append(c(plot_1[1], plot_2[1]))
 for (i in 2:38) {
   combined <- c(combined, image_append(c(plot_1[i], plot_2[i])))
 }
 
 image_write(combined,"combined.gif")
+
 

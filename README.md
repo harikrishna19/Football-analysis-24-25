@@ -22,12 +22,10 @@ output:
 
 2.  **Premier League 2024/25 Season using {gganimate}**
 
-Draft visuals-Work In progress
+![PL Infographic](images/02_pl_infographic.png)
 
 -   Team Positions by match week to be displayed
 
 -   Points by match day
 
 -   2 Visuals for the season 24/25
-
-    ![](output_video1.mp4)

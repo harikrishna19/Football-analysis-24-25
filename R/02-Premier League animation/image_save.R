@@ -16,11 +16,10 @@ for (i in seq_along(gif)) {
 }
 
 # Step 3: Convert frames to video using av
-output_video <- "output_video1.mp4"
+output_video <- "final_animation.mp4"
 av_encode_video(
   input = frame_files,
   output = output_video,
-  framerate = 10, # Adjust as needed
+  framerate = 4, # Adjust as needed
 )
 
-cat("Video saved to:", output_video)
