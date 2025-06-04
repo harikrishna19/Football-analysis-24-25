@@ -1,8 +1,6 @@
 
 
-#Getiing HEX codes for teams all 20 teams
-
-
+#Getiing HEX codes for teams all 20 teams for Premier league 24/25 season
 tmp<-league_positions %>% filter(Wk==38)
 hex_codes=data.frame("Team"=tmp$Team)
 hex_codes$Codes <- c(
@@ -31,8 +29,7 @@ hex_codes$Codes <- c(
 
 
 
-# # # #Adding images
-
+# # # #Adding images getting images via rvest
 team_urls <- "https://www.transfermarkt.co.in/premier-league/tabelle/wettbewerb/GB1/saison_id/2024"
 
 hex_codes['team_imgs']=read_html(team_urls) %>% html_elements("#yw1 .no-border-rechts img") %>% html_attr("src")
@@ -42,8 +39,9 @@ hex_codes$team_imgs<-gsub("tiny","head",hex_codes$team_imgs)
 
 #Merging images to the original data
 league_positions<-merge(league_positions,hex_codes,by="Team")
-league_positions$team_imgs<- sub("\\.png.*$", ".png", league_positions$team_imgs)
 
+# cleaning the strings
+league_positions$team_imgs<- sub("\\.png.*$", ".png", league_positions$team_imgs)
 hex_codes$team_imgs<- sub("\\.png.*$", ".png", hex_codes$team_imgs)
 
 
