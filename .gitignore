@@ -8,3 +8,6 @@
 renv/
 
 renv.lock
+
+.RDataTmp
+.DS_Store
