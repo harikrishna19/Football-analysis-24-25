@@ -23,3 +23,9 @@
 -   Points by match day
 
 -   2 Visuals for the season 24/25
+
+3.  Tottenham Premier League 2024/25 season player availability analysis - In Progress
+
+In Progress-Sample Plot
+
+![Sample-InPriogress](R/03-PlayingXI-Analysis-Spurs/Rplot01.png)
