@@ -12,14 +12,22 @@
 
 -   Salah scoring by Team/Match Week
 
-![Liverppol Infographic 24/25 season](images/01-liverpool_infographic.png)
+![](images/01-liverpool_infographic.png)
 
 2.  **Premier League 2024/25 Season using {gganimate}**
 
-![PL Infographic](images/02_pl_infographic.png)
+![](images/02_pl_infographic.png)
 
 -   Team Positions by match week to be displayed
 
 -   Points by match day
 
 -   2 Visuals for the season 24/25
+
+3.  **Tottenham Premier League 2024/25 season player availability analysis**
+
+-   Analyze the player availability of Tottenham by Match Week for 2024/25 Premier league season
+
+-   See the league positions across 38 weeks
+
+![Tottenham Infographic](images/Tottenham_Infographic.png)
