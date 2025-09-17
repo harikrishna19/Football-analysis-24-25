@@ -31,3 +31,7 @@
 -   See the league positions across 38 weeks
 
 ![Tottenham Infographic](images/Tottenham_Infographic.png)
+
+4.  Transfer Markt Analysis 2025/26 Premier League
+
+![](R/04-Transfer-Markt-2025-26-season/data/Sample-TableViz.png)
