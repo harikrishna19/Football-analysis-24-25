@@ -1,5 +1,0 @@
-library(rvest)
-library(reactable)
-library(reactablefmtr)
-library(magrittr)
-library(readr)
