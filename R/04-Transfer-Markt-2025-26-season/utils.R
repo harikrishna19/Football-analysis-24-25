@@ -7,6 +7,7 @@ library(reactablefmtr)
 library(magrittr)
 library(readr)
 library(janitor)
+library(dplyr)
 
 
 # Teams in 2025/26 Premier League season ----------------------------------

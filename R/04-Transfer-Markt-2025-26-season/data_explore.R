@@ -51,7 +51,7 @@ pl_incomings$Direction="Incoming"
 # Function to make child tables
 make_player_table <- function(data) {
   reactable(
-    data %>% select(Player, Fee, Position, Age),
+    data %>% select(Player, Fee, Position),
     bordered = TRUE, highlight = TRUE, compact = TRUE,pagination = F,
     columns = list(
       Player = colDef(minWidth = 140,align = "center"),
@@ -98,15 +98,16 @@ reactable(
     htmltools::div(subtables)
   },
   bordered = TRUE,searchable = T,
-  striped = TRUE,fullWidth = T,
-  compact = T,
+  striped = TRUE,
+  compact = T,wrap = T,outlined = T,
   highlight = TRUE,
   columns = list(
-    team_logo = colDef(
-      name = "",
-      width = 30,
-      # render team logos from their image address
-      style = background_img(position = "center")
+    team_logo = colDef(name="",
+      cell = embed_img(width=30,height=40)
+      # name = "",
+      # width = 30,
+      # # render team logos from their image address
+      # style = background_img(position = "center")
     ),
     Team = colDef(minWidth = 80,align = "center",vAlign = "center"),
     Total_Spent_Convert.x = colDef(name = "Total Money Spent (£M)",align="center"),
