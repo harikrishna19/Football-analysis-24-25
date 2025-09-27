@@ -90,6 +90,14 @@ reactable(
       borderColor = "#555"
     )
   ),
+  defaultColDef = colDef(
+    headerStyle = list(
+      background = "gold",
+      color = "black",
+      fontWeight = "bold",
+      textAlign = "center"
+    )
+  ),
   rowStyle = JS(
     paste0(
       "function(rowInfo) {
@@ -131,7 +139,7 @@ reactable(
     ),
     Team = colDef(minWidth = 80,align = "center",vAlign = "center"),
     Total_Spent_Convert.x = colDef(name = "Total Money Spent (£M)",align="center"),
-    Total_Spent_Convert.y = colDef(name = "Total Money From Transfers (£M)",align = "center"),
+    Total_Spent_Convert.y = colDef(name = "Total Money From Transfers (£M)",align = "center")
   )
 ),
 tags$p(style = "margin-top: 10px; color: #666;", "Data source:Transfer Markt Data,Table Design:By Hari Krishna")
