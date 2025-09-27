@@ -51,6 +51,7 @@ pl_incomings$Direction="Incoming"
 # Function to make child tables
 make_player_table <- function(data) {
   reactable(
+    
     data %>% select(Player, Fee, Position),
     bordered = TRUE, highlight = TRUE, compact = TRUE,pagination = F,
     columns = list(
@@ -64,7 +65,23 @@ datasets <- list(
   Outgoing = pl_outgoings
 )
 
+pl_incomings <- pl_incomings %>%
+  filter(grepl("€", Fee, ignore.case = TRUE) | grepl("transfer", Fee, ignore.case = TRUE))
+
+pl_outgoings <- pl_outgoings %>%
+  filter(grepl("€", Fee, ignore.case = TRUE) | grepl("transfer", Fee, ignore.case = TRUE))
+
+datasets <- list(
+  Incoming = pl_incomings,
+  Outgoing = pl_outgoings
+)
 # Build main table
+htmltools::browsable(
+  htmltools::div(
+    style = "display:grid;align-content:center;justify-content:center;width: 70%; margin: 0 auto; text-align: center;",
+    tags$h1("2025-26 Premier League Transfers"),
+    tags$h4(style = "color: black; font-weight: normal;",
+            "All the incoming and outgoings for each club in the Premier League for 2025/26 season"),
 reactable(
   theme = reactableTheme(
     headerStyle = list(
@@ -97,9 +114,12 @@ reactable(
     })
     htmltools::div(subtables)
   },
-  bordered = TRUE,searchable = T,
+  bordered = TRUE,searchable = T,    width = 900,
+  height = 1100,
   striped = TRUE,
-  compact = T,wrap = T,outlined = T,
+  wrap = FALSE,
+  showSortIcon = FALSE,
+  compact = T,outlined = T,
   highlight = TRUE,
   columns = list(
     team_logo = colDef(name="",
@@ -111,10 +131,12 @@ reactable(
     ),
     Team = colDef(minWidth = 80,align = "center",vAlign = "center"),
     Total_Spent_Convert.x = colDef(name = "Total Money Spent (£M)",align="center"),
-    Total_Spent_Convert.y = colDef(name = "Total Money From Transfers (£M)",align = "center")
+    Total_Spent_Convert.y = colDef(name = "Total Money From Transfers (£M)",align = "center"),
   )
-)
+),
+tags$p(style = "margin-top: 10px; color: #666;", "Data source:Transfer Markt Data,Table Design:By Hari Krishna")
 
+))
 
 
 
