@@ -57,6 +57,9 @@ inner_table<-list(Incoming=datasets[[1]]$data_clean,
 # Build main table reactable ----------------------------------------------
 
 
+outer_table$Total_Spent_Convert.x <-parse_number(outer_table$Total_Spent_Convert.x)
+outer_table$Total_Spent_Convert.y <-parse_number(outer_table$Total_Spent_Convert.y)
+outer_table$Expenditure<-outer_table$Total_Spent_Convert.x-outer_table$Total_Spent_Convert.y
 # Build main table
 htmltools::browsable(
   htmltools::div(
@@ -80,20 +83,12 @@ htmltools::browsable(
       )
     ),
     reactable(
-      theme = reactableTheme(
+      defaultColDef = colDef(
+        style = list(
+          whiteSpace = "nowrap"   # prevents text wrapping
+        ),
         headerStyle = list(
-          "&:hover[aria-sort]" = list(background = "hsl(0, 0%, 96%)"),
-          "&[aria-sort='ascending'], &[aria-sort='descending']" = list(background = "hsl(0, 0%, 96%)"),
-          borderColor = "#555"
-        )
-      ),
-      rowStyle = JS(
-        paste0(
-          "function(rowInfo) {
-        if (!rowInfo) return {};
-        var colors = ", jsonlite::toJSON(team_colors), ";
-        return { backgroundColor: colors[rowInfo.index] };
-      }"
+          whiteSpace = "nowrap"   # also keeps headers in one line
         )
       ),
       pagination = F,
@@ -111,25 +106,49 @@ htmltools::browsable(
         })
         htmltools::div(subtables)
       },
-      bordered = TRUE,searchable = T,    width = 900,
+      bordered = TRUE,searchable = T,    width = 800,
       height = 1100,
       striped = TRUE,
       wrap = FALSE,
       showSortIcon = FALSE,
       compact = T,outlined = T,
       highlight = TRUE,
+      style = list(backgroundColor = "#fff7cc"),
       columns = list(
         team_logo = colDef(name="",
                            cell = embed_img(width=30,height=40)
         ),
-        Team = colDef(minWidth = 80,align = "center",vAlign = "center"),
-        Total_Spent_Convert.x = colDef(name = "Total Money Spent (£M)",align="center"),
-        Total_Spent_Convert.y = colDef(name = "Total Money From Transfers (£M)",align = "center"),
-        Expenditure=colDef(
-                           cell = function(value, index) {
-                           paste0(parse_number(outer_table$Total_Spent_Convert.x[index]) - 
-                                    parse_number(outer_table$Total_Spent_Convert.y[index]),"M")
-                           })
+        Team = colDef(minWidth = 150,align = "center",vAlign = "center"),
+        Total_Spent_Convert.x = colDef(
+          name = "Total Money from Transfers (£M)",align = "right",
+          cell = data_bars(
+            outer_table,
+            text_position = "outside-end",   # <- completely to the right
+            text_color = "black",            # ensure readable text
+            bar_height = "20px",
+            fill_color = "darkgreen",
+            number_fmt = scales::label_number(suffix = "M")
+          )
+        ),
+        Total_Spent_Convert.y = colDef(
+          name = "Total Money from Transfers (£M)",align = "right",
+          cell = data_bars(
+            outer_table,
+            text_position = "outside-end",   # <- completely to the right
+            text_color = "black",
+            fill_color = "red", # ensure readable text
+            bar_height = "20px",
+            number_fmt = scales::label_number(suffix = "M")
+          )
+        ),
+        Expenditure=colDef(name="Expenditure",align="center",
+          cell = data_bars(outer_table, 
+                           fill_color = c("lightblue","orange"),
+                           text_position = "outside-end",   # <- completely to the right
+                           text_color = "black",            # ensure readable text
+                           bar_height = "20px",
+                           number_fmt = scales::label_number(suffix = "M")  )
+      )
       )
     ),
     tags$p(style = "margin-top: 10px; color: #666;", "Data source:Transfer Markt Data,Table Design:By Hari Krishna")

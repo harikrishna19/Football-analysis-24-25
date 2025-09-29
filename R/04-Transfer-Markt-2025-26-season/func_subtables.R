@@ -11,12 +11,20 @@ get_summaries <- function(data) {
 # Function to make child tables
 make_player_table <- function(data) {
   reactable(
-    
     data %>% select(Player, Fee, Position),
     bordered = TRUE, highlight = TRUE, compact = TRUE,pagination = F,resizable = T,striped = T,
     columns = list(
       Player = colDef(minWidth = 140,align = "center"),
       Fee = colDef(align = "center"))
+    # rowStyle = JS(
+    #   paste0(
+    #     "function(rowInfo) {
+    #   if (!rowInfo) return {};
+    #   var colors = ", jsonlite::toJSON(team_colors), ";
+    #   return { backgroundColor: colors[rowInfo.index] };
+    # }"
+    #   )
+    # )
   )
 }
 
