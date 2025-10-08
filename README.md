@@ -31,3 +31,7 @@
 -   See the league positions across 38 weeks
 
 ![Tottenham Infographic](images/Tottenham_Infographic.png)
+
+4.  **Transfer Analysis 2025/26 Premier League : Posit Table contest 2025**
+
+![](images/PL_New.png)
