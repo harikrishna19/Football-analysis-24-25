@@ -34,4 +34,4 @@
 
 4.  Transfer Markt Analysis 2025/26 Premier League
 
-![](R/04-Transfer-Markt-2025-26-season/data/Sample-TableViz.png)
+![](images/PL_New.png)
