@@ -25,17 +25,17 @@ out <- get_data("EPL", years)
 
 # Sample Analysis Data clean
 
-sd<-out[[2]]
+sd<-do.call(rbind,out[2:3])
 
 sd<-sd %>% group_by(team_name) %>% mutate("MatchWeek"=row_number())
 sd$agg_pts<-ave(sd$pts, sd$team_name, FUN=cumsum)
 
 #Relegated Teams 2024-25 season & promoted: Lei,Ips,Sou
 
-
+ggplotly(
 sd %>% filter(team_name %in% c("Ipswich", "Southampton", "Leicester","Burnley","Leeds","Sunderland")) %>%
-  ggplot2::ggplot(aes(MatchWeek,pts,color=team_name))+geom_point()+geom_line()+ggthemes::theme_clean()
-
+  ggplot2::ggplot(aes(MatchWeek,agg_pts,color=team_name))+geom_point()+geom_line()+ggthemes::theme_economist() 
+)
 
 
 
