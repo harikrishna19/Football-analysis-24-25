@@ -3,6 +3,7 @@
 
 
 # Get Data for all the requirted season for the teams ---------------------
+#reading 2025-26 data csv
 
 
 
@@ -34,19 +35,37 @@ sd<-sd %>%  filter(team_name %in% c("Luton","Sheffield United","Burnley","Burnle
                                     "Ipswich", "Southampton", "Leicester","Leeds","Sunderland"))
 
 club_cols <- c(
-  "Burnley" = "#6C1D45",
   "Luton" = "#F78F1E",
-  "Sheffield Utd" = "#EE2737",
-  "Southampton" = "#D71920",
+  "Burnley" = "#6C1D45",
+  "Sheffield United" = "red",
   "Leicester" = "#003090",
   "Ipswich" = "#0057B8",
-  "Sunderland" = "#EB172B",
+  "Southampton" = "#D71920",
+  "Burnley 23/24 "="#6C1D45",
   "Leeds" = "#1D428A",
-  "Burnley 23/24 "="#6C1D45"
+  "Sunderland" = "#EB172B"
 )
+# Adding match week 16 results agg for leeds,burnley,sunderland
+order_teams<-  c("Luton",
+"Burnley 23/24 ",
+"Sheffield United",
+"Leicester",
+"Ipswich",
+"Southampton",
+"Sunderland",
+"Leeds",
+"Burnley")
+new_rows <- tibble::tibble(
+  team_name = c("Leeds", "Burnley", "Sunderland"),
+  MatchWeek = 16,
+  agg_pts = c(16, 10, 26),
+  year=2025
+)
+sd <- dplyr::bind_rows(sd, new_rows)
 
 
 # ---------------------------
+
 # Create combined facet variable (KEY FIX)
 # ---------------------------
 df <- sd %>%
@@ -54,61 +73,60 @@ df <- sd %>%
     facet = paste(year, team_name, sep = " — ")
   )
 
-# ---------------------------
-# Plot (NO EMPTY PANELS)
-# ---------------------------
+font_add_google("Inter", "inter")
+showtext_auto()
+
+label_df <- df %>%
+  group_by(team_name) %>%
+  slice_max(MatchWeek, n = 1, with_ties = FALSE)
+
+df<-df %>%
+  arrange(match(team_name, order_teams))
+
+
 ggplot(df, aes(MatchWeek, agg_pts, color = team_name)) +
-  geom_line(linewidth = 1.3) +
-  geom_point(size = 2) +
-  
-  # Survival pace (~38 pts)
-  geom_abline(
-    slope = 1,
-    intercept = 0,
-    linetype = "dashed",
-    color = "grey50"
-  ) +
-  
-  facet_wrap(
-    ~ facet,
-    scales = "free_x",
-    ncol = 3
-  ) +
-  
-  scale_color_manual(values = club_cols) +
-  
+    geom_line(linewidth = 1.3,show.legend = F) +
+    geom_point(size = 2,show.legend = F) +
+    
+    # 🔹 Final-point labels
+    geom_text(
+      data = label_df,
+      aes(label = agg_pts),
+      vjust = 1.8,hjust = -0.1,
+      # ⬆️ moves label above the point
+      size = 3.5,color="red",
+      show.legend = FALSE
+    ) +
+    
+    facet_wrap(
+      ~ factor(facet,levels = unique(df$facet)),
+      scales = "free_x",
+      ncol = 3
+    ) +
+    scale_color_manual(values = club_cols) +
   labs(
-    title = "How Do Promoted Teams Perform in the Premier League?",
-    subtitle = "Cumulative points vs survival pace (~38 points)",
+    title = "Promoted Teams Usually Struggle — But 2025/26 Is Different",
+    subtitle =paste0(
+      "• Cumulative points vs survival pace (≈38 points)<br>",
+      "• <span style='color:#EB172B; font-weight:bold;'>Sunderland</span> already tracking top-6 pace — historically rare for promoted teams<br>",
+      "• Leeds showing early signs of comfortable survival"
+    ),
     x = "Match Week",
-    y = "Cumulative Points"
+    y = "Cumulative Points",
+    caption = "Dashed line shows 1.0 point per game. 2025/26 data through Matchweek 16."
   ) +
-  
-  theme_minimal(base_size = 13) +
+theme_minimal(base_size = 13) +
   theme(
     legend.position = "none",
     strip.text = element_text(face = "bold"),
-    panel.grid.minor = element_blank()
-  )
+    panel.grid.minor = element_blank(),
+    
+    # 🔑 Enable markdown for subtitle
+    plot.subtitle = element_markdown(size = 12),
+    plot.title = element_text(face = "bold")
+  )  + coord_cartesian(clip = "off")
 
-
-
-
-
-
-
-
-
-# p <- sd %>% 
-#   filter(team_name %in% c("Luton","Sheffield United","Burnley","Burnley 23/24",
-#                           "Ipswich", "Southampton", "Leicester","Leeds","Sunderland")) %>%
-#   ggplot(aes(MatchWeek, agg_pts, color = team_name)) +
-#   geom_point() +
-#   geom_line() +
-#   ggthemes::theme_calc() 
-# #facet_wrap(~ year)   # ✅ facet by year
-# 
-# ggplotly(p)
+  
 
 
 
