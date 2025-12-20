@@ -35,16 +35,17 @@ sd<-sd %>%  filter(team_name %in% c("Luton","Sheffield United","Burnley","Burnle
                                     "Ipswich", "Southampton", "Leicester","Leeds","Sunderland"))
 
 club_cols <- c(
-  "Luton" = "#F78F1E",
-  "Burnley" = "#6C1D45",
-  "Sheffield United" = "red",
-  "Leicester" = "#003090",
-  "Ipswich" = "#0057B8",
-  "Southampton" = "#D71920",
-  "Burnley 23/24 "="#6C1D45",
-  "Leeds" = "#1D428A",
-  "Sunderland" = "#EB172B"
+  "Luton" = "#F78F1E",            # Orange
+  "Burnley" = "#6C1D45",          # Dark Burgundy
+  "Sheffield United" = "#FF0000", # Bright Red
+  "Leicester" = "#003090",        # Dark Blue
+  "Ipswich" = "#00AEEF",          # Cyan-ish Blue
+  "Southampton" = "#D71920",      # Deep Red
+  "Burnley 23/24 " = "#FF69B4",   # Hot Pink (distinct from regular Burnley)
+  "Leeds" = "#1D428A",            # Navy Blue
+  "Sunderland" = "#EB172B"        # Bright Red/Scarlet
 )
+
 # Adding match week 16 results agg for leeds,burnley,sunderland
 order_teams<-  c("Luton",
 "Burnley 23/24 ",
@@ -73,7 +74,10 @@ df <- sd %>%
     facet = paste(year, team_name, sep = " — ")
   )
 
-font_add_google("Inter", "inter")
+#font_add_google("Inter", "inter")
+#font_add_google("Source Sans Pro", "sourcesans")
+font_add_google("Poppins", "poppins")
+#font_add_google("Work Sans", "worksans")
 showtext_auto()
 
 label_df <- df %>%
@@ -82,7 +86,6 @@ label_df <- df %>%
 
 df<-df %>%
   arrange(match(team_name, order_teams))
-
 
 ggplot(df, aes(MatchWeek, agg_pts, color = team_name)) +
     geom_line(linewidth = 1.3,show.legend = F) +
@@ -97,33 +100,57 @@ ggplot(df, aes(MatchWeek, agg_pts, color = team_name)) +
       size = 3.5,color="red",
       show.legend = FALSE
     ) +
-    
+  
+  # # 🔴 MW16 label
+  # geom_text(
+  #   data = df %>% filter(year == "2025") %>% 
+  #     group_by(facet) %>% 
+  #     slice(1),
+  #   aes(x = 10, y = Inf, label = "16 MatchWeeks Playeed-2025/26 Season***"),
+  #   color = "black",
+  #   vjust = 1.2,
+  #   size = 3,
+  #   inherit.aes = FALSE
+  # ) +
+  geom_vline(
+    data = df %>% filter(year == "2025"),
+    aes(xintercept = 16),
+    color = "red",
+    linewidth = 1,
+    linetype = "dashed"
+  )+
     facet_wrap(
       ~ factor(facet,levels = unique(df$facet)),
       scales = "free_x",
       ncol = 3
     ) +
-    scale_color_manual(values = club_cols) +
+  scale_color_manual(values = club_cols) +
   labs(
-    title = "Promoted Teams Usually Struggle — But 2025/26 Is Different",
-    subtitle =paste0(
-      "• Cumulative points vs survival pace (≈38 points)<br>",
-      "• <span style='color:#EB172B; font-weight:bold;'>Sunderland</span> already tracking top-6 pace — historically rare for promoted teams<br>",
-      "• Leeds showing early signs of comfortable survival"
+    title = "Promoted Teams Usually Struggle — But Premier League 2025/26 is different",
+     subtitle = glue::glue(
+      "All three promoted sides were relegated to the Championship in the last 2 seasons.\n",
+      "Sunderland have already beaten Chelsea & Newcastle and sit strong in the top half\n",
+      "Leeds and Burnley still need to catch up—only 16 match weeks played so far."
     ),
     x = "Match Week",
     y = "Cumulative Points",
-    caption = "Dashed line shows 1.0 point per game. 2025/26 data through Matchweek 16."
+    caption = glue::glue(
+      "Survival benchmarks have shifted: ~32 points were enough in 2023/24, rising to ~38 points in 2024/25.\n",
+      "Data Source:understatr, Viz By : Hari Krishna")
   ) +
-theme_minimal(base_size = 13) +
+theme_minimal() +
   theme(
+    text=element_text(family="poppins",size=15),
     legend.position = "none",
-    strip.text = element_text(face = "bold"),
+    strip.text = element_text(family="poppins",face = "bold"),
     panel.grid.minor = element_blank(),
     
     # 🔑 Enable markdown for subtitle
-    plot.subtitle = element_markdown(size = 12),
-    plot.title = element_text(face = "bold")
+    plot.subtitle = element_text(
+      lineheight = 0.9,       # smaller than default
+      margin = margin(t = -2, b = 8)  # pulls subtitle closer to title
+    ),
+    plot.title = element_text(face = "bold",size=15),
   )  + coord_cartesian(clip = "off")
 
   
