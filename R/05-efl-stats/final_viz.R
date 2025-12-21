@@ -1,12 +1,16 @@
 
 
 
+# Loading libraries -------------------------------------------------------
+
+library(understatr)
+library(magrittr)
+library(tidyverse)
+library(sysfonts)
+library(ggtext)
 
 # Get Data for all the requirted season for the teams ---------------------
 #reading 2025-26 data csv
-
-
-
 pl_data <- list()
 
 get_data <- function(comp, years) {
@@ -33,6 +37,9 @@ sd$agg_pts<-ave(sd$pts, sd$team_name, FUN=cumsum)
 #Relegated Teams 2024-25 season & promoted: Lei,Ips,Sou
 sd<-sd %>%  filter(team_name %in% c("Luton","Sheffield United","Burnley","Burnley 23/24 ",
                                     "Ipswich", "Southampton", "Leicester","Leeds","Sunderland"))
+
+# Getting the hex codes for the required teams included in analysis -------
+
 
 club_cols <- c(
   "Luton" = "#F78F1E",            # Orange
@@ -74,12 +81,14 @@ df <- sd %>%
     facet = paste(year, team_name, sep = " — ")
   )
 
-#font_add_google("Inter", "inter")
-#font_add_google("Source Sans Pro", "sourcesans")
+# Adding required fonts for the pllot -------------------------------------
 font_add_google("Poppins", "poppins")
-#font_add_google("Work Sans", "worksans")
 showtext_auto()
 
+
+
+
+# Labels for final match week plot ----------------------------------------
 label_df <- df %>%
   group_by(team_name) %>%
   slice_max(MatchWeek, n = 1, with_ties = FALSE)
@@ -87,6 +96,8 @@ label_df <- df %>%
 df<-df %>%
   arrange(match(team_name, order_teams))
 
+
+#Final Plot code
 ggplot(df, aes(MatchWeek, agg_pts, color = team_name)) +
     geom_line(linewidth = 1.3,show.legend = F) +
     geom_point(size = 2,show.legend = F) +
@@ -100,18 +111,6 @@ ggplot(df, aes(MatchWeek, agg_pts, color = team_name)) +
       size = 3.5,color="red",
       show.legend = FALSE
     ) +
-  
-  # # 🔴 MW16 label
-  # geom_text(
-  #   data = df %>% filter(year == "2025") %>% 
-  #     group_by(facet) %>% 
-  #     slice(1),
-  #   aes(x = 10, y = Inf, label = "16 MatchWeeks Playeed-2025/26 Season***"),
-  #   color = "black",
-  #   vjust = 1.2,
-  #   size = 3,
-  #   inherit.aes = FALSE
-  # ) +
   geom_vline(
     data = df %>% filter(year == "2025"),
     aes(xintercept = 16),
