@@ -40,6 +40,16 @@ ggplot(scraped_data) +
     ),
     color = NA
   ) +
+  annotate(
+    "rect",
+    xmin = -0.5,
+    xmax = -7.5,
+    ymin = 8.5,
+    ymax = 0.5,
+    fill = "red",
+    colour = "black",
+    linewidth = 0.5
+  ) +
   geom_text(aes(x=-4.0,y=id,label=club),size = 2,color="black")+
   annotate(
     "text",
