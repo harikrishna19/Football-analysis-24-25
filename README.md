@@ -41,3 +41,7 @@ Refer the following repo for this project: [Posit Table Submission](https://gith
 5.  **Promoted teams performances in last 2 years(23/24,24/25) & the current season**
 
 ![](images/final_viz.png)
+
+6.  **January Transfer Analysis Premier League : 2025/26**
+
+![](R/06-Transfer-Markt-2025-26-season/final_plot.png)
