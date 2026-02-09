@@ -165,7 +165,7 @@ club_cols <- c(
     labs(
       title = "Premier League January Spending:2025/26",
       subtitle = glue::glue(
-"Manchester City focused on profile optimisation, investing £62M in Semenyo to reinforce the right-wing role \n",
+"Manchester City focused on profile optimisation, investing in Semenyo & Guehi \n",
 "Tottenham reshaped for system balance — Johnson exits, while Gallagher and Souza arrive \n",
 "Crystal Palace FC quietly added depth through Larsen \n",
 "Six Premier League clubs, including Arsenal and Liverpool, remained inactive \n",
