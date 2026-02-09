@@ -97,7 +97,7 @@ club_cols <- c(
       aes(x = 9.5, y = -1.5),
       label = "
   <span style='font-size:40px; font-weight:bold;color:#000000;'>
-  Premier League  <span style='color:#D00000;'>£453M</span>
+  Premier League  <span style='color:#D00000;'>€453M</span>
   </span><br>",
       fill = NA,
       label.color = NA,alpha=0.01,
