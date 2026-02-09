@@ -1,7 +1,17 @@
-  
-  
-  
-  scraped_data <-
+
+# Loading libraries -------------------------------------------------------
+library(grid)
+library(png)
+library(tidyverse)
+library(ggforce)
+library(ggplot2)
+library(ggtext)
+
+
+# Adding variables --------------------------------------------------------
+
+
+scraped_data <-
     scrape %>%
     arrange(exp) %>%
     mutate(
@@ -12,13 +22,18 @@
       zero_flag = frac == 0,
       label_check = ifelse(exp != 0, paste0(club, "-","",exp, "M"), club)
     )
-  
-  library(grid)
-  library(png)
-  
-  img <- png::readPNG("pl_logo.png")
-  g <- rasterGrob(img, interpolate = TRUE)
-  club_cols <- c(
+
+
+# Loading PL Logo ---------------------------------------------------------
+
+
+img <- png::readPNG("pl_logo.png")
+g <- rasterGrob(img, interpolate = TRUE)
+
+
+# Loading hex colours for clubs -------------------------------------------
+
+club_cols <- c(
     "Brighton & Hove Albion"  = "#0057B8",
     # Blue
     "Nottingham Forest"       = "#DD0000",
@@ -44,7 +59,9 @@
     "Manchester City"         = "#6CABDD"   # Sky Blue
   )
   
-  
+
+# ggplot-main plot-Radial Bar Chart ----------------------------------------
+
   ggplot(scraped_data) +
     geom_arc_bar(
       aes(
