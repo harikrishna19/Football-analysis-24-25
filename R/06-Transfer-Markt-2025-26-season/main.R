@@ -6,8 +6,12 @@ library(tidyverse)
 library(ggforce)
 library(ggplot2)
 library(ggtext)
+library(sysfonts)
+library(showtext)
+library(sysfonts)
 
-
+showtext_auto()
+font_add_google("oswald","oswald")
 # Adding variables --------------------------------------------------------
 
 
@@ -96,28 +100,13 @@ club_cols <- c(
     geom_richtext(
       aes(x = 9.5, y = -1.5),
       label = "
-  <span style='font-size:40px; font-weight:bold;color:#000000;'>
-  Premier League  <span style='color:#D00000;'>£453M</span>
+  <span style='font-size:30px; font-weight:bold;color:#000000;'>
+  Premier League  <span style='color:#D00000;'>€453M</span>
   </span><br>",
       fill = NA,
       label.color = NA,alpha=0.01,
       hjust = 0.8
     )+
-    # geom_richtext(
-    #   aes(x = -30.5, y = -10.5),
-    #   label = glue::glue(
-    #     "<span style='font-family:Helvetica; font-size:15px; line-height:1.35;'>",
-    #     "<b style='color:#6CABDD;'>City</b> invest <b>£62M</b> on <b>Semenyo</b> to strengthen the right-wing profile<br>",
-    #     "<b>Wolves</b> add depth with the arrival of <b>Larsen</b><br>",
-    #     "<b style='color:#132257;'>Tottenham</b>reshape the squad — <b>Johnson exits</b>, <b>Gallagher</b> and <b>Souza</b> arrive for system fit<br>",
-    #     "<b>Oscar Bobb</b> secures minutes with a move to <b>Fulham</b><br>",
-    #     "<b>Six PL clubs</b>, including <b>Arsenal</b> and <b>Liverpool</b>, remain inactive in January<br>",
-    #     "<b>West Ham</b> see movement both ways — <b>Traoré in</b>, <b>Paquetá out</b>",
-    #     "</span>"
-    #   ),
-    #   fill = NA,
-    #   label.color = NA,
-    #   hjust = 0
     annotate(
       "text",
       x = -12.5,
@@ -140,14 +129,8 @@ club_cols <- c(
         family = "oswald",
         size = 23,
         face = "bold",
-        hjust = 2.0
+        hjust = 1.5
       ),
-      # plot.subtitle  = element_text(
-      #   colour = "black",
-      #   family = "oswald",
-      #   size = 8,
-      #   hjust = 2.5,vjust = 0.8
-      # ),
       plot.caption = element_text(
         colour = "black",family = "oswald",
         size = 15,vjust = 1.7,
@@ -165,7 +148,7 @@ club_cols <- c(
     labs(
       title = "Premier League January Spending:2025/26",
       subtitle = glue::glue(
-"Manchester City focused on profile optimisation, investing £62M in Semenyo to reinforce the right-wing role \n",
+"Manchester City focused on profile optimisation, investing in Semenyo & Guehi \n",
 "Tottenham reshaped for system balance — Johnson exits, while Gallagher and Souza arrive \n",
 "Crystal Palace FC quietly added depth through Larsen \n",
 "Six Premier League clubs, including Arsenal and Liverpool, remained inactive \n",

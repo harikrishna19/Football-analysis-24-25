@@ -34,8 +34,14 @@
 
 4.  **Transfer Analysis 2025/26 Premier League : Posit Table contest 2025**
 
+Refer the following repo for this project: [Posit Table Submission](https://github.com/harikrishna19/Posit-Table-Contest-2025)
+
 ![](images/PL_New.png)
 
 5.  **Promoted teams performances in last 2 years(23/24,24/25) & the current season**
 
 ![](images/final_viz.png)
+
+6.  **January Transfer Analysis Premier League : 2025/26**
+
+![](R/06-Transfer-Markt-2025-26-season/final_plot.png)
