@@ -6,7 +6,9 @@ scraped_data<-
   arrange(exp) %>% 
   mutate(
   id   = row_number(),
-  frac = exp / 200     # scale to 0–1
+  frac = exp / 200 ,    # scale to 0–1
+  frac_plot = ifelse(frac == 0, 0.005, frac),
+  zero_flag = frac == 0,
 )
 
 club_cols <- c(
@@ -25,18 +27,20 @@ club_cols <- c(
 )
 
 
-plot1<-ggplot(scraped_data) +
+ggplot(scraped_data) +
   geom_arc_bar(
     aes(
       x0 = 0, y0 = 0,
       r0 = id - 0.35,
       r  = id + 0.25,
       start = pi * 0.01,
-      end   = pi * 0.01 + 2 * pi * frac,
+      end   = pi * 0.01 + 2 * pi * frac_plot,
       fill  = club
+      # alpha = zero_flag
     ),
     color = NA
   ) +
+  geom_text(aes(x=-4.0,y=id,label=club),size = 2,color="black")+
   annotate(
     "text",
     x = 5.5, y = -0.5,
@@ -45,11 +49,12 @@ plot1<-ggplot(scraped_data) +
     color = "grey30"
   ) +
   coord_fixed(clip = "off") +
+  # scale_alpha_manual(values = c(`TRUE` = 0.4, `FALSE` = 1))+
   scale_fill_manual(values = club_cols) +
   theme_void()+
   theme(legend.position = "none")+
   labs(title = "Premier League Winter Spending of 2025/26",
-       subtitle = "Manchester City have spent most of the money in 2025/26 season",caption = "Viz by Hari Krishna",tag = "New",)
+       subtitle = "Manchester City have spent most of the money in 2025/26 season",caption = "Viz by Hari Krishna",tag = "New")
 
 # sample bar plot
 
@@ -57,16 +62,17 @@ plot1<-ggplot(scraped_data) +
 # Load the ggplot2 library
 library(ggplot2)
 
-# Create a sample data frame
-data <- data.frame(
-  name = c("Group A", "Group B", "Group C", "Group D", "Group E"),
-  value = c(3, 12, 5, 18, 45)
-)
-
-# Generate the bar plot
-plot2<-ggplot(data, aes(x = name, y = value)) +
-  geom_bar(stat = "identity", fill = "skyblue") +
-  labs(title = "Sample Bar Plot of Values by Group",
-       x = "Group",
-       y = "Value") +
-  theme_minimal()+coord_flip()
+# # Create a sample data frame
+# data <- data.frame(
+#   name = c("Group A", "Group B", "Group C", "Group D", "Group E"),
+#   value = c(3, 12, 5, 18, 45)
+# )
+# 
+# # Generate the bar plot
+# ggplot(data, aes(x = name, y = value)) +
+#   geom_bar(stat = "identity", fill = "skyblue") +
+#   labs(title = "Sample Bar Plot of Values by Group",
+#        x = "Group",
+#        y = "Value") +
+#   geom_text(aes(x=0,y=1,label="TEst"))+
+#   theme_minimal()+coord_flip()
