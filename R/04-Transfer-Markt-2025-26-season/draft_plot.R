@@ -1,6 +1,4 @@
 
-library(patchwork)
-
 scraped_data<-
   scrape %>%   
   arrange(exp) %>% 
@@ -9,6 +7,7 @@ scraped_data<-
   frac = exp / 200 ,    # scale to 0–1
   frac_plot = ifelse(frac == 0, 0.005, frac),
   zero_flag = frac == 0,
+  label_check=paste0(club,"-",exp,"M")
 )
 
 club_cols <- c(
@@ -50,11 +49,11 @@ ggplot(scraped_data) +
     colour = "black",
     linewidth = 0.5
   ) +
-  geom_text(aes(x=-4.0,y=id,label=club),size = 2,color="black")+
+  geom_text(aes(x=-4.0,y=id,label=label_check),size = 2,color="black")+
   annotate(
     "text",
     x = 5.5, y = -0.5,
-    label = "Premier League:~493 Million",
+    label = "Premier League:~453 Million",
     size = 5,
     color = "grey30"
   ) +
