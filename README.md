@@ -34,4 +34,6 @@
 
 4.  **Transfer Analysis 2025/26 Premier League : Posit Table contest 2025**
 
+Refer the following repo for this project: [Posit Table Submission](https://github.com/harikrishna19/Posit-Table-Contest-2025)
+
 ![](images/PL_New.png)
