@@ -37,3 +37,7 @@
 Refer the following repo for this project: [Posit Table Submission](https://github.com/harikrishna19/Posit-Table-Contest-2025)
 
 ![](images/PL_New.png)
+
+5.  **Promoted teams performances in last 2 years(23/24,24/25) & the current season**
+
+![](images/final_viz.png)
