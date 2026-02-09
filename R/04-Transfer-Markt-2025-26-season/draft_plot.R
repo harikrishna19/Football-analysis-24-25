@@ -10,7 +10,7 @@
       # scale to 0–1
       frac_plot = ifelse(frac == 0, 0.005, frac),
       zero_flag = frac == 0,
-      label_check = ifelse(exp != 0, paste0(club, "-","  ",exp, "M"), club)
+      label_check = ifelse(exp != 0, paste0(club, "-","",exp, "M"), club)
     )
   
   library(grid)
@@ -79,30 +79,28 @@
     geom_richtext(
       aes(x = 9.5, y = -1.5),
       label = "
-  <span style='font-size:50px; font-weight:bold; color:#000000;'>
-  Premier League ~ <span style='color:#D00000;'>£453M</span>
+  <span style='font-size:40px; font-weight:bold;color:#000000;'>
+  Premier League  <span style='color:#D00000;'>£453M</span>
   </span><br>",
       fill = NA,
-      label.color = NA,
-      hjust = 0.5,
+      label.color = NA,alpha=0.01,
+      hjust = 0.8
     )+
-    geom_richtext(
-      aes(x=-30,y=10),
-      label = "
-<span style='font-family:oswald; font-size:15px; line-height:1.4;'>
-
-<b style='color:#6CABDD;'>Manchester City</b> invest <b>£62M</b> on <b>Semenyo</b> to strengthen the right-wing profile<br>
- <b>Wolves</b> add depth with the arrival of <b>Larsen</b><br>
-<b style='color:#132257;'>Spurs</b> reshape the squad — <b>Johnson exits</b>, <b>Gallagher</b> and <b>Souza</b> arrive for system fit<br>
- <b>Oscar Bobb</b> secures minutes with a move to <b>Fulham</b><br>
- <b>Six PL clubs</b>, including <b>Arsenal</b> and <b>Liverpool</b>, remain inactive in January<br>
- <b>West Ham</b> see movement both ways — <b>Traoré in</b>, <b>Paquetá out</b>
-</span>
-",
-    fill = NA,
-    label.color = NA,
-    hjust = 0.5
-    )+
+    # geom_richtext(
+    #   aes(x = -30.5, y = -10.5),
+    #   label = glue::glue(
+    #     "<span style='font-family:Helvetica; font-size:15px; line-height:1.35;'>",
+    #     "<b style='color:#6CABDD;'>City</b> invest <b>£62M</b> on <b>Semenyo</b> to strengthen the right-wing profile<br>",
+    #     "<b>Wolves</b> add depth with the arrival of <b>Larsen</b><br>",
+    #     "<b style='color:#132257;'>Tottenham</b>reshape the squad — <b>Johnson exits</b>, <b>Gallagher</b> and <b>Souza</b> arrive for system fit<br>",
+    #     "<b>Oscar Bobb</b> secures minutes with a move to <b>Fulham</b><br>",
+    #     "<b>Six PL clubs</b>, including <b>Arsenal</b> and <b>Liverpool</b>, remain inactive in January<br>",
+    #     "<b>West Ham</b> see movement both ways — <b>Traoré in</b>, <b>Paquetá out</b>",
+    #     "</span>"
+    #   ),
+    #   fill = NA,
+    #   label.color = NA,
+    #   hjust = 0
     annotate(
       "text",
       x = -12.5,
@@ -123,14 +121,20 @@
       plot.title = element_text(
         colour = "black",
         family = "oswald",
-        size = 18,
+        size = 23,
         face = "bold",
-        hjust = 1
+        hjust = 1.5
       ),
+      # plot.subtitle  = element_text(
+      #   colour = "black",
+      #   family = "oswald",
+      #   size = 8,
+      #   hjust = 2.5,vjust = 0.8
+      # ),
       plot.caption = element_text(
         colour = "black",family = "oswald",
-        size = 15,
-        hjust = 0,face = "bold.italic",
+        size = 15,vjust = -0.4,
+        hjust =0,face = "bold.italic",
         margin = margin(t = -20,l=15)
       )
     ) +
@@ -142,8 +146,8 @@
       ymax = 30
     )+
     labs(
-      title = "Premier League Winter Spending of 2025/26",
-      caption = "January windows reward precision over volume • Viz by Hari Krishna"
+      title = "Premier League January Spending:2025/26",
+      caption = "Viz by Hari Krishna-Data:TransferMarkt"
     )
     
   
