@@ -25,7 +25,7 @@ colnames(scrape) <- c("SNo",
                       "bal")
 scrape$exp <- as.numeric(gsub("[^0-9.]", "", scrape$exp))
 scrape$exp[is.na(scrape$exp)] <- 0
-
+scrape$club<-gsub("Wolverhampton Wanderers","Wolves",scrape$club)
 
 # Pull Indivudual Data
 ind_transfers<-rvest::read_html("https://www.transfermarkt.co.uk/premier-league/transfers/wettbewerb/GB1/s_w/w") %>% html_table()

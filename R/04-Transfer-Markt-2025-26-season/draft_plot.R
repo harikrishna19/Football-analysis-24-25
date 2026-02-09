@@ -16,14 +16,14 @@
   library(grid)
   library(png)
   
-  img <- png::readPNG("epl-logo.png")
+  img <- png::readPNG("pl_logo.png")
   g <- rasterGrob(img, interpolate = TRUE)
   club_cols <- c(
     "Brighton & Hove Albion"  = "#0057B8",
     # Blue
     "Nottingham Forest"       = "#DD0000",
     # Red
-    "Wolverhampton Wanderers" = "#FDB913",
+    "Wolves" = "#FDB913",
     # Old Gold
     "Brentford FC"            = "#E30613",
     # Red
@@ -71,7 +71,7 @@
       alpha = 0.08
     ) +
     geom_text(
-      aes(x = -4.5, y = id, label = label_check),
+      aes(x = -4.1, y = id, label = label_check),
       size = 4,
       color = "black",family="oswald",
       fontface = "bold.italic"
@@ -123,7 +123,7 @@
         family = "oswald",
         size = 23,
         face = "bold",
-        hjust = 1.5
+        hjust = 2.0
       ),
       # plot.subtitle  = element_text(
       #   colour = "black",
@@ -133,7 +133,7 @@
       # ),
       plot.caption = element_text(
         colour = "black",family = "oswald",
-        size = 15,vjust = -0.4,
+        size = 15,vjust = 1.7,
         hjust =0,face = "bold.italic",
         margin = margin(t = -20,l=15)
       )
@@ -142,11 +142,18 @@
       grob = g,
       xmin = -5.0,
       xmax = -6.9,
-      ymin = 15,
+      ymin = 26,
       ymax = 30
     )+
     labs(
       title = "Premier League January Spending:2025/26",
+      subtitle = glue::glue(
+"Manchester City focused on profile optimisation, investing £62M in Semenyo to reinforce the right-wing role \n",
+"Tottenham reshaped for system balance — Johnson exits, while Gallagher and Souza arrive \n",
+"Crystal Palace FC quietly added depth through Larsen \n",
+"Six Premier League clubs, including Arsenal and Liverpool, remained inactive \n",
+"West Ham balanced arrivals and exits — Traoré in, Paquetá out",
+      ),
       caption = "Viz by Hari Krishna-Data:TransferMarkt"
     )
     
