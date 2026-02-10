@@ -38,30 +38,20 @@ g <- rasterGrob(img, interpolate = TRUE)
 # Loading hex colours for clubs -------------------------------------------
 
 club_cols <- c(
-    "Brighton & Hove Albion"  = "#0057B8",
-    # Blue
-    "Nottingham Forest"       = "#DD0000",
-    # Red
-    "Wolves" = "#FDB913",
-    # Old Gold
-    "Brentford FC"            = "#E30613",
-    # Red
-    "Sunderland AFC"          = "#EB172B",
-    # Red
-    "Fulham FC"               = "#000000",
-    # Black
-    "Aston Villa"             = "#95BFE5",
-    # Claret & Blue (blue tone)
-    "AFC Bournemouth"         = "#DA291C",
-    # Red
-    "Tottenham Hotspur"       = "#132257",
-    # Navy
-    "West Ham United"         = "#7A263A",
-    # Claret
-    "Crystal Palace"          = "#1B458F",
-    # Blue
-    "Manchester City"         = "#6CABDD"   # Sky Blue
-  )
+  "Brighton & Hove Albion" = "#4FA3E3",  # Fresh sky blue
+  "Nottingham Forest"     = "#e07c7d",  # Soft coral red
+  "Wolves"                = "#F7D046",  # Pale gold
+  "Brentford FC"          = "#F44336",  # Light red
+  "Sunderland AFC"        = "#9E1B32",  # Salmon red
+  "Fulham FC"             = "#4A4A4A",  # Charcoal (not harsh)
+  "Aston Villa"           = "#BFD9EA",  # Pastel villa blue
+  "AFC Bournemouth"       = "red",  # Soft tomato
+  "Tottenham Hotspur"     = "#3C4B6E",  # Muted navy
+  "West Ham United"       = "#A44A5E",  # Light claret
+  "Crystal Palace"        = "#5B84C4",  # Powder blue
+  "Manchester City"       = "#9AD0F5"   # Very light sky blue
+)
+
   
 
 # ggplot-main plot-Radial Bar Chart ----------------------------------------
