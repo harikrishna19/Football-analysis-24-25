@@ -8,3 +8,42 @@
 # Show the goal contributions by the top strikers
 # Build a basic chart which shows all the information which derives insight
 # Design a better chart which can give out the maximimum in formation
+
+
+# Chelsea Analysis
+
+Pull data using understat python API for analysis
+
+Curse of No.9 for Chelsea
+
+1. What data to pull?
+Pull all the scorers for Chelsea football club from 2016/17 to 2025/26 season
+Pull all the data for how many goals have chelsea have scored from 2016/17 to 2025/26
+
+2. To calculate
+How much % of goals are actually contributed by chelsea main striker (i.e. Chelsea No.9)
+How much % of hoals are contributed by the front 3 of total goals (LW,RW,CF) etc.
+
+3. To Visulaize(Ideas)
+
+No.9 Contribution Over Time (Line Chart)
+Goal Distribution by Position (Stacked Area Chart)
+Front 3 Contribution vs Rest of Team (100% Stacked Bar)
+Top Scorer Share per Season (Lollipop Chart)
+
+4.Final Viz draft
+Simple VIz with lot of insights
+Need some good liners of stats with %ges
+
+5.Final Viz
+1-2 viz to be finalised and to be published
+
+6. Need to provide few stats outside the box(1-2)
+Need to analyze the dataset
+
+TBD- 1st April 2026
+
+
+
+
+
