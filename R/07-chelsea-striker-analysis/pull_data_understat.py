@@ -49,8 +49,29 @@ def get_team_players(team_name, min_goals=0):
 # Example: Chelsea players
 chelsea_players = get_team_players("Chelsea", min_goals=1)
 
-print(chelsea_players.head())
 
+seasons = range(2016, 2026)   # 2016 to 2025
+all_data = []
+
+
+for season in seasons:
+    data = understat.team(team="Chelsea").get_match_data(season=str(season))
+    df = pd.DataFrame(data)
+    df["season"] = season   # add season column
+    all_data.append(df)
+
+team_match_data = pd.concat(all_data, ignore_index=True)
+
+team_match_data.head()
+
+
+chelsea_players.to_csv("data/chelsea_data.csv")
+team_match_data.to_csv("data/team_data.csv")
+
+
+
+
+# Sample plot
 top_scorers = (
     chelsea_players.groupby("player_name")["goals"]
     .sum()
@@ -66,6 +87,5 @@ plt.ylabel("Player")
 plt.gca().invert_yaxis()
 
 plt.show()
-aa=team_match_data = understat.team(team="Chelsea").get_match_data(season="2025")
-aa=pd.DataFrame(aa)
+
 
