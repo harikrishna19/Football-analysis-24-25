@@ -343,5 +343,139 @@ p1 / p2 + plot_layout(heights = c(3, 2))
 
 
 
+###################### Reprex
+
+
+
+# install.packages("ggrepel")
+library(ggrepel)
+p1<-ggplot(Team_g, aes(as.character(season), goals)) +
+  
+  geom_line(aes(group = 1), color = "#d6a66b", linewidth = 1.5) +
+  
+  geom_point(aes(fill = position),
+             size = 6,
+             shape = 21,
+             color = "white",
+             stroke = 1.2) +
+  
+  geom_text_repel(
+    aes(label = player_name),
+    color = "white",
+    size = 3.5,
+    fontface = "bold",
+    nudge_y = 3,              # pushes labels above points
+    direction = "y",
+    segment.color = "#aaaaaa",
+    segment.alpha = 0.5,
+    box.padding = 0.3,
+    max.overlaps = Inf
+  ) +
+  
+  labs(
+    title = "Chelsea No.9 since 2016/17",
+    subtitle = "Since Conte won the title in 2016/17",
+    x = "Season"
+  ) +
+  
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.background = element_rect(fill = "#081633", color = NA),
+    panel.background = element_rect(fill = "#081633", color = NA),
+    panel.grid = element_line(color = "#1c355e"),
+    axis.text = element_text(color = "white"),
+    axis.title = element_text(color = "white"),
+    legend.text = element_text(color = "white"),
+    plot.title = element_text(color = "white", size = 22, face = "bold"),
+    plot.subtitle = element_text(color = "white", size = 14),
+    legend.position = "bottom"
+  )
+
+
+
+library(ggrepel)
+
+p1 <- ggplot(Team_g, aes(as.character(season), goals, group = 1)) +
+  
+  # 🔴 Highlight "Post-Costa Dip"
+  # geom_rect(aes(xmin = 2.5, xmax = 6.5, ymin = -Inf, ymax = Inf),
+  #           fill = "#ff6b6b", alpha = 0.08, inherit.aes = FALSE) +
+  
+  # ✨ Trend line
+  geom_line(color = "#d6a66b", linewidth = 1.5) +
+  
+  # ⚽ Points (top scorer each season)
+  geom_point(aes(fill = position),
+             size = 6,
+             shape = 21,
+             color = "white",
+             stroke = 1.2) +
+  
+  # 🏷 Player labels (clean + non-overlapping)
+  geom_text_repel(
+    aes(label = player_name),
+    color = "white",
+    size = 3.5,
+    fontface = "bold",
+    nudge_y = 3,
+    direction = "y",
+    segment.color = "#aaaaaa",
+    segment.alpha = 0.4,
+    box.padding = 0.3,
+    max.overlaps = Inf
+  ) +
+  
+  # 📉 Annotation: Dip explanation
+  # annotate("text",
+  #          x = 4.5, y = max(Team_g$goals)*0.9,
+  #          label = "Post Costa Era\nNo consistent No.9",
+  #          color = "#ff6b6b",
+  #          size = 4,
+  #          fontface = "bold") +
+  # 
+  # # 🚀 Future hope
+  # annotate("text",
+  #          x = length(unique(Team_g$season)),
+  #          y = max(Team_g$goals),
+  #          label = "New hope: João Pedro",
+  #          color = "#6be675",
+  #          size = 4,
+  #          fontface = "bold",
+  #          hjust = 1) +
+  
+  labs(
+    title = "Chelsea's No.9 Problem",
+    subtitle = "Top scorer each season since 2016/17",
+    x = NULL,
+    y = "Goals",
+    caption = "Data: Understat | Viz: HK"
+  ) +
+  
+  scale_y_continuous(expand = c(0.05, 0)) +
+  
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.background = element_rect(fill = "#081633", color = NA),
+    panel.background = element_rect(fill = "#081633", color = NA),
+    
+    panel.grid.major.y = element_line(color = "#1c355e"),
+    panel.grid.major.x = element_blank(),
+    
+    axis.text = element_text(color = "white"),
+    axis.title = element_text(color = "white"),
+    
+    legend.title = element_blank(),
+    legend.text = element_text(color = "white"),
+    legend.position = "bottom",
+    
+    plot.title = element_text(color = "white", size = 22, face = "bold"),
+    plot.subtitle = element_text(color = "#d6a66b", size = 13),
+    plot.caption = element_text(color = "gray70"),
+    
+    plot.margin = margin(15, 20, 15, 20)
+  )
+
+
+
 
 

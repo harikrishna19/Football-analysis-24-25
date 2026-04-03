@@ -7,6 +7,7 @@ library(showtext)
 library(purrr)
 library(jsonlite)
 library(tidyr)
+library(dplyr)
 
 team_data<-read.csv("data/team_data.csv")
 chelsea_data<-read.csv("data/chelsea_data.csv")
@@ -68,26 +69,26 @@ geom_line(aes(group = 1), color = "#d6a66b", linewidth = 1.5)+
     sec.axis = sec_axis(~ . * 100 / scale_factor, name = "Percentage (%)")
   )+
   theme_minimal(base_size = 14) +
-  annotate("text", x = "2018", y = 18,
-         label = "Post-Costa dip\nNo consistent No.9",
-         color = "#ff6b6b",
-         size = 4,
-         fontface = "bold",
-         hjust = 0) +
-
-annotate("segment",
-         x = "2017", xend = "2018",
-         y = 20, yend = 18,
-         color = "#ff6b6b",
-         linewidth = 0.8,
-         arrow = arrow(length = unit(0.2, "cm"))) +
-
-annotate("text", x = "2025", y = max(Team_g$goals),
-         label = "New hope: João Pedro",
-         color = "#6be675",
-         size = 4,
-         fontface = "bold",
-         hjust = 1) +
+#   annotate("text", x = "2018", y = 18,
+#          label = "Post-Costa dip\nNo consistent No.9",
+#          color = "#ff6b6b",
+#          size = 4,
+#          fontface = "bold",
+#          hjust = 0) +
+# 
+# annotate("segment",
+#          x = "2017", xend = "2018",
+#          y = 20, yend = 18,
+#          color = "#ff6b6b",
+#          linewidth = 0.8,
+#          arrow = arrow(length = unit(0.2, "cm"))) +
+# 
+# annotate("text", x = "2025", y = max(Team_g$goals),
+#          label = "New hope: João Pedro",
+#          color = "#6be675",
+#          size = 4,
+#          fontface = "bold",
+#          hjust = 1) +
   theme(
     plot.background = element_rect(fill = "#081633", color = NA),
     panel.background = element_rect(fill = "#081633", color = NA),
@@ -101,57 +102,138 @@ annotate("text", x = "2025", y = max(Team_g$goals),
     legend.position = "bottom"
   )
 
-library(ggplot2)
 
-p2 <- ggplot(total_goals, aes(x = as.character(season), y = total_goals)) +
-  geom_col(fill = "#d6a66b", width = 0.6) +
+
+
+library(ggplot2)
+# install.packages("showtext")
+library(showtext)
+font_add_google("Montserrat", "mont")
+showtext_auto()
+p1 <- ggplot(Team_g, aes(as.character(season), goals, group = 1)) +
+  scale_y_continuous(
+    name = "Goals",
+    sec.axis = sec_axis(~ . * 100 / scale_factor, name = "Percentage (%)")
+  )+
+  # 🔴 Highlight "Post-Costa Dip"
+  # geom_rect(aes(xmin = 2.5, xmax = 6.5, ymin = -Inf, ymax = Inf),
+  #           fill = "#ff6b6b", alpha = 0.08, inherit.aes = FALSE) +
+  
+  # ✨ Trend line
+  geom_line(color = "#d6a66b", linewidth = 1.5) +
+  
+  # ⚽ Points (top scorer each season)
+  geom_point(aes(fill = position),
+             size = 6,
+             shape = 21,
+             color = "white",
+             stroke = 1.2) +
+  
+  # 🏷 Player labels (clean + non-overlapping)
+  geom_text_repel(
+    aes(label = player_name),
+    color = "white",
+    size = 3.5,
+    fontface = "bold",
+    nudge_y = 3,
+    direction = "y",
+    segment.color = "#aaaaaa",
+    segment.alpha = 0.4,
+    box.padding = 0.3,
+    max.overlaps = Inf
+  ) +
+  
+  # 📉 Annotation: Dip explanation
+  # annotate("text",
+  #          x = 4.5, y = max(Team_g$goals)*0.9,
+  #          label = "Post Costa Era\nNo consistent No.9",
+  #          color = "#ff6b6b",
+  #          size = 4,
+  #          fontface = "bold") +
+  # 
+  # # 🚀 Future hope
+  # annotate("text",
+  #          x = length(unique(Team_g$season)),
+  #          y = max(Team_g$goals),
+  #          label = "New hope: João Pedro",
+  #          color = "#6be675",
+  #          size = 4,
+  #          fontface = "bold",
+  #          hjust = 1) +
+  
+  labs(
+    title = "Chelsea's No.9 Problem",
+    subtitle = "Top scorer each season since 2016/17",
+    x = NULL,
+    y = "Goals",
+    caption = "Data: Understat | Viz: HK"
+  ) +
+  
+  # scale_y_continuous(expand = c(0.05, 0)) +
+  
+  theme_minimal(base_family = "mont", base_size = 14)+
+  theme(
+    plot.background = element_rect(fill = "#081633", color = NA),
+    panel.background = element_rect(fill = "#081633", color = NA),
+    
+    panel.grid.major.y = element_line(color = "#1c355e"),
+    panel.grid.major.x = element_blank(),
+    
+    axis.text = element_text(color = "white"),
+    axis.title = element_text(color = "white"),
+    
+    legend.title = element_blank(),
+    legend.text = element_text(color = "white"),
+    legend.position = "bottom",
+    
+    plot.title = element_text(color = "white", size = 22, face = "bold"),
+    plot.subtitle = element_text(color = "#d6a66b", size = 13),
+    plot.caption = element_text(color = "gray70"),
+    
+    plot.margin = margin(15, 20, 15, 20)
+  )
+
+
+
+p2<-ggplot(total_goals, aes(x = as.character(season), y = total_goals)) +
+  
+  # Glow effect (using lighter color instead of alpha)
+  geom_col(fill = adjustcolor("#d6a66b" ), width = 0.6) +
+  
+  # Main bars
+  geom_col(fill = "#d6a66b", width = 0.45) +
+  
+  # Labels inside bars
   geom_text(aes(label = total_goals),
-            vjust = -0.5,
-            color = "white",
-            size = 3.5,
+            vjust = 1.4,
+            color = "black",
+            size = 4,
             fontface = "bold") +
-  labs(x = NULL, y = NULL) +
+  
+  labs(
+    title = "Chelsea Goals by Season",
+    subtitle = "Drop in output post Costa era",
+    x = NULL,
+    y = NULL
+  ) +
+  
+  scale_y_continuous(expand = c(0, 0)) +
+  
   theme_minimal() +
   theme(
     plot.background = element_rect(fill = "#081633", color = NA),
     panel.background = element_rect(fill = "#081633", color = NA),
-    panel.grid = element_blank(),
+    
+    panel.grid.major.y = element_line(color = "white"),
+    panel.grid.major.x = element_blank(),
+    
     axis.text = element_text(color = "white"),
-    axis.ticks = element_blank()
+    axis.ticks = element_blank(),
+    
+    plot.title = element_text(color = "white", size = 16, face = "bold"),
+    plot.subtitle = element_text(color = "#d6a66b", size = 11)
   )
-library(patchwork)
+
+ p1 / p2 + plot_layout(heights = c(3, 2))
 
 
-p3 <- ggplot(total_goals, aes(x = as.character(season), y = 1)) +
-  geom_point(size = 6, color = "#d6a66b") +
-  geom_text(aes(label = total_goals), vjust = -1, color = "white") +
-  theme_void() +
-  theme(plot.background = element_rect(fill = "#081633", color = NA))
-p1 / p2 + plot_layout(heights = c(3, 2))
-
-
-library(ggplot2)
-library(dplyr)
-
-# Sample data
-df <- data.frame(
-  category = c("A","B","C","D","E"),
-  col1 = c(100, 80, 60, 40, 20),   # bars
-  col2 = c(50, 40, 30, 20, 10)     # line (second axis)
-)
-
-# Scaling factor
-scale_factor <- max(df$col1) / max(df$col2)
-
-ggplot(df, aes(x = category)) +
-  geom_bar(aes(y = col1), stat = "identity", fill = "steelblue") +
-  
-  # scale col2 to match primary axis
-  geom_line(aes(y = col2 * scale_factor, group = 1), color = "red", size = 1) +
-  geom_point(aes(y = col2 * scale_factor), color = "red") +
-  
-  scale_y_continuous(
-    name = "Column 1",
-    sec.axis = sec_axis(~ . / scale_factor, name = "Column 2")
-  ) +
-  theme_minimal()
