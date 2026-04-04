@@ -136,32 +136,24 @@ p1 <- ggplot(Team_g, aes(x = season, group = 1)) +
 # =========================
 # 📊 PLOT 2 — Total Goals
 # =========================
-p2 <- ggplot(total_goals, aes(x = season, y = total_goals)) +
+p2 <- ggplot(total_goals, aes(x = as.character(season), y = total_goals)) +
   
-  # Glow layer
-  geom_col(fill = "#d6a66b", width = 0.55) +
+  # Glow effect (using lighter color instead of alpha)
+  geom_col(fill = adjustcolor("#d6a66b" ), width = 0.6) +
   
-  # Inner bar
-  geom_col(fill = "#f4c430", width = 0.35) +
+  # Main bars
+  geom_col(fill = "#d6a66b", width = 0.45) +
   
-  # Labels
+  # Labels inside bars
   geom_text(aes(label = total_goals),
-            vjust = 1.2,
-            color = "#081633",
+            vjust = 1.4,
+            color = "black",
             size = 4,
             fontface = "bold") +
   
-  # Insight
-  annotate("text",
-           x = "2022",
-           y = max(total_goals$total_goals)*0.9,
-           label = "Overall team goals also declined",
-           color = "white",
-           size = 3.5) +
-  
   labs(
-    title = "Total Team Goals",
-    subtitle = "Season-wise output",
+    title = "Chelsea Goals by Season",
+    subtitle = "Drop in output post Costa era",
     x = NULL,
     y = NULL
   ) +
@@ -173,17 +165,14 @@ p2 <- ggplot(total_goals, aes(x = season, y = total_goals)) +
     plot.background = element_rect(fill = "#081633", color = NA),
     panel.background = element_rect(fill = "#081633", color = NA),
     
-    panel.grid.major.y = element_line(color = "#1c355e", linewidth = 0.3),
+    panel.grid.major.y = element_line(color = "white"),
     panel.grid.major.x = element_blank(),
     
     axis.text = element_text(color = "white"),
     axis.ticks = element_blank(),
     
-    plot.title = element_text(color = "white", size = 16, face = "bold"),
-    plot.subtitle = element_text(color = "#d6a66b", size = 11)
+    plot.title = element_text(color = "white", size = 16, face = "bold")
   )
-
-# =========================
 # 🧩 Combine (Patchwork)
 # =========================
 final_plot <- (p1 / p2) +
@@ -191,11 +180,10 @@ final_plot <- (p1 / p2) +
   plot_annotation(
     title = "Chelsea's No.9 Problem (2016–2025)",
     
-    subtitle = paste(
-      "• No striker has contributed >30% of team goals in recent seasons",
-      "• 2022: Only 38 goals scored in 28 games (major dip)",
-      "• A decade since last title win under Conte (2016/17)",
-      sep = "\n"
+    subtitle = paste0(
+      "• No striker has contributed <span style='color:#ff6b6b'><b>>30%</b></span> of team goals<br>",
+      "• <span style='color:#f4c430'><b>2022:</b></span> Only <span style='color:#f4c430'><b>38 goals</b></span> in 28 games<br>",
+      "• Last title: <span style='color:#6be675'><b>2016/17 (Conte)</b></span>"
     ),
     
     theme = theme(
@@ -204,14 +192,16 @@ final_plot <- (p1 / p2) +
         face = "bold",
         color = "white",
         family = "mont",
-        hjust = 0.5   # center align
+        hjust = 0.5
       ),
       
-      plot.subtitle = element_text(
+      # 🔥 THIS IS THE KEY
+      plot.subtitle = ggtext::element_markdown(
         size = 13,
         color = "#d6a66b",
         family = "mont",
-        lineheight = 1.4,   # spacing between lines
+        lineheight = 1.4,
+        hjust = 0.5,
         margin = margin(t = 10, b = 10)
       ),
       
