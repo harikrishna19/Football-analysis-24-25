@@ -12,7 +12,9 @@ library(showtext)
 # =========================
 # font_add_google("Montserrat", "mont")
 font_add_google("Oswald", "oswald")
-# font_add_google("Inter", "inter")
+font_add_google("Inter", "inter")
+# font_add_google("libre", "libre")
+# font_add_google("Libre Franklin", "libre")
 showtext_auto()
 
 
@@ -73,7 +75,7 @@ p1 <- ggplot(Team_g, aes(x = season, group = 1)) +
     color = "white",
     size = 5,
     fontface = "bold",
-    family = "oswald",
+    family = "roboto",
     
     nudge_y = 0.5,              # 👈 reduce distance
     box.padding = 0.2,          # 👈 tighter label spacing
@@ -91,7 +93,7 @@ p1 <- ggplot(Team_g, aes(x = season, group = 1)) +
            x = "2018/19",
            y = max(Team_g$goals),
            label = "Post Costa era: Hazard was the amongst the goals",
-           family = "oswald",   # 👈 add this
+           family = "roboto",   # 👈 add this
            color = "#f4c430",
            fontface = "bold",
            size = 6) +
@@ -99,7 +101,7 @@ p1 <- ggplot(Team_g, aes(x = season, group = 1)) +
            x = "2021/22",
            y = max(Team_g$goals)*0.85,
            label = "No consistent No.9: Dip in Goals from 2019-2022",
-           family = "oswald",   # 👈 add this
+           family = "roboto",   # 👈 add this
            color = "#ff6b6b",
            fontface = "bold",
            size = 6) +
@@ -108,14 +110,14 @@ p1 <- ggplot(Team_g, aes(x = season, group = 1)) +
            x = "2024/25",
            y = 23,
            label = "Rise of Cole Palmer",
-           family = "oswald",   # 👈 add this
+           family = "roboto",   # 👈 add this
            color = "green",
            size = 6,
            fontface = "bold") +
   
   annotate("text",
            x = "2025/26",
-           family = "oswald",   # 👈 add this
+           family = "roboto",   # 👈 add this
            y = 10,
            label = "Current Season***\nPedro leads the scoring,\ngot the likes of Delap\nNkuku as forward options",
            color = "cyan",
@@ -140,7 +142,7 @@ p1 <- ggplot(Team_g, aes(x = season, group = 1)) +
     y = NULL
   ) +
   
-  theme_minimal(base_family = "oswald", base_size = 14) +
+  theme_minimal(base_family = "roboto", base_size = 14) +
   theme(
     plot.background = element_rect(fill = "#081633", color = NA),
     panel.background = element_rect(fill = "#081633", color = NA),
@@ -178,23 +180,23 @@ p2 <- ggplot(total_goals, aes(x = as.character(season), y = total_goals)) +
            width = 0.45) +
   
   scale_fill_manual(values = c(
-    "normal" = "#d6a66b",
-    "highlight" = "red"
+    "normal" = "#c9a55c",
+    "highlight" = "#ff4d4d"
   ), guide = "none") +
   
   # Labels inside bars
   geom_text(aes(label = total_goals),
             vjust = 1.4,
             color = "black",
-            family="oswald",
+            family="inter",
             size = 7,
             fontface = "bold") +
   annotate("text",
            x = "2022",
            y = 45,
-           family="oswald",
+           family="inter",
            label = "Major Dip",
-           color = "cyan",
+           color = "#00f5d4",
            fontface = "bold",
            size = 5)+
   
@@ -209,7 +211,7 @@ p2 <- ggplot(total_goals, aes(x = as.character(season), y = total_goals)) +
   
   theme_minimal(base_family = "oswald", base_size = 14) +
   theme(
-    text = element_text(family = "oswald"),
+    text = element_text(family = "inter"),
     plot.background = element_rect(fill = "#081633", color = NA),
     panel.background = element_rect(fill = "#081633", color = NA),
     
@@ -221,13 +223,13 @@ p2 <- ggplot(total_goals, aes(x = as.character(season), y = total_goals)) +
     axis.text.x = element_blank(),
     axis.ticks.x = element_blank(),
     
-    plot.title = element_text(color = "white", size = 16, face = "bold"),
+    plot.title = element_text(color = "white", size = 16, face = "bold",family="oswald"),
     plot.subtitle  = element_text(color = "white", size = 16, face = "bold")
   ) 
 # 🧩 Combine (Patchwork)
 # =========================
 final_plot <- (p1 / p2) +
-  plot_layout(heights = c(6, 2)) +
+  plot_layout(heights = c(4, 2)) +
   plot_annotation(
     title = "From Costa to Palmer: A Decade of Chelsea Goals in the Premier League",
     caption="Data: UnderStatAPI,Viz:Hari Krishna",
