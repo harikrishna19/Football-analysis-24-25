@@ -49,6 +49,8 @@ def get_team_players(team_name, min_goals=0):
 # Example: Chelsea players
 chelsea_players = get_team_players("Chelsea", min_goals=1)
 
+#Example : Manchester City players
+man_city_players = get_team_players("Manchester City", min_goals=1)
 
 seasons = range(2016, 2026)   # 2016 to 2025
 all_data = []
@@ -64,7 +66,8 @@ team_match_data = pd.concat(all_data, ignore_index=True)
 
 team_match_data.head()
 
-
+player_data.to_csv("data/all_players_data.csv")
+man_city_players.to_csv("data/man_city_players.csv")
 chelsea_players.to_csv("data/chelsea_data.csv")
 team_match_data.to_csv("data/team_data.csv")
 

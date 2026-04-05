@@ -11,6 +11,10 @@ library(dplyr)
 
 team_data<-read.csv("data/team_data.csv")
 chelsea_data<-read.csv("data/chelsea_data.csv")
+man_city_data<-read.csv("data/man_city_players.csv")
+all_players<-read.csv("data/all_players_data.csv")
+fil_data<-all_players %>% filter(team_title=="Chelsea,Manchester City")
+chelsea_data<-rbind(chelsea_data,fil_data)
 chelsea_data$season<-as.character(chelsea_data$season)
 
 systemfonts::system_fonts()
