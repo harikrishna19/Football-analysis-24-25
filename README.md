@@ -45,3 +45,7 @@ Refer the following repo for this project: [Posit Table Submission](https://gith
 6.  **January Transfer Analysis Premier League : 2025/26**
 
 ![](R/06-Transfer-Markt-2025-26-season/final_plot.png)
+
+7.  Chelsea Strikers Analysis Viz
+
+![](images/Rplot.png)

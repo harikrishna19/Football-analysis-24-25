@@ -11,3 +11,6 @@ renv.lock
 
 .RDataTmp
 .DS_Store
+
+
+data/
