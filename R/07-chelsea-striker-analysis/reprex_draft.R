@@ -96,7 +96,7 @@ p1 <- ggplot(Team_g, aes(x = season, group = 1)) +
            family = "roboto",   # 👈 add this
            color = "#f4c430",
            fontface = "bold",
-           size = 6) +
+           size = 7) +
   annotate("text",
            x = "2021/22",
            y = max(Team_g$goals)*0.85,
@@ -104,7 +104,7 @@ p1 <- ggplot(Team_g, aes(x = season, group = 1)) +
            family = "roboto",   # 👈 add this
            color = "#ff6b6b",
            fontface = "bold",
-           size = 6) +
+           size = 7) +
 
   annotate("text",
            x = "2024/25",
@@ -112,16 +112,16 @@ p1 <- ggplot(Team_g, aes(x = season, group = 1)) +
            label = "Rise of Cole Palmer",
            family = "roboto",   # 👈 add this
            color = "green",
-           size = 6,
+           size = 7,
            fontface = "bold") +
   
   annotate("text",
            x = "2025/26",
            family = "roboto",   # 👈 add this
            y = 10,
-           label = "Ongoing Season:\nPedro,Delap\ncenter-forward options",
+           label = "Ongoing Season:\nPedro,Delap as\ncenter-forwards",
            color = "cyan",
-           size = 4,
+           size = 5,
            fontface = "bold") +
   
 
