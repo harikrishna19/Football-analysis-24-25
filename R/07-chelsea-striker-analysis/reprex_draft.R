@@ -119,9 +119,9 @@ p1 <- ggplot(Team_g, aes(x = season, group = 1)) +
            x = "2025/26",
            family = "roboto",   # 👈 add this
            y = 10,
-           label = "Current Season***\nPedro,Nkuku,Delap\nas forward options",
+           label = "Ongoing Season:\nPedro,Delap\ncenter-forward options",
            color = "cyan",
-           size = 4.5,
+           size = 4,
            fontface = "bold") +
   
 
