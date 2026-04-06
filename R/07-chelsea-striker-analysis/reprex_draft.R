@@ -91,8 +91,8 @@ p1 <- ggplot(Team_g, aes(x = season, group = 1)) +
   # 🎯 Key insights
   annotate("text",
            x = "2018/19",
-           y = max(Team_g$goals),
-           label = "Post Costa era: Hazard was the amongst the goals",
+           y = 22,
+           label = "Hazard was the amongst the goals post Costa",
            family = "roboto",   # 👈 add this
            color = "#f4c430",
            fontface = "bold",
@@ -100,7 +100,7 @@ p1 <- ggplot(Team_g, aes(x = season, group = 1)) +
   annotate("text",
            x = "2021/22",
            y = max(Team_g$goals)*0.85,
-           label = "No consistent No.9: Dip in Goals from 2019-2022",
+           label = "No consistent No.9:\nDip in Goals from 2019-2022",
            family = "roboto",   # 👈 add this
            color = "#ff6b6b",
            fontface = "bold",
@@ -119,7 +119,7 @@ p1 <- ggplot(Team_g, aes(x = season, group = 1)) +
            x = "2025/26",
            family = "roboto",   # 👈 add this
            y = 10,
-           label = "Current Season***\nPedro leads the scoring,\ngot the likes of Delap\nNkuku as forward options",
+           label = "Current Season***\nPedro,Nkuku,Delap\nas forward options",
            color = "cyan",
            size = 4.5,
            fontface = "bold") +
@@ -155,8 +155,8 @@ p1 <- ggplot(Team_g, aes(x = season, group = 1)) +
     axis.text.x = element_text(color = "white", face = "bold", size = 18),
     axis.text.y = element_text(color = "white", face = "bold", size = 18),
     
-    axis.title.x = element_text(color = "white", face = "bold", size = 15),
-    axis.title.y = element_text(color = "white", face = "bold", size = 15),
+    axis.title.x = element_text(color = "white", face = "bold", size = 18),
+    axis.title.y = element_text(color = "white", face = "bold", size = 18),
     legend.title = element_blank(),
     legend.text = element_text(color = "white"),
     legend.position = "bottom",
@@ -232,7 +232,7 @@ final_plot <- (p1 / p2) +
   plot_layout(heights = c(4, 2)) +
   plot_annotation(
     title = "From Costa to Palmer: A Decade of Chelsea Goals in the Premier League",
-    caption="Data: UnderStatAPI,Viz:Hari Krishna",
+    caption="Data: UnderStatAPI",
     
     theme = theme(
       plot.title = element_text(
