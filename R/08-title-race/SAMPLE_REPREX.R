@@ -34,7 +34,7 @@ summary_df <- df %>%
     .groups = "drop"
   )
 
-dots_per_row <- 5   # 👈 you can change this (6, 8, etc.)
+dots_per_row <- 7   # 👈 you can change this (6, 8, etc.)
 
 df_plot <- df %>%
   group_by(season, team) %>%
@@ -61,7 +61,7 @@ ggplot(df_plot, aes(x = col, y = -row)) +
   ) +
   geom_text(
     data = summary_df,
-    aes(x = 3, y = 1.5, label = paste0(GF, "-", GA)),
+    aes(x = 3, y = 1.5, label = paste0(team ,":",GF, "-", GA)),
     inherit.aes = FALSE,
     fontface = "bold",
     size = 4
@@ -80,4 +80,64 @@ ggplot(df_plot, aes(x = col, y = -row)) +
     axis.text = element_blank(),
     axis.ticks = element_blank(),
     strip.text = element_text(face = "bold")
+  )+ggthemes::theme_fivethirtyeight()
+
+
+df_plot <- df_plot %>%
+  group_by(team, season) %>%
+  arrange(matchday) %>%
+  mutate(
+    last15 = matchday > (max(matchday) - 15)
+  )
+
+
+ggplot(df_plot, aes(x = col, y = row)) +
+
+  geom_tile(
+    aes(fill = result),
+    color = "white",
+    size = 0.5,
+    width = 0.9,
+    height = 0.9
+  ) +
+
+  scale_y_reverse() +
+
+  facet_grid(team ~ season) +
+
+  scale_fill_manual(
+    values = c(
+      "W" = "#2ecc71",
+      "D" = "#f1c40f",
+      "L" = "#e74c3c"
+    )
+  ) +
+
+  geom_text(
+    data = summary_df,
+    aes(x = 3, y = -1.5, label = paste0(team, ": ", GF, "-", GA)),
+    inherit.aes = FALSE,
+    fontface = "bold",
+    size = 4
+  ) +
+
+  coord_equal() +
+
+  labs(
+    title = "Man City vs Arsenal over the years:Premier League",
+    subtitle = "Each block represents one match (38 per season)",
+    x = NULL,
+    y = NULL
+  ) +
+
+  theme_minimal() +
+
+  theme(
+    panel.grid = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    strip.text = element_text(face = "bold", size = 12),
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 12),
+    legend.position = "top"
   )
