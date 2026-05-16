@@ -1,9 +1,17 @@
 
 
+# Load libraries ----------------------------------------------------------
+
+library(waffle)
+library(tidyverse)
+library(grid)
+library(patchwork)
+
+
 # Load data
 
 data<-read.csv("data/pl_data.csv")
-
+data<-data %>% group_by(season,title) %>% mutate(Matchweek=row_number())
 
 metrics_df<-data  %>% 
   group_by(season,title) %>% 
@@ -13,12 +21,11 @@ metrics_df<-data  %>%
     "Draws"=sum(draws),
     "Losses"=sum(loses),
     "Points"=sum(pts)
-  )
+  ) %>% filter(season!="2022/23")
 # make_waffle(metrics_df$Wins,metrics_df$Draws,metrics_df$Losses,season = metrics_df$season,metrics_df$title,period = "",metrics_df$Points)
 
 make_waffle <- function(wins, draws, losses,
                         season, team, points) {
-  
   vals <- c(
     rep("Wins", wins),
     rep("Draws", draws),
@@ -39,24 +46,47 @@ make_waffle <- function(wins, draws, losses,
   )
 }
 
-waffle_data <- pmap_dfr(
-  list(metrics_df$Wins,
-       metrics_df$Draws,
-       metrics_df$Losses,
-       metrics_df$season,
-       metrics_df$title,
-       # df$period,
-       metrics_df$Points),
-  make_waffle
-)
+make_waffle <- function(results) {
+  
+  vals <- c(results, rep("Empty", 40 - length(results)))
+  
+  tibble(
+    id = 1:40,
+    result = vals,
+    row = rep(1:5, each = 8),
+    col = rep(1:8, times = 5),
+    
+    tile_label = c(
+      paste0("MW", 1:length(results)),
+      rep(NA, 40 - length(results))
+    )
+  )
+}
 
+
+waffle_data <- data %>%
+  
+  arrange(Matchweek) %>%
+  
+  group_by(season, title) %>%
+  
+  summarise(
+    results = list(result),
+    .groups = "drop"
+  ) %>%
+  
+  mutate(
+    waffle = map(results, make_waffle)
+  ) %>%
+  
+  unnest(waffle)
 
 bg_col <- "#F6F1E8"
 
 result_cols <- c(
-  "Wins"   = "#1B7837",
-  "Draws"  = "#C99700",
-  "Losses" = "#B22222",
+  "w"   = "#1B7837",
+  "d"  = "#C99700",
+  "l" = "#B22222",
   "Empty"  = "#E8DED0"
 )
 
@@ -87,7 +117,7 @@ base_theme <- theme_minimal(base_family = "Helvetica") +
 
 plot_waffle <- function(team_name) {
   plot_df <- waffle_data %>%
-    filter(team == team_name)
+    filter(title == team_name)
   
   ggplot(plot_df,
          aes(col, -row)) +
@@ -100,21 +130,21 @@ plot_waffle <- function(team_name) {
       height = 0.93
     ) +
     
-    geom_text(
-      data = plot_df %>%
-        distinct(season,points),
-      
-      aes(
-        x = 4.5,
-        y = 1.2,
-        label = paste0(points, " pts")
-      ),
-      
-      inherit.aes = FALSE,
-      fontface = "bold",
-      size = 4.2
-    ) +
-    
+    # geom_text(
+    #   data = plot_df %>%
+    #     distinct(season,points),
+    #   
+    #   aes(
+    #     x = 4.5,
+    #     y = 1.2,
+    #     label = paste0(points, " pts")
+    #   ),
+    #   
+    #   inherit.aes = FALSE,
+    #   fontface = "bold",
+    #   size = 4.2
+    # ) +
+    # 
     facet_grid(
       season ~ .,
       switch = "y"
@@ -156,7 +186,7 @@ plot_waffle <- function(team_name) {
       legend.position = "none",
       
       panel.spacing.y = unit(1.8, "lines")
-    )
+    ) 
 }
 
 # =========================================================
@@ -250,4 +280,72 @@ logo_panel <- ggplot() +
   )
 
 
-logo_panel + plot_waffle("Manchester City") + plot_waffle("Arsenal")
+
+# =========================================================
+# RIGHT INSIGHT PANEL
+# =========================================================
+
+insight_panel <- ggplot() +
+  
+  annotate(
+    "label",
+    x = 1,
+    y = 8.5,
+    
+    label =
+      "2022/23\nCity won 16 of 19\nmatches during the\nbusiness end.",
+    
+    fill = "white",
+    colour = "#6CABDD",
+    label.size = 0,
+    fontface = "bold",
+    size = 4.5
+  ) +
+  
+  annotate(
+    "label",
+    x = 1,
+    y = 5.2,
+    
+    label =
+      "2023/24\nArsenal pushed\nCity until the\nfinal weeks.",
+    
+    fill = "white",
+    colour = "#D00027",
+    label.size = 0,
+    fontface = "bold",
+    size = 4.5
+  ) +
+  
+  annotate(
+    "label",
+    x = 1,
+    y = 2,
+    
+    label =
+      "2024/25\nArsenal show the\nstronger projected\nrun-in form.",
+    
+    fill = "white",
+    colour = "#1B7837",
+    label.size = 0,
+    fontface = "bold",
+    size = 4.5
+  ) +
+  
+  xlim(0, 2) +
+  ylim(0, 10) +
+  
+  theme_void() +
+  
+  theme(
+    plot.background = element_rect(
+      fill = bg_col,
+      colour = NA
+    )
+  )
+
+
+logo_panel + plot_waffle("Manchester City") + plot_waffle("Arsenal")+  plot_layout(
+  widths = c(3, 5,5)
+)
+
