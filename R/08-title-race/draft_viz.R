@@ -31,7 +31,7 @@ last_10<-data %>% group_by(season,title) %>%
     "Losses"=sum(loses),
     "Points"=sum(pts)
   ) %>% 
-  mutate(text=paste0(title," ",Wins,"+",Draws,"+",Losses,"+",Points))
+  mutate(text=paste0(title," ","Wins", " ",Wins,"+","Draws", " ",Draws,"+","Losses", " ",Losses,"+","Points"," ",Points))
 
 metrics_df<-data  %>% 
   group_by(season,title) %>% 
@@ -152,29 +152,28 @@ plot_waffle <- function(team_name) {
       height = 0.93
     ) +
     # geom_text(
-    #   data = plot_df %>%
-    #     distinct(season,points),
-    #   
+    #   data = metrics_df,
     #   aes(
-    #     x = 4.5,
+    #     x = 7.5,
     #     y = 1.2,
-    #     label = paste0(points, " pts")
+    #     label = Points
     #   ),
-    #   
+    # 
     #   inherit.aes = FALSE,
     #   fontface = "bold",
     #   size = 4.2
     # ) +
-    # 
+
     facet_grid(
       season ~ .,
       switch = "y"
     ) +
     geom_label(
-      data = last_10,
+      data = last_10  %>%
+        filter(title == team_name),
       
       aes(
-        x = 5.5,
+        x = 4.5,
         y = -6.3,
         label = text
       ),
@@ -190,7 +189,7 @@ plot_waffle <- function(team_name) {
       
       label.r = unit(0.18, "lines"),
       
-      lineheight = 1.1
+      lineheight = 2.1
     ) +
     
     
@@ -245,13 +244,13 @@ logo_panel <- ggplot() +
     xmin = 0,
     xmax = 5,
     ymin = 6,
-    ymax = 10
+    ymax = 15
   ) +
   
   annotate(
     "text",
     x = 0,
-    y = 5.2,
+    y = 7.2,
     
     label = "Premier League title race trends\nacross recent seasons",
     
@@ -272,7 +271,6 @@ logo_panel <- ggplot() +
     hjust = 0,
     size = 5
   ) +
-  
   annotate(
     "text",
     x = 0,
