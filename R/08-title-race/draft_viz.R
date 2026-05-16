@@ -8,10 +8,30 @@ library(grid)
 library(patchwork)
 
 
+
+# fonts -------------------------------------------------------------------
+library(showtext)
+
+font_add_google("Inter", "inter")
+font_add_google("Bebas Neue", "bebas")
+font_add_google("Anton", "anton")
+font_add_google("Roboto Condensed", "roboto")
+showtext_auto()
+
 # Load data
 
 data<-read.csv("data/pl_data.csv")
-data<-data %>% group_by(season,title) %>% mutate(Matchweek=row_number())
+data<-data %>% group_by(season,title) %>% mutate(Matchweek=row_number()) %>% filter(season!="2022/23")
+
+last_10<-data %>% group_by(season,title) %>% 
+         filter(Matchweek>=30) %>% 
+  summarise(
+    "Wins"=sum(wins),
+    "Draws"=sum(draws),
+    "Losses"=sum(loses),
+    "Points"=sum(pts)
+  ) %>% 
+  mutate(text=paste0(title," ",Wins,"+",Draws,"+",Losses,"+",Points))
 
 metrics_df<-data  %>% 
   group_by(season,title) %>% 
@@ -95,7 +115,7 @@ team_cols <- c(
   "Arsenal"  = "#D00027"
 )
 
-base_theme <- theme_minimal(base_family = "Helvetica") +
+base_theme <- theme_minimal(base_family = "anton") +
   theme(
     plot.background = element_rect(
       fill = bg_col,
@@ -118,7 +138,9 @@ base_theme <- theme_minimal(base_family = "Helvetica") +
 plot_waffle <- function(team_name) {
   plot_df <- waffle_data %>%
     filter(title == team_name)
-  
+  run_plot <-
+    metrics_df %>%
+    filter(title == team_name)
   ggplot(plot_df,
          aes(col, -row)) +
     
@@ -129,7 +151,6 @@ plot_waffle <- function(team_name) {
       width = 0.93,
       height = 0.93
     ) +
-    
     # geom_text(
     #   data = plot_df %>%
     #     distinct(season,points),
@@ -149,6 +170,29 @@ plot_waffle <- function(team_name) {
       season ~ .,
       switch = "y"
     ) +
+    geom_label(
+      data = last_10,
+      
+      aes(
+        x = 5.5,
+        y = -6.3,
+        label = text
+      ),
+      
+      inherit.aes = FALSE,
+      
+      fill = "#F7F2E8",
+      colour = "black",
+      
+      label.size = 0.4,
+      
+      size = 4.1,
+      
+      label.r = unit(0.18, "lines"),
+      
+      lineheight = 1.1
+    ) +
+    
     
     scale_fill_manual(values = result_cols) +
     
@@ -170,14 +214,14 @@ plot_waffle <- function(team_name) {
       ),
       
       plot.title = element_text(
-        size = 16,
+        size = 12,
         face = "bold",
         hjust = 0.5,
         colour = "black"
       ),
       
       plot.subtitle = element_text(
-        size = 13,
+        size = 22,
         face = "bold",
         hjust = 0.5,
         colour = team_cols[[team_name]]
