@@ -29,7 +29,7 @@ annotate(
   y = 6.4,
   
   label =
-    "PREMIER LEAGUE TITLE RACE TRENDS",
+    "PREMIER LEAGUE \nTITLE RACE TRENDS",
   
   family = "anton",
   
@@ -53,115 +53,82 @@ annotate(
   y = 5.15,
   
   label =
-    "Each square represents\none league match.",
+    "Each square represents one league match.",
   
-  family = "roboto",
+  family = "anton",
   
   hjust = 0,
   
-  size = 4.6,
+  size = 5,
   
-  colour = "grey25",
+  colour = "black",
   
-  lineheight = 1.2
+  lineheight = 2.2
 ) +
   
   # =====================================================
 # DIVIDER
 # =====================================================
-
-annotate(
-  "segment",
-  
-  x = 0,
-  xend = 4.7,
-  
-  y = 4.25,
-  yend = 4.25,
-  
-  colour = "#D8D0C4",
-  
-  linewidth = .5
-) +
-  
+# 
+# annotate(
+#   "segment",
+#   
+#   x = 0,
+#   xend = 4.7,
+#   
+#   y = 4,
+#   yend = 4.25,
+#   
+#   colour = "#D8D0C4",
+#   
+#   linewidth = .5
+# ) +
+#   
   # =====================================================
 # LEGEND
 # =====================================================
-
 annotate(
-  "text",
+  "richtext",
   
   x = 0,
-  y = 3.45,
+  y = 4.5,
   
-  label = "Wins",
+  label =
+    "<span style='color:#178A34;'>Wins</span>
+     <span style='color:grey40;'>|</span>
+     <span style='color:#D9A404;'>Draws</span>
+     <span style='color:grey40;'>|</span>
+     <span style='color:#C8102E;'>Losses</span>",
   
   family = "roboto",
   
   fontface = "bold",
   
-  colour = "#178A34",
-  
   hjust = 0,
   
-  size = 5.4
-) +
+  size = 5.2,
   
-  annotate(
-    "text",
-    
-    x = 0,
-    y = 2.7,
-    
-    label = "Draws",
-    
-    family = "roboto",
-    
-    fontface = "bold",
-    
-    colour = "#D9A404",
-    
-    hjust = 0,
-    
-    size = 5.4
-  ) +
+  fill = NA,
   
-  annotate(
-    "text",
-    
-    x = 0,
-    y = 1.95,
-    
-    label = "Losses",
-    
-    family = "roboto",
-    
-    fontface = "bold",
-    
-    colour = "#C8102E",
-    
-    hjust = 0,
-    
-    size = 5.4
-  ) +
-  
+  label.color = NA
+)+
   # =====================================================
 # SECOND DIVIDER
 # =====================================================
 
-annotate(
-  "segment",
-  
-  x = 0,
-  xend = 4.7,
-  
-  y = 1.15,
-  yend = 1.15,
-  
-  colour = "#D8D0C4",
-  
-  linewidth = .5
-) +
+# annotate(
+#   "segment",
+#   
+#   x = 0,
+#   xend = 4.7,
+#   
+#   y = 2.15,
+#   yend = 2.15,
+#   
+#   colour = "#D8D0C4",
+#   
+#   linewidth = .5
+# ) +
   
   # =====================================================
 # INSIGHT TEXT
@@ -227,9 +194,60 @@ theme_void() +
     plot.margin =
       
       margin(
-        20,
+        5,
         10,
         20,
         20
       )
+  )
+
+
+team_header <- ggplot() +
+  
+  geom_image(
+    
+    data =
+      header_df %>%
+      filter(team == "Manchester City"),
+    
+    aes(
+      x = 0.8,
+      y = 1,
+      image = logo
+    ),
+    
+    size = 0.08
+  ) +
+  
+  annotate(
+    "text",
+    
+    x = 1.7,
+    y = 1,
+    
+    label = "Manchester City",
+    
+    family = "anton",
+    
+    fontface = "bold",
+    
+    colour = team_cols[["Manchester City"]],
+    
+    hjust = 0,
+    
+    size = 9
+  ) +
+  
+  coord_cartesian(
+    xlim = c(0,6),
+    ylim = c(0,2)
+  ) +
+  
+  theme_void() +
+  
+  theme(
+    plot.background = element_rect(
+      fill = bg_col,
+      colour = NA
+    )
   )

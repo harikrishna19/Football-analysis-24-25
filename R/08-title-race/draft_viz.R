@@ -6,7 +6,8 @@ library(waffle)
 library(tidyverse)
 library(grid)
 library(patchwork)
-
+library(ggimage)
+library(ggtext)
 
 
 # fonts -------------------------------------------------------------------
@@ -44,6 +45,33 @@ metrics_df<-data  %>%
   ) %>% filter(season!="2022/23")
 # make_waffle(metrics_df$Wins,metrics_df$Draws,metrics_df$Losses,season = metrics_df$season,metrics_df$title,period = "",metrics_df$Points)
 
+#Logo_data
+
+header_df <- tibble(
+  
+  team = c(
+    "Manchester City",
+    "Arsenal"
+  ),
+  
+  x = c(0,1),
+  
+  y = c(0,1),
+  
+  colour = c("#6CABDD", "#D00027"),
+  
+  logo = c(
+    
+    "https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg",
+    
+    "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg"
+  )
+)
+
+
+
+
+
 make_waffle <- function(wins, draws, losses,
                         season, team, points) {
   vals <- c(
@@ -57,8 +85,8 @@ make_waffle <- function(wins, draws, losses,
   tibble(
     id = 1:40,
     result = vals,
-    row = rep(1:5, each = 8),
-    col = rep(1:8, times = 5),
+    row = rep(1:4, each = 10),
+    col = rep(1:4, times = 4),
     season = season,
     team = team,
     # period = period,
@@ -141,6 +169,57 @@ plot_waffle <- function(team_name) {
   run_plot <-
     metrics_df %>%
     filter(title == team_name)
+  header_df<-header_df %>% filter(team==team_name)
+  
+  team_header <- ggplot() +
+
+    geom_image(
+
+      data =
+        header_df %>%
+        filter(team == team_name),
+
+      aes(
+        x = 0.8,
+        y = 1,
+        image = logo
+      ),
+
+      size = 0.08
+    ) +
+    annotate(
+      "text",
+
+      x = 1.7,
+      y = 1,
+
+      label = team_name,
+
+      family = "anton",
+
+      fontface = "bold",
+
+      colour = team_cols[[team_name]],
+
+      hjust = 0,
+
+      size = 9
+    ) +
+
+    coord_cartesian(
+      xlim = c(0,6),
+      ylim = c(0,2)
+    ) +
+
+    theme_void() +
+
+    theme(
+      plot.background = element_rect(
+        fill = bg_col,
+        colour = NA
+      )
+    )
+  
   ggplot(plot_df,
          aes(col, -row)) +
     
@@ -163,7 +242,24 @@ plot_waffle <- function(team_name) {
     #   fontface = "bold",
     #   size = 4.2
     # ) +
-
+#     geom_image(
+#   
+#   data =
+#     
+#     header_df %>%
+#     
+#     filter(team == team_name),
+#   
+#   aes(
+#     x = 4.5,
+#     y = 1.8,
+#     image = logo
+#   ),
+#   
+#   inherit.aes = FALSE,
+#   
+#   size = 0.08
+# )+
     facet_grid(
       season ~ .,
       switch = "y"
@@ -218,7 +314,6 @@ plot_waffle <- function(team_name) {
         hjust = 0.5,
         colour = "black"
       ),
-      
       plot.subtitle = element_text(
         size = 22,
         face = "bold",
@@ -230,6 +325,8 @@ plot_waffle <- function(team_name) {
       
       panel.spacing.y = unit(1.8, "lines")
     ) 
+  
+  
 }
 
 # =========================================================
