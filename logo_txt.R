@@ -11,35 +11,36 @@ annotation_custom(
     interpolate = TRUE
   ),
   
-  xmin = 0.2,
-  xmax = 3.8,
+  xmin = 1.15,
+  xmax = 3.85,
   
-  ymin = 7.8,
+  ymin = 8.2,
   ymax = 10.8
 ) +
   
   # =====================================================
-# TITLE
+# MAIN TITLE
 # =====================================================
 
 annotate(
   "text",
   
   x = 0,
-  y = 6.4,
+  y = 6.8,
   
-  label =
-    "PREMIER LEAGUE \nTITLE RACE TRENDS",
+  label = "PREMIER LEAGUE TITLE RACE",
   
   family = "anton",
   
+  fontface = "plain",
+  
   hjust = 0,
   
-  size = 10.5,
+  size = 11,
   
-  colour = "#1A1A1A",
+  colour = "#111111",
   
-  lineheight = .92
+  lineheight = 0.9
 ) +
   
   # =====================================================
@@ -50,112 +51,145 @@ annotate(
   "text",
   
   x = 0,
-  y = 5.15,
+  y = 5.65,
   
-  label =
-    "Each square represents one league match.",
+  label = "Each square represents one league match",
   
-  family = "anton",
+  family = "inter",
+  
+  fontface = "plain",
   
   hjust = 0,
   
-  size = 5,
+  size = 6.3,
   
-  colour = "black",
+  colour = "grey20"
+) +
   
-  lineheight = 2.2
+  # =====================================================
+# LEGEND
+# =====================================================
+
+annotate(
+  "richtext",
+  
+  x = 0,
+  y = 4.85,
+  
+  label =
+    "<span style='color:#1B7837;'><b>Wins</b></span>
+      <span style='color:grey45;'>|</span>
+      <span style='color:#C99700;'><b>Draws</b></span>
+      <span style='color:grey45;'> | </span>
+      <span style='color:#B22222;'><b>Losses</b></span>
+      <span style='color:grey45;'> | </span>
+      <span style='color:#C8C1B6;'><b> Matches-Remaining</b></span>",
+  
+  family = "inter",
+  
+  hjust = 0,
+  
+  size = 6,
+  
+  fill = NA,
+  
+  label.color = NA
 ) +
   
   # =====================================================
 # DIVIDER
 # =====================================================
-# 
-# annotate(
-#   "segment",
-#   
-#   x = 0,
-#   xend = 4.7,
-#   
-#   y = 4,
-#   yend = 4.25,
-#   
-#   colour = "#D8D0C4",
-#   
-#   linewidth = .5
-# ) +
-#   
-  # =====================================================
-# LEGEND
-# =====================================================
+
 annotate(
-  "richtext",
+  "segment",
   
   x = 0,
-  y = 4.5,
+  xend = 4.7,
   
-  label =
-    "<span style='color:#178A34;'>Wins</span>
-     <span style='color:grey40;'>|</span>
-     <span style='color:#D9A404;'>Draws</span>
-     <span style='color:grey40;'>|</span>
-     <span style='color:#C8102E;'>Losses</span>",
+  y = 4.15,
+  yend = 4.15,
   
-  family = "roboto",
+  colour = "#CFC6B8",
   
-  fontface = "bold",
-  
-  hjust = 0,
-  
-  size = 5.2,
-  
-  fill = NA,
-  
-  label.color = NA
-)+
-  # =====================================================
-# SECOND DIVIDER
-# =====================================================
-
-# annotate(
-#   "segment",
-#   
-#   x = 0,
-#   xend = 4.7,
-#   
-#   y = 2.15,
-#   yend = 2.15,
-#   
-#   colour = "#D8D0C4",
-#   
-#   linewidth = .5
-# ) +
+  linewidth = 0.5
+) +
   
   # =====================================================
-# INSIGHT TEXT
+# INSIGHTS HEADER
 # =====================================================
 
 annotate(
   "text",
   
   x = 0,
-  y = -0.1,
+  y = 3.45,
   
-  label =
-    "Manchester City continue to\n\
-dominate late-season momentum,\n\
-while Arsenal show stronger\n\
-consistency in the projected\n\
-2024/25 run-in.",
+  label = "2025/26 SEASON KEY INSIGHTS",
   
-  family = "roboto",
+  family = "anton",
   
   hjust = 0,
   
-  size = 4.1,
+  size = 5.6,
   
-  colour = "grey20",
+  colour = "#111111"
+) +
   
-  lineheight = 1.35
+  # =====================================================
+# INSIGHTS TEXT
+# =====================================================
+
+annotate(
+  "text",
+  
+  x = 0,
+  y = 2.4,
+  
+  label =
+    "• City dominate recent title run-ins
+• Arsenal recovered after defeats
+• Everton held City to a draw
+• Arsenal maintained April momentum
+• Only two points separate sides
+• Matchweek 38 decides the title
+
+ City or Arsenal?",
+  
+  family = "inter",
+  
+  fontface = "plain",
+  
+  hjust = 0,
+  
+  vjust = 1,
+  
+  size = 6.8,
+  
+  colour = "#151515",
+  
+  lineheight = 1.15
+) +
+  
+  # =====================================================
+# FOOTER
+# =====================================================
+
+annotate(
+  "text",
+  
+  x = 0,
+  y = -2.9,
+  
+  label = "Data: UNDERSTATAPI | Graphic: HARI KRISHNA",
+  
+  family = "inter",
+  
+  hjust = 0,
+  fontface="bold",
+  
+  size = 4.3,
+  
+  colour = "grey45"
 ) +
   
   # =====================================================
@@ -164,9 +198,11 @@ consistency in the projected\n\
 
 coord_cartesian(
   
-  xlim = c(0,5),
+  xlim = c(0, 5),
   
-  ylim = c(-1,10)
+  ylim = c(-4, 10),
+  
+  clip = "off"
 ) +
   
   # =====================================================
@@ -178,76 +214,22 @@ theme_void() +
   theme(
     
     plot.background =
-      
       element_rect(
         fill = bg_col,
         colour = NA
       ),
     
     panel.background =
-      
       element_rect(
         fill = bg_col,
         colour = NA
       ),
     
     plot.margin =
-      
       margin(
-        5,
         10,
-        20,
+        15,
+        25,
         20
       )
-  )
-
-
-team_header <- ggplot() +
-  
-  geom_image(
-    
-    data =
-      header_df %>%
-      filter(team == "Manchester City"),
-    
-    aes(
-      x = 0.8,
-      y = 1,
-      image = logo
-    ),
-    
-    size = 0.08
-  ) +
-  
-  annotate(
-    "text",
-    
-    x = 1.7,
-    y = 1,
-    
-    label = "Manchester City",
-    
-    family = "anton",
-    
-    fontface = "bold",
-    
-    colour = team_cols[["Manchester City"]],
-    
-    hjust = 0,
-    
-    size = 9
-  ) +
-  
-  coord_cartesian(
-    xlim = c(0,6),
-    ylim = c(0,2)
-  ) +
-  
-  theme_void() +
-  
-  theme(
-    plot.background = element_rect(
-      fill = bg_col,
-      colour = NA
-    )
   )

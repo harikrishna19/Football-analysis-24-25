@@ -37,21 +37,23 @@ last_10<-data %>% group_by(season,title) %>%
     
     text = paste0(
       
-      "<span style='font-size:13pt;'><b>Final10:</b></span> ",
+      "<span style='font-size:13pt;'><b>Final10:</b></span>",
       
-      "<span style='color:#1B7837;'><b>", Wins, "W</b></span> ",
+      "<span style='color:#1B7837;'><b>", Wins, "W</b></span>",
       
-      "<span style='color:#C99700;'><b>", Draws, "D</b></span> ",
+      "<span style='color:#C99700;'><b>", Draws, "D</b></span>",
       
       "<span style='color:#B22222;'><b>", Losses, "L</b></span>",
       
-      "|",
+      "<span style='color:grey40;'> | </span>",
       
       "<span style='font-size:12pt;'><b>Win Rate:</b> ",
+      
       win_per,
+      
       "%</span>"
-    )
-  )
+    
+  ))
     #mutate(text=paste0("Final10:",Wins,"W"," ",Draws,"D"," ",Losses,"L", " ","Win Rate:", " ", win_per,"%"))
 
 metrics_df<-data  %>% 
@@ -295,12 +297,13 @@ plot_waffle <- function(team_name) {
         y = -6.3,
         label = text
       ),
-      
       inherit.aes = FALSE,
       
       fill = "#F7F2E8",
       
-      label.color = NA,
+      label.color = "#D8D0C4",
+      
+      label.size = 0.8,
       
       colour = "black",
       
@@ -507,6 +510,6 @@ insight_panel <- ggplot() +
 
 
 logo_panel + plot_waffle("Manchester City") + plot_waffle("Arsenal")+  plot_layout(
-  widths = c(3, 5,5)
+  widths = c(8, 5,5)
 )
 

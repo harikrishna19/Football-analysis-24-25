@@ -16,7 +16,7 @@
   # Example:
   # pl_logo.png
   
-  pl_logo <- png::readPNG("pl_logo.png")
+  # pl_logo <- png::readPNG("pl_logo.png")
   
   # =========================================================
   # DATA
