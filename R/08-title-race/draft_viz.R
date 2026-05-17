@@ -149,13 +149,15 @@ waffle_data <- data %>%
   
   unnest(waffle)
 
+waffle_data<-waffle_data %>% filter(!id %in% c(39,40))
+
 bg_col <- "#F6F1E8"
 
 result_cols <- c(
   "w"   = "#1B7837",
   "d"  = "#C99700",
   "l" = "#B22222",
-  "Empty"  = "#E8DED0"
+  "Empty"  = "#C8C1B6"
 )
 
 team_cols <- c(
