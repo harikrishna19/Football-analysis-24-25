@@ -25,14 +25,34 @@ data<-read.csv("data/pl_data.csv")
 data<-data %>% group_by(season,title) %>% mutate(Matchweek=row_number()) %>% filter(season!="2022/23")
 
 last_10<-data %>% group_by(season,title) %>% 
-         filter(Matchweek>=30) %>% 
+         filter(Matchweek>=29) %>% 
   summarise(
     "Wins"=sum(wins),
     "Draws"=sum(draws),
     "Losses"=sum(loses),
-    "Points"=sum(pts)
+    "Points"=sum(pts),
+    "win_per"=(Wins/sum(Wins+Draws+Losses))*100
   ) %>% 
-  mutate(text=paste0(title," ","Wins", " ",Wins,"+","Draws", " ",Draws,"+","Losses", " ",Losses,"+","Points"," ",Points))
+  mutate(
+    
+    text = paste0(
+      
+      "<span style='font-size:13pt;'><b>Final10:</b></span> ",
+      
+      "<span style='color:#1B7837;'><b>", Wins, "W</b></span> ",
+      
+      "<span style='color:#C99700;'><b>", Draws, "D</b></span> ",
+      
+      "<span style='color:#B22222;'><b>", Losses, "L</b></span>",
+      
+      "|",
+      
+      "<span style='font-size:12pt;'><b>Win Rate:</b> ",
+      win_per,
+      "%</span>"
+    )
+  )
+    #mutate(text=paste0("Final10:",Wins,"W"," ",Draws,"D"," ",Losses,"L", " ","Win Rate:", " ", win_per,"%"))
 
 metrics_df<-data  %>% 
   group_by(season,title) %>% 
@@ -263,8 +283,9 @@ plot_waffle <- function(team_name) {
       season ~ .,
       switch = "y"
     ) +
-    geom_label(
-      data = last_10  %>%
+    ggtext::geom_richtext(
+      
+      data = last_10 %>%
         filter(title == team_name),
       
       aes(
@@ -276,17 +297,17 @@ plot_waffle <- function(team_name) {
       inherit.aes = FALSE,
       
       fill = "#F7F2E8",
-      colour = "black",
       
-      label.size = 0.4,
+      label.color = NA,
+      
+      colour = "black",
       
       size = 4.1,
       
-      label.r = unit(0.18, "lines"),
+      lineheight = 1.1,
       
-      lineheight = 2.1
-    ) +
-    
+      label.r = unit(0.18, "lines")
+    )+
     
     scale_fill_manual(values = result_cols) +
     
