@@ -230,18 +230,17 @@ plot_waffle <- function(team_name) {
       width = 0.93,
       height = 0.93
     ) +
-    # geom_text(
-    #   data = metrics_df,
-    #   aes(
-    #     x = 7.5,
-    #     y = 1.2,
-    #     label = Points
-    #   ),
-    # 
-    #   inherit.aes = FALSE,
-    #   fontface = "bold",
-    #   size = 4.2
-    # ) +
+    geom_text(
+      data = metrics_df %>% filter(title==team_name),
+      aes(
+        x = 0,
+        y = -1.0,vjust=-2.3,hjust=-2.5,
+        label = paste0(Points, " Points")
+      ),
+      fontface="bold",
+      inherit.aes = T,
+      size = 4
+    ) +
 #     geom_image(
 #   
 #   data =
