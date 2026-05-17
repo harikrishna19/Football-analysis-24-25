@@ -77,11 +77,11 @@ annotate(
   y = 4.85,
   
   label =
-    "<span style='color:#1B7837;'><b>Wins</b></span>
+    "<span style='color:#4FA66B;'><b>Wins</b></span>
       <span style='color:grey45;'>|</span>
-      <span style='color:#C99700;'><b>Draws</b></span>
+      <span style='color:#D8B547;'><b>Draws</b></span>
       <span style='color:grey45;'> | </span>
-      <span style='color:#B22222;'><b>Losses</b></span>
+      <span style='color:#D46A6A;'><b>Losses</b></span>
       <span style='color:grey45;'> | </span>
       <span style='color:#C8C1B6;'><b> Matches-Remaining</b></span>",
   
@@ -189,7 +189,7 @@ annotate(
   
   size = 4.3,
   
-  colour = "grey45"
+  colour = "black"
 ) +
   
   # =====================================================

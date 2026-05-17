@@ -156,12 +156,11 @@ waffle_data<-waffle_data %>% filter(!id %in% c(39,40))
 bg_col <- "#F6F1E8"
 
 result_cols <- c(
-  "w"   = "#1B7837",
-  "d"  = "#C99700",
-  "l" = "#B22222",
-  "Empty"  = "#C8C1B6"
+  "w" = "#4FA66B",
+  "d" = "#D8B547",
+  "l" = "#D46A6A",
+  "Empty" = "#DDD6CC"
 )
-
 team_cols <- c(
   "Manchester City" = "#6CABDD",
   "Arsenal"  = "#D00027"
@@ -307,7 +306,7 @@ plot_waffle <- function(team_name) {
       
       colour = "black",
       
-      size = 4.1,
+      size = 6,
       
       lineheight = 1.1,
       
