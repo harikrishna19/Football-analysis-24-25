@@ -1,8 +1,8 @@
-# Football-Viz
+# `Football-Visualizations`
 
 ## Idea of combining soccer data with amazing visualizations
 
-1.**Liverpool Analysis 2024-25 Premier League season Visual Info graphic**
+# 1. Liverpool Analysis 2024-25 Premier League
 
 -   Liverpool Formations
 
@@ -14,7 +14,7 @@
 
 ![](images/01-liverpool_infographic.png)
 
-2.  **Premier League 2024/25 Season using {gganimate}**
+# 2. Premier League 2024/25 Season using {gganimate}
 
 ![](images/02_pl_infographic.png)
 
@@ -24,7 +24,7 @@
 
 -   2 Visuals for the season 24/25
 
-3.  **Tottenham Premier League 2024/25 season player availability analysis**
+# 3. Tottenham Premier League 2024/25 Viz
 
 -   Analyze the player availability of Tottenham by Match Week for 2024/25 Premier league season
 
@@ -32,24 +32,25 @@
 
 ![Tottenham Infographic](images/Tottenham_Infographic.png)
 
-4.  **Transfer Analysis 2025/26 Premier League : Posit Table contest 2025**
+# 4. Posit Table contest 2025
 
 Refer the following repo for this project: [Posit Table Submission](https://github.com/harikrishna19/Posit-Table-Contest-2025)
 
 ![](images/PL_New.png)
 
-5.  **Promoted teams performances in last 2 years(23/24,24/25) & the current season**
+# 5. Promoted teams performances. Viz
 
 ![](images/final_viz.png)
 
-6.  **January Transfer Analysis Premier League : 2025/26**
+# 6. January Transfer Analysis Premier League : 2025/26
 
 ![](R/06-Transfer-Markt-2025-26-season/final_plot.png)
 
-7.  **Chelsea Strikers Analysis Viz**
+
+# 7.  Chelsea Strikers Analysis Viz
 
 ![](images/Rplot.png)
 
-8.  Title Race Viz: Premier League 2025/26: Manchester City vs Arsenal
+# 8. Title Race Viz: Premier League 2025/26
 
 ![](R/08-title-race/final_viz_update.png)
