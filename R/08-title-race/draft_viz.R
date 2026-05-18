@@ -24,6 +24,16 @@ showtext_auto()
 data<-read.csv("data/pl_data.csv")
 data<-data %>% group_by(season,title) %>% mutate(Matchweek=row_number()) %>% filter(season!="2022/23")
 
+metrics_df<-data  %>% 
+  group_by(season,title) %>% 
+  select(season,title,wins,draws,loses,pts) %>% 
+  summarise(
+    "Wins"=sum(wins),
+    "Draws"=sum(draws),
+    "Losses"=sum(loses),
+    "Points"=sum(pts)
+  ) %>% filter(season!="2022/23")
+
 last_10<-data %>% group_by(season,title) %>% 
          filter(Matchweek>=29) %>% 
   summarise(
@@ -56,15 +66,9 @@ last_10<-data %>% group_by(season,title) %>%
   ))
     #mutate(text=paste0("Final10:",Wins,"W"," ",Draws,"D"," ",Losses,"L", " ","Win Rate:", " ", win_per,"%"))
 
-metrics_df<-data  %>% 
-  group_by(season,title) %>% 
-  select(season,title,wins,draws,loses,pts) %>% 
-  summarise(
-    "Wins"=sum(wins),
-    "Draws"=sum(draws),
-    "Losses"=sum(loses),
-    "Points"=sum(pts)
-  ) %>% filter(season!="2022/23")
+
+
+# last_10<-inner_join(last_10 %>% select(-Points),metrics_df %>% select(season,title,Points),by=c("season","title"))
 # make_waffle(metrics_df$Wins,metrics_df$Draws,metrics_df$Losses,season = metrics_df$season,metrics_df$title,period = "",metrics_df$Points)
 
 #Logo_data
@@ -357,92 +361,6 @@ plot_waffle <- function(team_name) {
 # LEFT PANEL WITH LOGO
 # =========================================================
 
-logo_panel <- ggplot() +
-  
-  annotation_custom(
-    rasterGrob(pl_logo,
-               interpolate = TRUE),
-    xmin = 0,
-    xmax = 5,
-    ymin = 6,
-    ymax = 15
-  ) +
-  
-  annotate(
-    "text",
-    x = 0,
-    y = 7.2,
-    
-    label = "Premier League title race trends\nacross recent seasons",
-    
-    hjust = 0,
-    size = 5.2,
-    colour = "grey25",
-    lineheight = 1.2
-  ) +
-  
-  annotate(
-    "text",
-    x = 0,
-    y = 3.8,
-    
-    label = "■ Wins",
-    colour = "#1B7837",
-    fontface = "bold",
-    hjust = 0,
-    size = 5
-  ) +
-  annotate(
-    "text",
-    x = 0,
-    y = 3.0,
-    
-    label = "■ Draws",
-    colour = "#C99700",
-    fontface = "bold",
-    hjust = 0,
-    size = 5
-  ) +
-  
-  annotate(
-    "text",
-    x = 0,
-    y = 2.2,
-    
-    label = "■ Losses",
-    colour = "#B22222",
-    fontface = "bold",
-    hjust = 0,
-    size = 5
-  ) +
-  
-  annotate(
-    "text",
-    x = 0,
-    y = 0.8,
-    
-    label =
-      "Manchester City dominated\nlate-season momentum during\n2022/23 and 2023/24,\nwhile Arsenal appear stronger\nin the projected 2024/25 run-in.",
-    
-    hjust = 0,
-    size = 4.2,
-    colour = "grey20",
-    lineheight = 1.3
-  ) +
-  
-  xlim(0, 10) +
-  ylim(0, 10) +
-  
-  theme_void() +
-  
-  theme(
-    plot.background = element_rect(
-      fill = bg_col,
-      colour = NA
-    )
-  )
-
-
 
 # =========================================================
 # RIGHT INSIGHT PANEL
@@ -505,6 +423,244 @@ insight_panel <- ggplot() +
       fill = bg_col,
       colour = NA
     )
+  )
+
+logo_panel <- ggplot() +
+  
+  # =====================================================
+# PREMIER LEAGUE LOGO
+# =====================================================
+
+annotation_custom(
+  
+  rasterGrob(
+    pl_logo,
+    interpolate = TRUE
+  ),
+  
+  xmin = 1.15,
+  xmax = 3.85,
+  
+  ymin = 8.2,
+  ymax = 10.8
+) +
+  
+  # =====================================================
+# MAIN TITLE
+# =====================================================
+
+annotate(
+  "text",
+  
+  x = 0,
+  y = 6.8,
+  
+  label = "PREMIER LEAGUE TITLE RACE",
+  
+  family = "anton",
+  
+  fontface = "plain",
+  
+  hjust = 0,
+  
+  size = 11,
+  
+  colour = "#111111",
+  
+  lineheight = 0.9
+) +
+  
+  # =====================================================
+# SUBTITLE
+# =====================================================
+
+annotate(
+  "text",
+  
+  x = 0,
+  y = 5.65,
+  
+  label = "Each square represents one league match",
+  
+  family = "Nunito",
+  
+  fontface = "plain",
+  
+  hjust = 0,
+  
+  size = 6.3,
+  
+  colour = "grey20"
+) +
+  
+  # =====================================================
+# LEGEND
+# =====================================================
+
+annotate(
+  "richtext",
+  
+  x = 0,
+  y = 4.85,
+  
+  label =
+    "<span style='color:#4FA66B;'><b>Wins</b></span>
+      <span style='color:grey45;'>|</span>
+      <span style='color:#D8B547;'><b>Draws</b></span>
+      <span style='color:grey45;'> | </span>
+      <span style='color:#D46A6A;'><b>Losses</b></span>
+      <span style='color:grey45;'> | </span>
+      <span style='color:#C8C1B6;'><b> Matches-Remaining</b></span>",
+  
+  family = "roboto",
+  
+  hjust = 0,
+  
+  size = 6,
+  
+  fill = NA,
+  
+  label.color = NA
+) +
+  
+  # =====================================================
+# DIVIDER
+# =====================================================
+
+annotate(
+  "segment",
+  
+  x = 0,
+  xend = 4.7,
+  
+  y = 4.15,
+  yend = 4.15,
+  
+  colour = "#CFC6B8",
+  
+  linewidth = 0.5
+) +
+  
+  # =====================================================
+# INSIGHTS HEADER
+# =====================================================
+
+annotate(
+  "text",
+  
+  x = 0,
+  y = 3.45,
+  
+  label = "2025/26 SEASON KEY INSIGHTS",
+  
+  family = "Nunito",
+  fontface="bold",
+  
+  hjust = 0,
+  
+  size = 5.6,
+  
+  colour = "#111111"
+) +
+  
+  # =====================================================
+# INSIGHTS TEXT
+# =====================================================
+
+annotate(
+  "text",
+  
+  x = 0,
+  y = 2.4,
+  
+  label =
+    "• City dominate recent title run-ins
+• Arsenal recovered after defeats after the final international break
+• Everton held City to a draw which was crucial
+• Arsenal maintained April momentum and were top for 200+ days
+• Only two points separate sides
+• Matchweek 38 decides the title
+
+Data is updated till MatchWeek 36 for the ongoing season(2025/26)",
+
+  
+  family = "Nunito",
+  
+  fontface = "plain",
+  
+  hjust = 0,
+  
+  vjust = 1,
+  
+  size = 5.8,
+  
+  colour = "#151515",
+  
+  lineheight = 1.15
+) +
+  
+  # =====================================================
+# FOOTER
+# =====================================================
+
+annotate(
+  "text",
+  
+  x = 0,
+  y = -2.9,
+  
+  label = "Data: UNDERSTATAPI | Graphic: HARI KRISHNA",
+  
+  family = "Nunito",
+  
+  hjust = 0,
+  fontface="bold",
+  
+  size = 4.3,
+  
+  colour = "black"
+) +
+  
+  # =====================================================
+# COORDINATES
+# =====================================================
+
+coord_cartesian(
+  
+  xlim = c(0, 5),
+  
+  ylim = c(-4, 10),
+  
+  clip = "off"
+) +
+  
+  # =====================================================
+# THEME
+# =====================================================
+
+theme_void() +
+  
+  theme(
+    
+    plot.background =
+      element_rect(
+        fill = bg_col,
+        colour = NA
+      ),
+    
+    panel.background =
+      element_rect(
+        fill = bg_col,
+        colour = NA
+      ),
+    
+    plot.margin =
+      margin(
+        10,
+        15,
+        25,
+        20
+      )
   )
 
 
