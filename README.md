@@ -46,6 +46,11 @@ Refer the following repo for this project: [Posit Table Submission](https://gith
 
 ![](R/06-Transfer-Markt-2025-26-season/final_plot.png)
 
-# 7. Chelsea Strikers Analysis Viz
+
+# 7.  Chelsea Strikers Analysis Viz
 
 ![](images/Rplot.png)
+
+# 8. Title Race Viz: Premier League 2025/26
+
+![](R/08-title-race/final_viz_update.png)
