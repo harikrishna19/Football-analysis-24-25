@@ -18,3 +18,47 @@
 4. Points won by trailing vs points lost by leading in a championship game
 5. Top stories of the season
   a) Quick insights in numbers
+  
+  
+  ┌──────────────────────────────────────────────────────────────┐
+│               EFL CHAMPIONSHIP 2025/26 REVIEW                │
+│         Champions • Promotion • Relegation • KPIs           │
+├───────────────────────────┬──────────────────────────────────┤
+│ League Table              │ Attack vs Defence Quadrant       │
+│ • Final Standings         │ Goals Scored vs Goals Allowed    │
+│ • Promotion               │ Team logos                       │
+│ • Playoffs                │ Highlight promoted clubs         │
+├───────────────────────────┼──────────────────────────────────┤
+│ Story of the Halves       │ Home vs Away Identity            │
+│ First-half vs Second-half │ Wins • Goals • Points            │
+│ Points won                │ Home Fortress Index              │
+│ Comebacks                 │ Away Specialists                 │
+├───────────────────────────┼──────────────────────────────────┤
+│ Comeback Kings            │ League Journey                   │
+│ Points won trailing       │ Position bump chart              │
+│ Points lost leading       │ Key turning points               │
+├───────────────────────────┴──────────────────────────────────┤
+│                     QUICK FACTS OF THE SEASON                │
+│ Highest scorers • Best defence • Longest streak • Clean sheets│
+└──────────────────────────────────────────────────────────────┘
+
+
+
+# Design
+
+Team logo
+
+# Total Points
+# Goals scored /Goals conceded
+# HT Points
+# FT Points
+
+# Leads lost/comeback wins
+# 2nd half points
+
+
+
+
+
+
+
