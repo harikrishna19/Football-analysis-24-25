@@ -112,6 +112,33 @@ ft_summary <-
   )%>% filter(team %in% teams)
 
 
+# Merge stats
+
+library(dplyr)
+library(tidyr)
+
+df_wide <- ht_summary %>%
+  pivot_wider(
+    id_cols = team,
+    names_from = ht_state,
+    values_from = c(games, pts_won, max_pts, pct_pts),
+    names_glue = "{tolower(ht_state)}_{.value}"
+  )
+
+df_wide
+
+
+stats_combine<-ft_summary %>% inner_join(league_table,by="team")
+
+
+# FINAL INNER JOIN
+final_df<-stats_combine %>% inner_join(df_wide,by="team")
+
+
+
+
+
+
 
 
 
