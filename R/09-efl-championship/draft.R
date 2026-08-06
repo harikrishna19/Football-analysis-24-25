@@ -101,7 +101,7 @@ chart<-ggplot(plot_df) +
       y = team,
       team_name = team_names
     ),
-    width = 0.07
+    width = 0.09
   ) +
   
   ## Home labels
@@ -238,7 +238,7 @@ sz_footer   <- 2.9
 
 make_card <- function(t,t_names) {
   
-  rank_colour <- if (t$Rank == 1) col_gold else if (t$Rank <= 3) col_accent else col_grey_rank
+  rank_colour <- if (t$Rank %in% c(1,2)) col_gold else if (t$Rank <= 3) col_accent else col_grey_rank
   tint_alpha  <- if (t$Rank == 1) 0.10 else if (t$Rank <= 3) 0.05 else 0
   
   card_title <- trunc_label(t$team, 16)
@@ -250,10 +250,10 @@ make_card <- function(t,t_names) {
   
   # Auto badge — first match wins
   badge_label <- ""; badge_colour <- col_accent
-  if (t$team == best_attack_team)        { badge_label <- "BEST ATTACK";        badge_colour <- col_green }
-  else if (t$team == best_defense_team)  { badge_label <- "BEST DEFENSE";       badge_colour <- col_accent }
-  else if (t$team == best_closer_team)   { badge_label <- "BEST CLOSERS";       badge_colour <- col_gold }
-  else if (t$team == best_comeback_team) { badge_label <- "BEST COMEBACK RATE"; badge_colour <- col_red }
+  # if (t$team == best_attack_team)        { badge_label <- "BEST ATTACK";        badge_colour <- col_green }
+  # else if (t$team == best_defense_team)  { badge_label <- "BEST DEFENSE";       badge_colour <- col_accent }
+  # else if (t$team == best_closer_team)   { badge_label <- "BEST CLOSERS";       badge_colour <- col_gold }
+  # else if (t$team == best_comeback_team) { badge_label <- "BEST COMEBACK RATE"; badge_colour <- col_red }
   badge_layer <- if (nzchar(badge_label)) {
     annotate("label", x = 0.7, y = 12.15, hjust = 0, label = badge_label,
              fill = badge_colour, colour = "white", size = 2.3, fontface = "bold", label.size = 0)
@@ -293,18 +293,19 @@ make_card <- function(t,t_names) {
     annotate("rect", xmin = 0, xmax = 10, ymin = 0, ymax = 14,
              fill = col_card_bg, colour = col_border, linewidth = 0.8) +
     annotate("rect", xmin = 0, xmax = 10, ymin = 13.5, ymax = 14, fill = rank_colour, colour = NA) +
-    annotate("text", x = 0.4, y = 13.75, label = paste0("#", t$Rank),
+    annotate("text", x = 0.4, y = 13.75, label = "Promoted to EPL 2026/27",
              hjust = 0, colour = "white", fontface = "bold", size = 4.2) +
     
-    annotate("text", x = 0.7, y = 12.6, label = card_title,
-             hjust = 0, fontface = "bold", size = 5.4, colour = col_text_dark) +
+    annotate("text", x = 3.2, y = 12.6, label = card_title,
+             hjust = 0,
+             vjust = 1.5, fontface = "bold", size = 5.4, colour = col_text_dark) +
     geom_soccer_logos(
       aes(
         x = 8.7,
-        y = 12.6,
+        y = 10.6,
         team_name = t_names$logo
       ),
-      width = 0.07
+      width = 0.2
     ) +
     # logo_layer(8.7, 12.6, t$Logo, initials) +
     
@@ -314,7 +315,7 @@ make_card <- function(t,t_names) {
     # so nothing can drift into its neighbour, and the generous card height
     # gets used instead of leaving dead space above the footer. ----
   annotate("text", x = 5, y = 11.50, size = 2.9, colour = col_text_mid,
-           label = paste0("Record: ", t$W, "W-", t$D, "D-", t$L, "L  \u2022  Pos ", t$Pos)) +
+           label = paste0("Record: ", t$W, "W-", t$D, "D-", t$L, "L")) +
     
     annotate("text", x = 5, y = 10.70, label = paste0(t$Pts, " PTS"),
              fontface = "bold", size = 9.0, colour = col_text_dark) +
