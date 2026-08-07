@@ -3,6 +3,8 @@
 library(tidyverse)
 library(engsoccerdata)
 library(cowplot)
+library(ggtext)
+library(soccerplotR)
 
 
 
@@ -152,7 +154,9 @@ chart<-ggplot(plot_df) +
       fill = bg_col,
       colour = NA
     ),
-    
+    plot.caption = element_text(
+      margin = margin(t = -5)
+    ),
     panel.grid.major.y = element_blank(),
     
     panel.grid.minor = element_blank(),
