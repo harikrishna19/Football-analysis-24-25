@@ -66,12 +66,6 @@ text_col <- "#1E293B"
 
 
 # Plot --------------------------------------------------------------------
-
-sysfonts::font_add_google("Inter", "Inter")
-sysfonts::font_add_google("Bebas Neue","Bebas")
-sysfonts::font_add_google("Manrope","Manrope")
-sysfonts::font_add_google("Oswald","Oswald")
-showtext::showtext_auto()
 # For logos
 team_names<-c("Hull","Middlesbrough","Millwall","Southampton","Ipswich","Coventry")
 plot_df[['team_name']]<-team_names
@@ -201,7 +195,7 @@ chart<-ggplot(plot_df) +
   
   theme(
     legend.position ="bottom",
-    text = element_text(family = "Bebas"),
+    text = element_text(family = "Oswald"),
     plot.background = element_rect(
       fill = bg_col,
       colour = NA
@@ -405,21 +399,25 @@ make_card <- function(t,t_names) {
     # annotate("text", x = 5, y = 9.10, label = delta_label, colour = delta_colour, size = 4.8, fontface = "bold") +
     annotate("segment", x = 0.6, xend = 9.4, y = 8.30, yend = 8.30, colour = col_border) +
     
-    annotate(
-      "text",
-      x = 0.6,
-      y = 7.50,
-      hjust = 0,
-      fontface = "bold",
-      size = sz_section,
-      colour = col_text_mid,
-      label = "GOALS (FOR / AGAINST)"
-    ) +
+    # -------------------------------------------------------
+  # C. GOALS — FOR / AGAINST
+  # -------------------------------------------------------
+  
+  annotate(
+    "text",
+    x = 0.6,
+    y = 6.95,   # was 7.50
+    hjust = 0,
+    fontface = "bold",
+    size = sz_section,
+    colour = col_text_mid,
+    label = "GOALS (FOR / AGAINST)"
+  ) +
     
     annotate(
       "text",
       x = 9.4,
-      y = 6.30,
+      y = 6.55,   # was 6.55
       hjust = 1,
       fontface = "bold",
       size = sz_value,
@@ -431,8 +429,8 @@ make_card <- function(t,t_names) {
       "rect",
       xmin = 5,
       xmax = gf_end,
-      ymin = 5.50,
-      ymax = 5.90,
+      ymin = 5.90,
+      ymax = 6.20,
       fill = col_green
     ) +
     
@@ -440,8 +438,8 @@ make_card <- function(t,t_names) {
       "rect",
       xmin = ga_end,
       xmax = 5,
-      ymin = 5.50,
-      ymax = 5.90,
+      ymin = 5.90,
+      ymax = 6.20,
       fill = col_red
     ) +
     
@@ -449,16 +447,16 @@ make_card <- function(t,t_names) {
       "segment",
       x = 5,
       xend = 5,
-      y = 5.35,
-      yend = 6.05,
+      y = 5.70,
+      yend = 6.40,
       colour = col_grey_rank,
       linewidth = 0.6
     ) +
     
     annotate(
       "text",
-      x = gf_end + 0.15,
-      y = 5.70,
+      x = gf_end + 0.12,
+      y = 6.05,
       hjust = 0,
       size = sz_value,
       fontface = "bold",
@@ -468,37 +466,37 @@ make_card <- function(t,t_names) {
     
     annotate(
       "text",
-      x = ga_end - 0.15,
-      y = 5.70,
+      x = ga_end - 0.12,
+      y = 6.05,
       hjust = 1,
       size = sz_value,
       fontface = "bold",
       colour = col_red,
       label = t$ga
-    ) +
-    
+    )+
     
     # -------------------------------------------------------
-  # D. HALF-TIME STATE DISTRIBUTION
+  # D. HALF-TIME STATE
   # -------------------------------------------------------
   
   annotate(
     "text",
     x = 0.6,
-    y = 4.70,
+    y = 5.05,
     hjust = 0,
     fontface = "bold",
     size = sz_section,
     colour = col_text_mid,
-    label = "HALF-TIME STATE (GAMES PLAYED)"
+    label = "HALF-TIME STATE"
   ) +
     
+    # Stacked state bar
     annotate(
       "rect",
       xmin = l_x0,
       xmax = l_x1,
-      ymin = 3.70,
-      ymax = 4.10,
+      ymin = 4.35,
+      ymax = 4.65,
       fill = col_green
     ) +
     
@@ -506,8 +504,8 @@ make_card <- function(t,t_names) {
       "rect",
       xmin = d_x0,
       xmax = d_x1,
-      ymin = 3.70,
-      ymax = 4.10,
+      ymin = 4.35,
+      ymax = 4.65,
       fill = col_grey_state
     ) +
     
@@ -515,81 +513,261 @@ make_card <- function(t,t_names) {
       "rect",
       xmin = tr_x0,
       xmax = tr_x1,
-      ymin = 3.70,
-      ymax = 4.10,
+      ymin = 4.35,
+      ymax = 4.65,
       fill = col_red
     ) +
     
+    # State labels
     annotate(
       "text",
       x = 1.0,
-      y = 3.10,
+      y = 4.05,
       hjust = 0,
-      size = 2.6,
+      size = 2.5,
       colour = col_green,
       label = paste0("Leading: ", t$leading_games)
     ) +
     
     annotate(
       "text",
-      x = 5.0,
-      y = 3.10,
+      x = 5,
+      y = 4.05,
       hjust = 0.5,
-      size = 2.6,
+      size = 2.5,
       colour = col_grey_state,
       label = paste0("Drawing: ", t$drawing_games)
     ) +
     
     annotate(
       "text",
-      x = 9.0,
-      y = 3.10,
+      x = 9,
+      y = 4.05,
       hjust = 1,
-      size = 2.6,
+      size = 2.5,
       colour = col_red,
       label = paste0("Trailing: ", t$trailing_games)
-    )+
+    ) +
     
-    # D. Points won by HT state — bullet charts, dashed tick = league average
-    # annotate("text", x = 0.6, y = 5.10, hjust = 0, fontface = "bold", size = sz_section,
-    #          colour = col_text_mid, label = "POINTS WON BY HT STATE") +
     
-    # annotate("text", x = 0.7, y = 4.30, hjust = 0, size = 2.9, colour = col_green, label = "Leading") +
-    # annotate("rect", xmin = bullet_x0, xmax = bullet_x1, ymin = 4.12, ymax = 4.48, fill = col_border) +
-    # annotate("rect", xmin = bullet_x0, xmax = lead_end, ymin = 4.12, ymax = 4.48, fill = col_green) +
-    # annotate("segment", x = lead_avg_x, xend = lead_avg_x, y = 4.02, yend = 4.58,
-    #          colour = col_text_dark, linewidth = 0.6, linetype = "dashed") +
-    # annotate("text", x = lead_end + 0.15, y = 4.30, hjust = 0, size = sz_value, fontface = "bold",
-    #          colour = col_green, label = paste0(t$leading_pct_pts, "%")) +
-    # 
-    # annotate("text", x = 0.7, y = 3.50, hjust = 0, size = 2.9, colour = col_grey_state, label = "Drawing") +
-    # annotate("rect", xmin = bullet_x0, xmax = bullet_x1, ymin = 3.32, ymax = 3.68, fill = col_border) +
-    # annotate("rect", xmin = bullet_x0, xmax = draw_end, ymin = 3.32, ymax = 3.68, fill = col_grey_state) +
-    # annotate("segment", x = draw_avg_x, xend = draw_avg_x, y = 3.22, yend = 3.78,
-    #          colour = col_text_dark, linewidth = 0.6, linetype = "dashed") +
-    # annotate("text", x = draw_end + 0.15, y = 3.50, hjust = 0, size = sz_value, fontface = "bold",
-    #          colour = col_grey_state, label = paste0(t$drawing_pct_pts, "%")) +
-    # 
-    # annotate("text", x = 0.7, y = 2.70, hjust = 0, size = 2.9, colour = col_red, label = "Trailing") +
-    # annotate("rect", xmin = bullet_x0, xmax = bullet_x1, ymin = 2.52, ymax = 2.88, fill = col_border) +
-    # annotate("rect", xmin = bullet_x0, xmax = trail_end, ymin = 2.52, ymax = 2.88, fill = col_red) +
-    # annotate("segment", x = trail_avg_x, xend = trail_avg_x, y = 2.42, yend = 2.98,
-    #          colour = col_text_dark, linewidth = 0.6, linetype = "dashed") +
-    # annotate("text", x = trail_end + 0.15, y = 2.70, hjust = 0, size = sz_value, fontface = "bold",
-    #          colour = col_red, label = paste0(t$trailing_pct_pts, "%")) +
+    # -------------------------------------------------------
+  # E. POINTS WON BY HALF-TIME STATE
+  # -------------------------------------------------------
+  
+  annotate(
+    "text",
+    x = 0.6,
+    y = 3.55,
+    hjust = 0,
+    fontface = "bold",
+    size = sz_section,
+    colour = col_text_mid,
+    label = "POINTS WON BY HALF-TIME STATE"
+  ) +
     
+    # ---- Leading ----
+  annotate(
+    "text",
+    x = 0.7,
+    y = 3.10,
+    hjust = 0,
+    size = 3.5,
+    colour = col_green,
+    label = "Leading"
+  ) +
+    
+    annotate(
+      "rect",
+      xmin = bullet_x0,
+      xmax = bullet_x1,
+      ymin = 2.98,
+      ymax = 3.18,
+      fill = col_border
+    ) +
+    
+    annotate(
+      "rect",
+      xmin = bullet_x0,
+      xmax = lead_end,
+      ymin = 2.98,
+      ymax = 3.18,
+      fill = col_green
+    ) +
+    
+    annotate(
+      "segment",
+      x = lead_avg_x,
+      xend = lead_avg_x,
+      y = 2.90,
+      yend = 3.26,
+      colour = col_text_dark,
+      linewidth = 0.5,
+      linetype = "dashed"
+    ) +
+    
+    annotate(
+      "text",
+      x = lead_end + 0.12,
+      y = 3.08,
+      hjust = 0,
+      size = 3.7,
+      fontface = "bold",
+      colour = col_green,
+      label = paste0(t$leading_pct_pts, "%")
+    ) +
+    
+    
+    # ---- Drawing ----
+  annotate(
+    "text",
+    x = 0.7,
+    y = 2.55,
+    hjust = 0,
+    size = 3.5,
+    colour = col_grey_state,
+    label = "Drawing"
+  ) +
+    
+    annotate(
+      "rect",
+      xmin = bullet_x0,
+      xmax = bullet_x1,
+      ymin = 2.43,
+      ymax = 2.63,
+      fill = col_border
+    ) +
+    
+    annotate(
+      "rect",
+      xmin = bullet_x0,
+      xmax = draw_end,
+      ymin = 2.43,
+      ymax = 2.63,
+      fill = col_grey_state
+    ) +
+    
+    annotate(
+      "segment",
+      x = draw_avg_x,
+      xend = draw_avg_x,
+      y = 2.35,
+      yend = 2.71,
+      colour = col_text_dark,
+      linewidth = 0.5,
+      linetype = "dashed"
+    ) +
+    
+    annotate(
+      "text",
+      x = draw_end + 0.12,
+      y = 2.53,
+      hjust = 0,
+      size = 3.7,
+      fontface = "bold",
+      colour = col_grey_state,
+      label = paste0(t$drawing_pct_pts, "%")
+    ) +
+    
+    
+    # ---- Trailing ----
+  annotate(
+    "text",
+    x = 0.7,
+    y = 2.00,
+    hjust = 0,
+    size = 3.5,
+    colour = col_red,
+    label = "Trailing"
+  ) +
+    
+    annotate(
+      "rect",
+      xmin = bullet_x0,
+      xmax = bullet_x1,
+      ymin = 1.88,
+      ymax = 2.08,
+      fill = col_border
+    ) +
+    
+    annotate(
+      "rect",
+      xmin = bullet_x0,
+      xmax = trail_end,
+      ymin = 1.88,
+      ymax = 2.08,
+      fill = col_red
+    ) +
+    
+    annotate(
+      "segment",
+      x = trail_avg_x,
+      xend = trail_avg_x,
+      y = 1.80,
+      yend = 2.16,
+      colour = col_text_dark,
+      linewidth = 0.5,
+      linetype = "dashed"
+    ) +
+    
+    annotate(
+      "text",
+      x = trail_end + 0.12,
+      y = 1.98,
+      hjust = 0,
+      size = 3.7,
+      fontface = "bold",
+      colour = col_red,
+      label = paste0(t$trailing_pct_pts, "%")
+    ) +
     # E. Goals
-    coord_cartesian(xlim = c(-0.3, 10.3), ylim = c(-0.3, 14.3), expand = FALSE, clip = "off") +
+    coord_cartesian(
+      xlim = c(-0.3, 10.3),
+      ylim = c(-0.3, 14.3),
+      expand = FALSE,
+      clip = "off"
+    ) +
     theme(
-      text = element_text(family = "Bebas",size = 30),
-      plot.margin = margin(0, 0, 0, 0), plot.background = element_rect(fill = NA, colour = NA))+
-    theme_void() 
+      text = element_text(
+        family = "Oswald",
+        size = 30
+      ),
+      plot.margin = margin(0, 0, 0, 0),
+      plot.background = element_rect(
+        fill = NA,
+        colour = NA
+      )
+    ) +
+    theme_void()
 }
 
 
 #===================================================
 # 6. ASSEMBLE & EXPORT
 #===================================================
+library(showtext)
+
+sysfonts::font_add_google("Oswald", "Oswald")
+sysfonts::font_add_google("Bebas Neue","Bebas")
+sysfonts::font_add_google("Oswald","Oswald")
+sysfonts::font_add_google("Oswald","Oswald")
+font_add_google("IBM Plex Sans", "Plex")
+font_add_google("Font Name", "Alias")
+showtext::showtext_auto()
+showtext_auto()
+
+update_geom_defaults("text", list(
+  family = "Oswald"
+))
+
+update_geom_defaults("label", list(
+  family = "Oswald"
+))
+
+update_geom_defaults("richtext", list(
+  family = "Oswald"
+))
+
+
 final_df$logo<-c("Coventry","Ipswich","Millwall","Southampton","Middlesbrough","Hull")
 cards <- lapply(seq_len(nrow(final_df)), function(i) make_card(final_df[i, ],final_df[i,]))
 cards_grid <- wrap_plots(cards, ncol = 3, byrow = TRUE)
