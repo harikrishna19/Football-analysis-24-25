@@ -134,7 +134,8 @@ chart<-ggplot(plot_df) +
     title = NULL,
     subtitle = NULL,
     x = NULL,
-    y = NULL
+    y = NULL,
+    caption = "Design:Hari Krishna"
   ) +
   
   theme_minimal(base_size = 15) +
@@ -238,12 +239,12 @@ sz_footer   <- 2.9
 
 make_card <- function(t,t_names) {
   
-  rank_colour <- if (t$Rank %in% c(1,2)) col_gold else if (t$Rank <= 3) col_accent else col_grey_rank
+  rank_colour <- if (t$Rank %in% c(1,2)) col_gold else if (t$Rank <= 6)  col_grey_rank
   tint_alpha  <- if (t$Rank == 1) 0.10 else if (t$Rank <= 3) 0.05 else 0
   
   card_title <- trunc_label(t$team, 16)
   initials   <- paste(substr(strsplit(t$team, " ")[[1]], 1, 1), collapse = "")
-  
+  # browser()
   pts_delta    <- t$Pts - avg_pts
   delta_label  <- paste0(ifelse(pts_delta >= 0, "+", ""), round(pts_delta, 0), " pts vs league avg")
   delta_colour <- if (pts_delta >= 0) col_green else col_red
@@ -284,7 +285,7 @@ make_card <- function(t,t_names) {
   lead_avg_x  <- scale_pct(avg_leading_pct)
   draw_avg_x  <- scale_pct(avg_drawing_pct)
   trail_avg_x <- scale_pct(avg_trailing_pct)
-  
+  # browser()
   ggplot() +
     
     annotate("rect", xmin = 0.15, xmax = 10.15, ymin = -0.15, ymax = 13.85,
@@ -296,9 +297,9 @@ make_card <- function(t,t_names) {
     annotate("text", x = 0.4, y = 13.75, label = "Promoted to EPL 2026/27",
              hjust = 0, colour = "white", fontface = "bold", size = 4.2) +
     
-    annotate("text", x = 3.2, y = 12.6, label = card_title,
+    annotate("text", x = 1.5, y = 9, label =ifelse(t$team=="Millwall","Millwall FC",card_title),angle=90,
              hjust = 0,
-             vjust = 1.5, fontface = "bold", size = 5.4, colour = col_text_dark) +
+             vjust = 1.5, fontface = "bold", size =5 , colour = col_text_dark) +
     geom_soccer_logos(
       aes(
         x = 8.7,
@@ -314,9 +315,21 @@ make_card <- function(t,t_names) {
     # ---- Uniform vertical rhythm from here down: every anchor is 0.8 apart,
     # so nothing can drift into its neighbour, and the generous card height
     # gets used instead of leaving dead space above the footer. ----
-  annotate("text", x = 5, y = 11.50, size = 2.9, colour = col_text_mid,
-           label = paste0("Record: ", t$W, "W-", t$D, "D-", t$L, "L")) +
-    
+  geom_richtext(
+    aes(
+      x = 5,
+      y = 11.50,
+      label = paste0(
+        "<span style='color:#22C55E'><b>", t$W, "W</b></span> - ",
+        "<span style='color:#CBD5E1'><b>", t$D, "D</b></span> - ",
+        "<span style='color:#EF4444'><b>", t$L, "L</b></span>"
+      )
+    ),
+    size = 4.9,
+    fill = NA,
+    label.color = NA,
+    colour = col_text_mid
+  )+
     annotate("text", x = 5, y = 10.70, label = paste0(t$Pts, " PTS"),
              fontface = "bold", size = 9.0, colour = col_text_dark) +
     annotate("text", x = 5, y = 9.90, label = paste0(round(t$Pts / t$GP, 2), " pts / game"),
@@ -378,12 +391,14 @@ make_card <- function(t,t_names) {
     annotate("text", x = ga_end - 0.15, y = 1.30, hjust = 1, size = sz_value, fontface = "bold",
              colour = col_red, label = t$ga) +
     
-    annotate("text", x = 5, y = 0.5, colour = col_text_light, size = sz_footer,
-             label = paste0(t$GP, " games played")) +
+    # annotate("text", x = 5, y = 0.5, colour = col_text_light, size = sz_footer,
+    #          label = paste0(t$GP, " games played")) +
     
     coord_cartesian(xlim = c(-0.3, 10.3), ylim = c(-0.3, 14.3), expand = FALSE, clip = "off") +
     theme_void() +
-    theme(plot.margin = margin(0, 0, 0, 0), plot.background = element_rect(fill = NA, colour = NA))
+    theme(
+      text = element_text(family = "Oswald"),
+      plot.margin = margin(0, 0, 0, 0), plot.background = element_rect(fill = NA, colour = NA))
 }
 
 
