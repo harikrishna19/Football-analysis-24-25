@@ -314,7 +314,6 @@ sz_footer   <- 4.9
 #===================================================
 # 4. CARD
 #===================================================
-
 make_card <- function(t, t_names) {
   
   #rank_colour <- if (t$Rank %in% c(1,2,6)) col_gold else if (t$Rank <= 6) col_grey_rank
@@ -370,113 +369,36 @@ make_card <- function(t, t_names) {
   
   
   # -------------------------------------------------------
-  # C. HALF-TIME STATE DISTRIBUTION
-  # -------------------------------------------------------
-  
-  seg_x0 <- 1.0
-  seg_x1 <- 9.0
-  total_w <- seg_x1 - seg_x0
-  
-  lw <- (t$leading_games  / t$GP) * total_w
-  dw <- (t$drawing_games  / t$GP) * total_w
-  tw <- (t$trailing_games / t$GP) * total_w
-  
-  l_x0  <- seg_x0
-  l_x1  <- l_x0 + lw
-  
-  d_x0  <- l_x1
-  d_x1  <- d_x0 + dw
-  
-  tr_x0 <- d_x1
-  tr_x1 <- tr_x0 + tw
-  
-  
-  # -------------------------------------------------------
-  # D. POINTS WON BY HALF-TIME STATE
+  # D/E. HALF-TIME STATE -> % PTS WON (COMBINED DUMBBELL)
+  # One row per state (Leading / Drawing / Trailing).
+  # Each row is a dumbbell of two dots on a shared 0-100% axis:
+  #   - hollow triangle = share of games spent in that state
+  #   - filled circle    = % of available points won in that state
   # -------------------------------------------------------
   
   bullet_x0 <- 3.0
-  bullet_x1 <- 9.0
+  bullet_x1 <- 9.4
   bullet_w  <- bullet_x1 - bullet_x0
   
   scale_pct <- function(pct) {
     bullet_x0 + (pct / 100) * bullet_w
   }
   
-  
   ht_dots <- data.frame(
-    state  = c("Leading", "Drawing", "Trailing"),
-    pct    = c(
-      t$leading_pct_pts,
-      t$drawing_pct_pts,
-      t$trailing_pct_pts
-    ),
-    avg    = c(
-      avg_leading_pct,
-      avg_drawing_pct,
-      avg_trailing_pct
-    ),
-    colour = c(
-      col_green,
-      col_grey_state,
-      col_red
-    ),
+    state     = c("Leading", "Drawing", "Trailing"),
+    games     = c(t$leading_games,     t$drawing_games,     t$trailing_games),
+    games_pct = c(t$leading_games,     t$drawing_games,     t$trailing_games) / t$GP * 100,
+    pts_pct   = c(t$leading_pct_pts,   t$drawing_pct_pts,   t$trailing_pct_pts),
+    colour    = c(col_green, col_grey_state, col_red),
+    row_y     = c(4.55, 3.35, 2.15),
     stringsAsFactors = FALSE
   )
   
+  ht_dots$games_x <- scale_pct(ht_dots$games_pct)
+  ht_dots$pts_x   <- scale_pct(ht_dots$pts_pct)
   
-  # -------------------------------------------------------
-  # DYNAMIC DUMBBELL LABEL POSITIONING
-  # -------------------------------------------------------
-  
-  ht_dots$x     <- scale_pct(ht_dots$pct)
-  ht_dots$avg_x <- scale_pct(ht_dots$avg)
-  
-  # Sort from left to right
-  ht_dots <- ht_dots[order(ht_dots$x), ]
-  
-  row_y <- 2.35
-  
-  # Minimum horizontal distance between labels
-  min_gap <- 0.85
-  
-  # Start with labels above the dumbbell
-  ht_dots$label_y <- row_y + 0.48
-  ht_dots$label_vj <- 0
-  
-  # Check neighbouring dots.
-  # If dots are close, alternate the labels vertically.
-  for (i in 2:nrow(ht_dots)) {
-    
-    if (abs(ht_dots$x[i] - ht_dots$x[i - 1]) < min_gap) {
-      
-      # Push the current label below
-      ht_dots$label_y[i] <- row_y - 0.48
-      ht_dots$label_vj[i] <- 1
-      
-      # If three dots are extremely close,
-      # move the previous label slightly higher.
-      if (
-        i >= 3 &&
-        abs(ht_dots$x[i] - ht_dots$x[i - 2]) < min_gap
-      ) {
-        
-        ht_dots$label_y[i - 1] <- row_y + 0.68
-      }
-    }
-  }
-  
-  
-  # -------------------------------------------------------
-  # LABEL TEXT
-  # -------------------------------------------------------
-  
-  ht_dots$label <- paste0(
-    # ht_dots$state,
-    # " ",
-    round(ht_dots$pct),
-    "%"
-  )
+  ht_dots$games_label <- paste0(ht_dots$games, "g (", round(ht_dots$games_pct), "%)")
+  ht_dots$pts_label   <- paste0(round(ht_dots$pts_pct), "% pts")
   
   
   # -------------------------------------------------------
@@ -710,187 +632,112 @@ make_card <- function(t, t_names) {
     
     
     # -------------------------------------------------------
-  # D. HALF-TIME STATE
+  # D/E. HALF-TIME STATE -> % PTS WON (COMBINED DUMBBELL)
   # -------------------------------------------------------
   
   geom_richtext(
     aes(
       x = 0.6,
-      y = 5.05,
-      label = "HALF TIME STATE"
+      y = 5.15,
+      label = "HT STATE \u2192 % PTS WON"
     ),
     hjust = 0,
+    fontface="bold",
     vjust = 0.5,
-    size = 4.2,
+    size = 3.2,
     fill = NA,
     label.color = NA,
     colour = col_text_mid
   ) +
-    # Stacked bar
-    annotate(
-      "rect",
-      xmin = l_x0,
-      xmax = l_x1,
-      ymin = 4.35,
-      ymax = 4.65,
-      fill = col_green
-    ) +
     
-    annotate(
-      "rect",
-      xmin = d_x0,
-      xmax = d_x1,
-      ymin = 4.35,
-      ymax = 4.65,
-      fill = col_grey_state
-    ) +
-    
-    annotate(
-      "rect",
-      xmin = tr_x0,
-      xmax = tr_x1,
-      ymin = 4.35,
-      ymax = 4.65,
-      fill = col_red
-    ) +
-    
-    # State labels
-    annotate(
-      "text",
-      x = 1.0,
-      y = 4.05,
-      hjust = 0,
-      size = 2.5,
-      colour = col_green,
-      label = paste0(
-        "Leading: ",
-        t$leading_games
-      )
-    ) +
-    
-    annotate(
-      "text",
-      x = 5,
-      y = 4.05,
-      hjust = 0.5,
-      size = 2.5,
-      colour = col_grey_state,
-      label = paste0(
-        "Drawing: ",
-        t$drawing_games
-      )
-    ) +
-    
-    annotate(
-      "text",
-      x = 9,
-      y = 4.05,
-      hjust = 1,
-      size = 2.5,
-      colour = col_red,
-      label = paste0(
-        "Trailing: ",
-        t$trailing_games
-      )
-    ) +
-    
-    
-    # -------------------------------------------------------
-  # E. POINTS WON BY HALF-TIME STATE
-  # ALWAYS AFTER HALF-TIME STATE
-  # -------------------------------------------------------
-  
-  # annotate(
-  #   "text",
-  #   x = 0.6,
-  #   y = .15,
-  #   hjust = 0,
-  #   # fontface = "bold",
-  #   size = sz_section,
-  #   colour = col_text_mid,
-  #   size=2,
-  #   label = "POINTS WON BY HALF-TIME STATE"
-  # ) +
-  
-  # Full 0–100% track
-  annotate(
-    "segment",
-    x = bullet_x0,
-    xend = bullet_x1,
-    y = row_y,
-    yend = row_y,
-    colour = col_border,
-    linewidth = 2,
-    lineend = "round"
-  ) +
-    
-    # Dumbbell body
-    annotate(
-      "segment",
-      x = min(ht_dots$x),
-      xend = max(ht_dots$x),
-      y = row_y,
-      yend = row_y,
-      colour = col_grey_state,
-      linewidth = 1
-    ) +
-    
-    # League-average ticks
+    # Full 0-100% track, one per row
     geom_segment(
       data = ht_dots,
       aes(
-        x = avg_x,
-        xend = avg_x,
-        y = row_y - 0.16,
-        yend = row_y + 0.16,
-        colour = colour
-      ),
-      linewidth = 0.5,
-      linetype = "dashed"
-    ) +
-    
-    # Dots
-    geom_point(
-      data = ht_dots,
-      aes(
-        x = x,
+        x = bullet_x0,
+        xend = bullet_x1,
         y = row_y,
-        colour = colour
+        yend = row_y
       ),
-      size = 4.6
+      colour = col_border,
+      linewidth = 2,
+      lineend = "round"
     ) +
     
-    # -------------------------------------------------------
-  # LEADER LINES
-  # Connect displaced labels to their dots
-  # -------------------------------------------------------
-  
-  geom_segment(
-    data = ht_dots[
-      abs(ht_dots$label_y - row_y) > 0.01,
-    ],
-    aes(
-      x = x,
-      xend = x,
-      y = row_y,
-      yend = label_y
-    ),
-    colour = col_border,
-    linewidth = 0.35,
-    linetype = "dotted"
-  ) +
-    
-    # Dynamic labels
+    # State row label (left side)
     geom_text(
       data = ht_dots,
       aes(
-        x = x,
-        y = label_y,
-        label = label,
-        colour = colour,
-        vjust = label_vj
+        x = 0.6,
+        y = row_y,
+        label = state,
+        colour = colour
       ),
-      size = 3.3,
+      hjust = 0,
+      fontface = "bold",
+      size = 3.2
+    ) +
+    
+    # Dumbbell body: connects games% dot to pts% dot
+    geom_segment(
+      data = ht_dots,
+      aes(
+        x = games_x,
+        xend = pts_x,
+        y = row_y,
+        yend = row_y,
+        colour = colour
+      ),
+      linewidth = 1.1
+    ) +
+    
+    # Games % dot (hollow triangle)
+    geom_point(
+      data = ht_dots,
+      aes(
+        x = games_x,
+        y = row_y,
+        colour = colour
+      ),
+      shape = 17,
+      size = 3.4
+    ) +
+    
+    # Points % dot (filled circle)
+    geom_point(
+      data = ht_dots,
+      aes(
+        x = pts_x,
+        y = row_y,
+        colour = colour
+      ),
+      shape = 19,
+      size = 4.6
+    ) +
+    
+    # Games % label (above)
+    geom_text(
+      data = ht_dots,
+      aes(
+        x = games_x,
+        y = row_y + 0.40,
+        label = games_label,
+        colour = colour
+      ),
+      size = 2.5,
+      fontface = "bold"
+    ) +
+    
+    # Points % label (below)
+    geom_text(
+      data = ht_dots,
+      aes(
+        x = pts_x,
+        y = row_y - 0.40,
+        label = pts_label,
+        colour = colour
+      ),
+      size = 2.5,
       fontface = "bold"
     ) +
     
@@ -917,6 +764,7 @@ make_card <- function(t, t_names) {
     
     theme_void()
 }
+
 
 
 #===================================================
