@@ -656,7 +656,7 @@ make_card <- function(t, t_names) {
       xmax = gf_end,
       ymin = 5.90,
       ymax = 6.20,
-      fill = col_green
+      fill = "#159A9C"
     ) +
     
     annotate(
@@ -665,7 +665,7 @@ make_card <- function(t, t_names) {
       xmax = 5,
       ymin = 5.90,
       ymax = 6.20,
-      fill = col_red
+      fill = "#E76F51"
     ) +
     
     annotate(
@@ -943,7 +943,6 @@ cards_grid <- wrap_plots(cards, ncol = 3, byrow = TRUE)
 # -------------------------------------------------------
 # UNIVERSAL LEGEND
 # -------------------------------------------------------
-
 state_legend <- ggplot() +
   
   geom_richtext(
@@ -951,22 +950,21 @@ state_legend <- ggplot() +
       x = 0.5,
       y = 0.5,
       label = paste0(
-        "<span style='color:", col_green, "'>●</span> ",
-        "&nbsp;&nbsp;&nbsp;&nbsp;",
-        "<span style='color:", col_text_mid, "'>Leading/Wins</span>",
-        "&nbsp;&nbsp;&nbsp;&nbsp;",
-        "<span style='color:", col_grey_state, "'>●</span> ",
-        "&nbsp;&nbsp;&nbsp;&nbsp;",
-        "<span style='color:", col_text_mid, "'>Drawing/Draws</span>",
-        "&nbsp;&nbsp;&nbsp;&nbsp;",
-        "<span style='color:", col_red, "'>●</span> ",
-                "&nbsp;&nbsp;&nbsp;&nbsp;",
-        "<span style='color:", col_text_mid, "'>Trailing/Losses</span>"
+        
+        "<span style='color:", col_green,"; font-size:30px;'>●</span> ",
+        "<span style='color:", col_text_mid, "; font-size:18px;'>Leading/Wins</span>",
+        
+        
+        "<span style='color:", col_grey_state, "; font-size:30px;'>●</span> ",
+        "<span style='color:", col_text_mid, "; font-size:18px;'>Drawing/Draws</span>",
+        
+        "<span style='color:", col_red, "; font-size:30px;'>●</span> ",
+        "<span style='color:", col_text_mid, "; font-size:18px;'>Trailing/Losses</span>"
       )
     ),
     hjust = 0.5,
     vjust = 0.5,
-    size = 5,
+    size = 7,
     fill = NA,
     label.color = NA
   ) +
@@ -988,7 +986,6 @@ state_legend <- ggplot() +
       l = 0
     )
   )
-
 
 # -------------------------------------------------------
 # CARDS + LEGEND
