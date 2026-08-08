@@ -87,8 +87,8 @@ chart<-ggplot(plot_df) +
   ) +
   annotate(
     "text",
-    x = -11,
-    y = 7,
+    x = -35,
+    y = 0.5,
     label = "Home",
     colour = home_col,
     fontface = "bold",
@@ -97,8 +97,8 @@ chart<-ggplot(plot_df) +
   
   annotate(
     "text",
-    x = 11,
-    y = 7,
+    x = 35,
+    y = 0.5,
     label = "Away",
     colour = away_col,
     fontface = "bold",
@@ -215,7 +215,7 @@ chart<-ggplot(plot_df) +
   
   theme(
     legend.position ="none",
-    text = element_text(family = "Plex"),
+    text = element_text(family = "Inter"),
     plot.background = element_rect(
       fill = bg_col,
       colour = NA
@@ -897,7 +897,7 @@ make_card <- function(t, t_names) {
     
     theme(
       text = element_text(
-        family = "Bebas",
+        family = "Inter",
         size = 30
       ),
       plot.margin = margin(0, 0, 0, 0),
@@ -916,7 +916,6 @@ make_card <- function(t, t_names) {
 #===================================================
 
 
-sysfonts::font_add_google("Bebas Neue","Bebas")
 sysfonts::font_add_google("Plex","Plex")
 font_add_google("IBM Plex Sans", "Plex")
 font_add_google("Font Name", "Alias")
