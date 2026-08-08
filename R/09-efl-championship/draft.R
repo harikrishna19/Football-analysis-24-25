@@ -9,7 +9,7 @@ library(showtext)
 
 
 
-
+efl_logo <- "images/efl.png"
 # Load engsoccerdata from devtools ----------------------------------------
 eng_cship<-engsoccerdata::england_current()
 eng_cship<-eng_cship %>% dplyr::filter(division==2)
@@ -120,7 +120,14 @@ chart<-ggplot(plot_df) +
     ),
     width = 0.09
   ) +
-  
+  geom_image(
+    aes(
+    x = 50,
+    y = 6.25,
+    image = efl_logo
+    ),
+    size = 0.05
+  ) +
   ## Home labels
   geom_text(
     aes(Home - 3, team,
@@ -310,7 +317,8 @@ sz_footer   <- 4.9
 
 make_card <- function(t, t_names) {
   
-  rank_colour <- if (t$Rank %in% c(1,2,6)) col_gold else if (t$Rank <= 6) col_grey_rank
+  #rank_colour <- if (t$Rank %in% c(1,2,6)) col_gold else if (t$Rank <= 6) col_grey_rank
+  rank_colour<-"#F3F4F6"
   tint_alpha  <- if (t$Rank == 1) 0.10 else if (t$Rank <= 3) 0.05 else 0
   
   card_title <- trunc_label(t$team, 16)
@@ -358,7 +366,7 @@ make_card <- function(t, t_names) {
   ga_end <- 5 - t$ga * goal_scale
   
   gd_label  <- paste0(ifelse(t$gd >= 0, "+", ""), t$gd, " GD")
-  gd_colour <- if (t$gd >= 0) col_green else col_red
+  gd_colour <- if (t$gd >= 0) "pink" else col_red
   
   
   # -------------------------------------------------------
@@ -902,7 +910,7 @@ make_card <- function(t, t_names) {
       ),
       plot.margin = margin(0, 0, 0, 0),
       plot.background = element_rect(
-        fill = NA,
+        fill = "#FFFDF5",
         colour = NA
       )
     ) +
@@ -951,20 +959,12 @@ state_legend <- ggplot() +
       y = 0.5,
       label = paste0(
         
-        "<span style='color:", col_green,"; font-size:30px;'>●</span> ",
-        "<span style='color:", col_text_mid, "; font-size:18px;'>Leading/Wins</span>",
-        
-        
-        "<span style='color:", col_grey_state, "; font-size:30px;'>●</span> ",
-        "<span style='color:", col_text_mid, "; font-size:18px;'>Drawing/Draws</span>",
-        
-        "<span style='color:", col_red, "; font-size:30px;'>●</span> ",
-        "<span style='color:", col_text_mid, "; font-size:18px;'>Trailing/Losses</span>"
-      )
+        "<span style='color:", col_green,"; font-size:30px;'>●Leading/Wins</span> ",
+        "<span style='color:", col_grey_state, "; font-size:30px;'>●Drawing/Draws</span> ",
+        "<span style='color:", col_red, "; font-size:30px;'>●Trailing/Losses</span> "      )
     ),
     hjust = 0.5,
     vjust = 0.5,
-    size = 7,
     fill = NA,
     label.color = NA
   ) +
