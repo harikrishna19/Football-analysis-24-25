@@ -5,6 +5,7 @@ library(engsoccerdata)
 library(cowplot)
 library(ggtext)
 library(soccerplotR)
+library(showtext)
 
 
 
@@ -83,6 +84,25 @@ chart<-ggplot(plot_df) +
   geom_col(
     aes(x = Away, y = team,fill="Away"),
     width = 0.05
+  ) +
+  annotate(
+    "text",
+    x = -11,
+    y = 7,
+    label = "Home",
+    colour = home_col,
+    fontface = "bold",
+    size = 4.5
+  ) +
+  
+  annotate(
+    "text",
+    x = 11,
+    y = 7,
+    label = "Away",
+    colour = away_col,
+    fontface = "bold",
+    size = 4.5
   ) +
   scale_fill_manual(
     values = c(
@@ -194,8 +214,8 @@ chart<-ggplot(plot_df) +
   theme_minimal(base_size = 15) +
   
   theme(
-    legend.position ="bottom",
-    text = element_text(family = "Oswald"),
+    legend.position ="none",
+    text = element_text(family = "Plex"),
     plot.background = element_rect(
       fill = bg_col,
       colour = NA
@@ -278,8 +298,8 @@ col_gold       <- "#D97706"
 col_grey_rank  <- "#64748B"
 col_shadow     <- "#94A3B8"
 
-sz_title    <- 9
-sz_subtitle <- 5.5
+sz_title    <- 12
+sz_subtitle <- 5
 sz_section  <- 4.2
 sz_value    <- 4.3
 sz_footer   <- 4.9
@@ -288,80 +308,262 @@ sz_footer   <- 4.9
 # 4. CARD
 #===================================================
 
-make_card <- function(t,t_names) {
+make_card <- function(t, t_names) {
   
-  rank_colour <- if (t$Rank %in% c(1,2,6)) col_gold else if (t$Rank <= 6)  col_grey_rank
+  rank_colour <- if (t$Rank %in% c(1,2,6)) col_gold else if (t$Rank <= 6) col_grey_rank
   tint_alpha  <- if (t$Rank == 1) 0.10 else if (t$Rank <= 3) 0.05 else 0
   
   card_title <- trunc_label(t$team, 16)
   initials   <- paste(substr(strsplit(t$team, " ")[[1]], 1, 1), collapse = "")
-  # browser()
+  
   pts_delta    <- t$Pts - avg_pts
-  delta_label  <- paste0(ifelse(pts_delta >= 0, "+", ""), round(pts_delta, 0), " pts vs league avg")
+  delta_label  <- paste0(ifelse(pts_delta >= 0, "+", ""),
+                         round(pts_delta, 0),
+                         " pts vs league avg")
   delta_colour <- if (pts_delta >= 0) col_green else col_red
   
-  # Auto badge — first match wins
-  badge_label <- ""; badge_colour <- col_accent
-  # if (t$team == best_attack_team)        { badge_label <- "BEST ATTACK";        badge_colour <- col_green }
-  # else if (t$team == best_defense_team)  { badge_label <- "BEST DEFENSE";       badge_colour <- col_accent }
-  # else if (t$team == best_closer_team)   { badge_label <- "BEST CLOSERS";       badge_colour <- col_gold }
-  # else if (t$team == best_comeback_team) { badge_label <- "BEST COMEBACK RATE"; badge_colour <- col_red }
+  
+  # -------------------------------------------------------
+  # BADGE
+  # -------------------------------------------------------
+  
+  badge_label <- ""
+  badge_colour <- col_accent
+  
   badge_layer <- if (nzchar(badge_label)) {
-    annotate("label", x = 0.7, y = 12.15, hjust = 0, label = badge_label,
-             fill = badge_colour, colour = "white", size = 2.3, fontface = "bold", label.size = 0)
+    
+    annotate(
+      "label",
+      x = 0.7,
+      y = 12.15,
+      hjust = 0,
+      label = badge_label,
+      fill = badge_colour,
+      colour = "white",
+      size = 2.3,
+      fontface = "bold",
+      label.size = 0
+    )
+    
   } else NULL
   
-  # Goals diverging bar
+  
+  # -------------------------------------------------------
+  # GOALS DIVERGING BAR
+  # -------------------------------------------------------
+  
   goal_scale <- 3.2 / max_goals
+  
   gf_end <- 5 + t$gf * goal_scale
   ga_end <- 5 - t$ga * goal_scale
+  
   gd_label  <- paste0(ifelse(t$gd >= 0, "+", ""), t$gd, " GD")
   gd_colour <- if (t$gd >= 0) col_green else col_red
   
-  # --- Section C: half-time STATE DISTRIBUTION (stacked bar, ordered leading/drawing/trailing) ---
-  seg_x0 <- 1.0; seg_x1 <- 9.0; total_w <- seg_x1 - seg_x0
+  
+  # -------------------------------------------------------
+  # C. HALF-TIME STATE DISTRIBUTION
+  # -------------------------------------------------------
+  
+  seg_x0 <- 1.0
+  seg_x1 <- 9.0
+  total_w <- seg_x1 - seg_x0
+  
   lw <- (t$leading_games  / t$GP) * total_w
   dw <- (t$drawing_games  / t$GP) * total_w
   tw <- (t$trailing_games / t$GP) * total_w
-  l_x0 <- seg_x0;       l_x1 <- l_x0 + lw
-  d_x0 <- l_x1;         d_x1 <- d_x0 + dw
-  tr_x0 <- d_x1;        tr_x1 <- tr_x0 + tw
   
-  # --- Section D: bullet charts — points won as % of max, by HT state ---
-  bullet_x0 <- 3.0; bullet_x1 <- 9.0; bullet_w <- bullet_x1 - bullet_x0
-  scale_pct <- function(pct) bullet_x0 + (pct / 100) * bullet_w
-  lead_end  <- scale_pct(t$leading_pct_pts)
-  draw_end  <- scale_pct(t$drawing_pct_pts)
-  trail_end <- scale_pct(t$trailing_pct_pts)
-  lead_avg_x  <- scale_pct(avg_leading_pct)
-  draw_avg_x  <- scale_pct(avg_drawing_pct)
-  trail_avg_x <- scale_pct(avg_trailing_pct)
-  # browser()
+  l_x0  <- seg_x0
+  l_x1  <- l_x0 + lw
+  
+  d_x0  <- l_x1
+  d_x1  <- d_x0 + dw
+  
+  tr_x0 <- d_x1
+  tr_x1 <- tr_x0 + tw
+  
+  
+  # -------------------------------------------------------
+  # D. POINTS WON BY HALF-TIME STATE
+  # -------------------------------------------------------
+  
+  bullet_x0 <- 3.0
+  bullet_x1 <- 9.0
+  bullet_w  <- bullet_x1 - bullet_x0
+  
+  scale_pct <- function(pct) {
+    bullet_x0 + (pct / 100) * bullet_w
+  }
+  
+  
+  ht_dots <- data.frame(
+    state  = c("Leading", "Drawing", "Trailing"),
+    pct    = c(
+      t$leading_pct_pts,
+      t$drawing_pct_pts,
+      t$trailing_pct_pts
+    ),
+    avg    = c(
+      avg_leading_pct,
+      avg_drawing_pct,
+      avg_trailing_pct
+    ),
+    colour = c(
+      col_green,
+      col_grey_state,
+      col_red
+    ),
+    stringsAsFactors = FALSE
+  )
+  
+  
+  # -------------------------------------------------------
+  # DYNAMIC DUMBBELL LABEL POSITIONING
+  # -------------------------------------------------------
+  
+  ht_dots$x     <- scale_pct(ht_dots$pct)
+  ht_dots$avg_x <- scale_pct(ht_dots$avg)
+  
+  # Sort from left to right
+  ht_dots <- ht_dots[order(ht_dots$x), ]
+  
+  row_y <- 2.35
+  
+  # Minimum horizontal distance between labels
+  min_gap <- 0.85
+  
+  # Start with labels above the dumbbell
+  ht_dots$label_y <- row_y + 0.48
+  ht_dots$label_vj <- 0
+  
+  # Check neighbouring dots.
+  # If dots are close, alternate the labels vertically.
+  for (i in 2:nrow(ht_dots)) {
+    
+    if (abs(ht_dots$x[i] - ht_dots$x[i - 1]) < min_gap) {
+      
+      # Push the current label below
+      ht_dots$label_y[i] <- row_y - 0.48
+      ht_dots$label_vj[i] <- 1
+      
+      # If three dots are extremely close,
+      # move the previous label slightly higher.
+      if (
+        i >= 3 &&
+        abs(ht_dots$x[i] - ht_dots$x[i - 2]) < min_gap
+      ) {
+        
+        ht_dots$label_y[i - 1] <- row_y + 0.68
+      }
+    }
+  }
+  
+  
+  # -------------------------------------------------------
+  # LABEL TEXT
+  # -------------------------------------------------------
+  
+  ht_dots$label <- paste0(
+    # ht_dots$state,
+    # " ",
+    round(ht_dots$pct),
+    "%"
+  )
+  
+  
+  # -------------------------------------------------------
+  # PLOT
+  # -------------------------------------------------------
+  
   ggplot() +
     
-    annotate("rect", xmin = 0.15, xmax = 10.15, ymin = -0.15, ymax = 13.85,
-             fill = col_shadow, alpha = 0.35, colour = NA) +
-    annotate("rect", xmin = 0, xmax = 10, ymin = 0, ymax = 14, fill = rank_colour, alpha = tint_alpha, colour = NA) +
-    annotate("rect", xmin = 0, xmax = 10, ymin = 0, ymax = 14,
-             fill = col_card_bg, colour = col_border, linewidth = 0.8) +
-    annotate("rect", xmin = 0, xmax = 10, ymin = 13.5, ymax = 14, fill = rank_colour, colour = NA) +
-    annotate("text", x = 0.4, y = 13.75,
-             label=case_when(
-               t$team %in% c("Coventry City", "Ipswich Town") ~ 
-                 "Promoted to Premier League 2026/27",
-               
-               t$team == "Hull City" ~ 
-                 "Promotion via Playoffs 2026/27",
-               
-               t$team %in% c("Southampton", "Middlesbrough", "Millwall") ~
-                 "Finished in Play-off Places in Top 6",
-               
-             ),
-             hjust =-0.05,vjust=0.4, colour = "black", fontface = "bold", size = 4.2) +
+    # Card background
+    annotate(
+      "rect",
+      xmin = 0.15,
+      xmax = 10.15,
+      ymin = -0.15,
+      ymax = 13.85,
+      fill = col_shadow,
+      alpha = 0.35,
+      colour = NA
+    ) +
     
-    annotate("text", x = 1.5, y = 9, label =ifelse(t$team=="Millwall","Millwall FC",card_title),angle=90,
-             hjust = 0,
-             vjust = 1.5, fontface = "bold", size =5 , colour = col_text_dark) +
+    annotate(
+      "rect",
+      xmin = 0,
+      xmax = 10,
+      ymin = 0,
+      ymax = 14,
+      fill = rank_colour,
+      alpha = tint_alpha,
+      colour = NA
+    ) +
+    
+    annotate(
+      "rect",
+      xmin = 0,
+      xmax = 10,
+      ymin = 0,
+      ymax = 14,
+      fill = col_card_bg,
+      colour = col_border,
+      linewidth = 0.8
+    ) +
+    
+    annotate(
+      "rect",
+      xmin = 0,
+      xmax = 10,
+      ymin = 13.5,
+      ymax = 14,
+      fill = rank_colour,
+      colour = NA
+    ) +
+    
+    annotate(
+      "text",
+      x = 0.4,
+      y = 13.75,
+      label = case_when(
+        
+        t$team %in% c("Coventry City", "Ipswich Town") ~
+          "Promoted to Premier League 2026/27",
+        
+        t$team == "Hull City" ~
+          "Promotion via Playoffs 2026/27",
+        
+        t$team %in% c("Southampton", "Middlesbrough", "Millwall") ~
+          "Finished in Play-off Places in Top 6",
+        
+        TRUE ~ ""
+      ),
+      hjust = -0.05,
+      vjust = 0.4,
+      colour = "black",
+      fontface = "bold",
+      size = 4.2
+    ) +
+    
+    # Team name
+    annotate(
+      "text",
+      x = 1.5,
+      y = 9,
+      label = ifelse(
+        t$team == "Millwall",
+        "Millwall FC",
+        card_title
+      ),
+      angle = 90,
+      hjust = 0,
+      vjust = 1.5,
+      fontface = "bold",
+      size = 5,
+      colour = col_text_dark
+    ) +
+    
+    # Logo
     geom_soccer_logos(
       aes(
         x = 8.7,
@@ -370,43 +572,66 @@ make_card <- function(t,t_names) {
       ),
       width = 0.2
     ) +
-    # logo_layer(8.7, 12.6, t$Logo, initials) +
     
     badge_layer +
     
-    # ---- Uniform vertical rhythm from here down: every anchor is 0.8 apart,
-    # so nothing can drift into its neighbour, and the generous card height
-    # gets used instead of leaving dead space above the footer. ----
-  geom_richtext(
-    aes(
+    # Record
+    geom_richtext(
+      aes(
+        x = 5,
+        y = 10.9,
+        label = paste0(
+          "<span style='color:#22C55E'><b>", t$W, "W</b></span> - ",
+          "<span style='color:#CBD5E1'><b>", t$D, "D</b></span> - ",
+          "<span style='color:#EF4444'><b>", t$L, "L</b></span>"
+        )
+      ),
+      size = 5.9,
+      fill = NA,
+      label.color = NA,
+      colour = col_text_mid
+    ) +
+    
+    annotate(
+      "text",
       x = 5,
-      y = 10.8,
+      y = 10,
+      label = paste0(t$Pts, " PTS"),
+      fontface = "bold",
+      size = 11.0,
+      colour = col_text_dark
+    ) +
+    
+    annotate(
+      "text",
+      x = 5,
+      y = 9.1,
       label = paste0(
-        "<span style='color:#22C55E'><b>", t$W, "W</b></span> - ",
-        "<span style='color:#CBD5E1'><b>", t$D, "D</b></span> - ",
-        "<span style='color:#EF4444'><b>", t$L, "L</b></span>"
-      )
-    ),
-    size = 5.9,
-    fill = NA,
-    label.color = NA,
-    colour = col_text_mid
-  )+
-    annotate("text", x = 5, y = 10, label = paste0(t$Pts, " PTS"),
-             fontface = "bold", size = 11.0, colour = col_text_dark) +
-    annotate("text", x = 5, y = 9.1, label = paste0(round(t$Pts / t$GP, 2), " pts / game"),
-             colour = col_text_mid, size = 5.4) +
-    # annotate("text", x = 5, y = 9.10, label = delta_label, colour = delta_colour, size = 4.8, fontface = "bold") +
-    annotate("segment", x = 0.6, xend = 9.4, y = 8.30, yend = 8.30, colour = col_border) +
+        round(t$Pts / t$GP, 2),
+        " pts / game"
+      ),
+      colour = col_text_mid,
+      size = 5.4
+    ) +
+    
+    annotate(
+      "segment",
+      x = 0.6,
+      xend = 9.4,
+      y = 8.30,
+      yend = 8.30,
+      colour = col_border
+    ) +
+    
     
     # -------------------------------------------------------
-  # C. GOALS — FOR / AGAINST
+  # C. GOALS
   # -------------------------------------------------------
   
   annotate(
     "text",
     x = 0.6,
-    y = 6.95,   # was 7.50
+    y = 6.95,
     hjust = 0,
     fontface = "bold",
     size = sz_section,
@@ -417,7 +642,7 @@ make_card <- function(t,t_names) {
     annotate(
       "text",
       x = 9.4,
-      y = 6.55,   # was 6.55
+      y = 6.55,
       hjust = 1,
       fontface = "bold",
       size = sz_value,
@@ -473,24 +698,27 @@ make_card <- function(t,t_names) {
       fontface = "bold",
       colour = col_red,
       label = t$ga
-    )+
+    ) +
+    
     
     # -------------------------------------------------------
   # D. HALF-TIME STATE
   # -------------------------------------------------------
   
-  annotate(
-    "text",
-    x = 0.6,
-    y = 5.05,
+  geom_richtext(
+    aes(
+      x = 0.6,
+      y = 5.05,
+      label = "HALF TIME STATE"
+    ),
     hjust = 0,
-    fontface = "bold",
-    size = sz_section,
-    colour = col_text_mid,
-    label = "HALF-TIME STATE"
+    vjust = 0.5,
+    size = 4.2,
+    fill = NA,
+    label.color = NA,
+    colour = col_text_mid
   ) +
-    
-    # Stacked state bar
+    # Stacked bar
     annotate(
       "rect",
       xmin = l_x0,
@@ -526,7 +754,10 @@ make_card <- function(t,t_names) {
       hjust = 0,
       size = 2.5,
       colour = col_green,
-      label = paste0("Leading: ", t$leading_games)
+      label = paste0(
+        "Leading: ",
+        t$leading_games
+      )
     ) +
     
     annotate(
@@ -536,7 +767,10 @@ make_card <- function(t,t_names) {
       hjust = 0.5,
       size = 2.5,
       colour = col_grey_state,
-      label = paste0("Drawing: ", t$drawing_games)
+      label = paste0(
+        "Drawing: ",
+        t$drawing_games
+      )
     ) +
     
     annotate(
@@ -546,189 +780,124 @@ make_card <- function(t,t_names) {
       hjust = 1,
       size = 2.5,
       colour = col_red,
-      label = paste0("Trailing: ", t$trailing_games)
+      label = paste0(
+        "Trailing: ",
+        t$trailing_games
+      )
     ) +
     
     
     # -------------------------------------------------------
   # E. POINTS WON BY HALF-TIME STATE
+  # ALWAYS AFTER HALF-TIME STATE
   # -------------------------------------------------------
   
+  # annotate(
+  #   "text",
+  #   x = 0.6,
+  #   y = .15,
+  #   hjust = 0,
+  #   # fontface = "bold",
+  #   size = sz_section,
+  #   colour = col_text_mid,
+  #   size=2,
+  #   label = "POINTS WON BY HALF-TIME STATE"
+  # ) +
+  
+  # Full 0–100% track
   annotate(
-    "text",
-    x = 0.6,
-    y = 3.55,
-    hjust = 0,
-    fontface = "bold",
-    size = sz_section,
-    colour = col_text_mid,
-    label = "POINTS WON BY HALF-TIME STATE"
+    "segment",
+    x = bullet_x0,
+    xend = bullet_x1,
+    y = row_y,
+    yend = row_y,
+    colour = col_border,
+    linewidth = 2,
+    lineend = "round"
   ) +
     
-    # ---- Leading ----
-  annotate(
-    "text",
-    x = 0.7,
-    y = 3.10,
-    hjust = 0,
-    size = 3.5,
-    colour = col_green,
-    label = "Leading"
-  ) +
-    
-    annotate(
-      "rect",
-      xmin = bullet_x0,
-      xmax = bullet_x1,
-      ymin = 2.98,
-      ymax = 3.18,
-      fill = col_border
-    ) +
-    
-    annotate(
-      "rect",
-      xmin = bullet_x0,
-      xmax = lead_end,
-      ymin = 2.98,
-      ymax = 3.18,
-      fill = col_green
-    ) +
-    
+    # Dumbbell body
     annotate(
       "segment",
-      x = lead_avg_x,
-      xend = lead_avg_x,
-      y = 2.90,
-      yend = 3.26,
-      colour = col_text_dark,
-      linewidth = 0.5,
-      linetype = "dashed"
-    ) +
-    
-    annotate(
-      "text",
-      x = lead_end + 0.12,
-      y = 3.08,
-      hjust = 0,
-      size = 3.7,
-      fontface = "bold",
-      colour = col_green,
-      label = paste0(t$leading_pct_pts, "%")
-    ) +
-    
-    
-    # ---- Drawing ----
-  annotate(
-    "text",
-    x = 0.7,
-    y = 2.55,
-    hjust = 0,
-    size = 3.5,
-    colour = col_grey_state,
-    label = "Drawing"
-  ) +
-    
-    annotate(
-      "rect",
-      xmin = bullet_x0,
-      xmax = bullet_x1,
-      ymin = 2.43,
-      ymax = 2.63,
-      fill = col_border
-    ) +
-    
-    annotate(
-      "rect",
-      xmin = bullet_x0,
-      xmax = draw_end,
-      ymin = 2.43,
-      ymax = 2.63,
-      fill = col_grey_state
-    ) +
-    
-    annotate(
-      "segment",
-      x = draw_avg_x,
-      xend = draw_avg_x,
-      y = 2.35,
-      yend = 2.71,
-      colour = col_text_dark,
-      linewidth = 0.5,
-      linetype = "dashed"
-    ) +
-    
-    annotate(
-      "text",
-      x = draw_end + 0.12,
-      y = 2.53,
-      hjust = 0,
-      size = 3.7,
-      fontface = "bold",
+      x = min(ht_dots$x),
+      xend = max(ht_dots$x),
+      y = row_y,
+      yend = row_y,
       colour = col_grey_state,
-      label = paste0(t$drawing_pct_pts, "%")
+      linewidth = 1
     ) +
     
-    
-    # ---- Trailing ----
-  annotate(
-    "text",
-    x = 0.7,
-    y = 2.00,
-    hjust = 0,
-    size = 3.5,
-    colour = col_red,
-    label = "Trailing"
-  ) +
-    
-    annotate(
-      "rect",
-      xmin = bullet_x0,
-      xmax = bullet_x1,
-      ymin = 1.88,
-      ymax = 2.08,
-      fill = col_border
-    ) +
-    
-    annotate(
-      "rect",
-      xmin = bullet_x0,
-      xmax = trail_end,
-      ymin = 1.88,
-      ymax = 2.08,
-      fill = col_red
-    ) +
-    
-    annotate(
-      "segment",
-      x = trail_avg_x,
-      xend = trail_avg_x,
-      y = 1.80,
-      yend = 2.16,
-      colour = col_text_dark,
+    # League-average ticks
+    geom_segment(
+      data = ht_dots,
+      aes(
+        x = avg_x,
+        xend = avg_x,
+        y = row_y - 0.16,
+        yend = row_y + 0.16,
+        colour = colour
+      ),
       linewidth = 0.5,
       linetype = "dashed"
     ) +
     
-    annotate(
-      "text",
-      x = trail_end + 0.12,
-      y = 1.98,
-      hjust = 0,
-      size = 3.7,
-      fontface = "bold",
-      colour = col_red,
-      label = paste0(t$trailing_pct_pts, "%")
+    # Dots
+    geom_point(
+      data = ht_dots,
+      aes(
+        x = x,
+        y = row_y,
+        colour = colour
+      ),
+      size = 4.6
     ) +
-    # E. Goals
+    
+    # -------------------------------------------------------
+  # LEADER LINES
+  # Connect displaced labels to their dots
+  # -------------------------------------------------------
+  
+  geom_segment(
+    data = ht_dots[
+      abs(ht_dots$label_y - row_y) > 0.01,
+    ],
+    aes(
+      x = x,
+      xend = x,
+      y = row_y,
+      yend = label_y
+    ),
+    colour = col_border,
+    linewidth = 0.35,
+    linetype = "dotted"
+  ) +
+    
+    # Dynamic labels
+    geom_text(
+      data = ht_dots,
+      aes(
+        x = x,
+        y = label_y,
+        label = label,
+        colour = colour,
+        vjust = label_vj
+      ),
+      size = 3.3,
+      fontface = "bold"
+    ) +
+    
+    scale_colour_identity() +
+    
     coord_cartesian(
       xlim = c(-0.3, 10.3),
       ylim = c(-0.3, 14.3),
       expand = FALSE,
       clip = "off"
     ) +
+    
     theme(
       text = element_text(
-        family = "Oswald",
+        family = "Bebas",
         size = 30
       ),
       plot.margin = margin(0, 0, 0, 0),
@@ -737,6 +906,7 @@ make_card <- function(t,t_names) {
         colour = NA
       )
     ) +
+    
     theme_void()
 }
 
@@ -744,27 +914,25 @@ make_card <- function(t,t_names) {
 #===================================================
 # 6. ASSEMBLE & EXPORT
 #===================================================
-library(showtext)
 
-sysfonts::font_add_google("Oswald", "Oswald")
+
 sysfonts::font_add_google("Bebas Neue","Bebas")
-sysfonts::font_add_google("Oswald","Oswald")
-sysfonts::font_add_google("Oswald","Oswald")
+sysfonts::font_add_google("Plex","Plex")
 font_add_google("IBM Plex Sans", "Plex")
 font_add_google("Font Name", "Alias")
 showtext::showtext_auto()
 showtext_auto()
 
 update_geom_defaults("text", list(
-  family = "Oswald"
+  family = "Inter"
 ))
 
 update_geom_defaults("label", list(
-  family = "Oswald"
+  family = "Inter"
 ))
 
 update_geom_defaults("richtext", list(
-  family = "Oswald"
+  family = "Inter"
 ))
 
 
@@ -773,13 +941,87 @@ cards <- lapply(seq_len(nrow(final_df)), function(i) make_card(final_df[i, ],fin
 cards_grid <- wrap_plots(cards, ncol = 3, byrow = TRUE)
 
 
-final <- plot_grid(
+# -------------------------------------------------------
+# UNIVERSAL LEGEND
+# -------------------------------------------------------
+
+state_legend <- ggplot() +
+  
+  geom_richtext(
+    aes(
+      x = 0.5,
+      y = 0.5,
+      label = paste0(
+        "<span style='color:", col_green, "'>●</span> ",
+        "&nbsp;&nbsp;&nbsp;&nbsp;",
+        "<span style='color:", col_text_mid, "'>Leading/Wins</span>",
+        "&nbsp;&nbsp;&nbsp;&nbsp;",
+        "<span style='color:", col_grey_state, "'>●</span> ",
+        "&nbsp;&nbsp;&nbsp;&nbsp;",
+        "<span style='color:", col_text_mid, "'>Drawing/Draws</span>",
+        "&nbsp;&nbsp;&nbsp;&nbsp;",
+        "<span style='color:", col_red, "'>●</span> ",
+                "&nbsp;&nbsp;&nbsp;&nbsp;",
+        "<span style='color:", col_text_mid, "'>Trailing/Losses</span>"
+      )
+    ),
+    hjust = 0.5,
+    vjust = 0.5,
+    size = 5,
+    fill = NA,
+    label.color = NA
+  ) +
+  
+  coord_cartesian(
+    xlim = c(0, 1),
+    ylim = c(0, 1),
+    expand = FALSE,
+    clip = "off"
+  ) +
+  
+  theme_void() +
+  
+  theme(
+    plot.margin = margin(
+      t = 2,
+      r = 0,
+      b = 2,
+      l = 0
+    )
+  )
+
+
+# -------------------------------------------------------
+# CARDS + LEGEND
+# -------------------------------------------------------
+
+cards_with_legend <- plot_grid(
   cards_grid,
-  chart,
-  ncol = 2,
-  rel_widths = c(2,1),
-  align = "h",
-  greedy = FALSE
+  state_legend,
+  ncol = 1,
+  
+  # Give legend enough vertical room
+  rel_heights = c(1, 0.06),
+  
+  align = "v"
 )
 
+
+# -------------------------------------------------------
+# CARDS + CHART
+# -------------------------------------------------------
+
+final <- plot_grid(
+  cards_with_legend,
+  chart,
+  
+  ncol = 2,
+  
+  # More space for cards, but still enough for chart
+  rel_widths = c(2, 1),
+  
+  align = "h",
+  axis = "tb",
+  greedy = FALSE
+)
 
