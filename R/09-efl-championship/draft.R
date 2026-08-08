@@ -122,11 +122,11 @@ chart<-ggplot(plot_df) +
   ) +
   geom_image(
     aes(
-    x = 50,
+    x = 60,
     y = 6.25,
     image = efl_logo
     ),
-    size = 0.05
+    size = 0.09
   ) +
   ## Home labels
   geom_text(
