@@ -147,60 +147,59 @@ chart<-ggplot(plot_df) +
   ) +
   annotate(
     "text",
-    x = -48,
+    x = -60,
     y = 6.25,
-    label = "Coventry were the better side and earned promotion/n
-    Lampard also signed a new contract",
+    label = "Home or Away: Where Did Teams Win Their Points?",
     hjust = 0,
     vjust = 0,
     fontface = "bold",
-    size = 3.4,
+    size = 4.0,
     lineheight = 1.1,
     colour = col_text_dark
   )+
-  annotate(
-    "text",
-    x = -48,
-    y = 5.25,
-    label = "Kieran Mckenna won Ipswich back to back promotions",
-    hjust = 0,
-    vjust = 0,
-    fontface = "bold",
-    size = 3.4,
-    lineheight = 1.1,
-    colour = col_text_dark
-  )+
-  annotate(
-    "text",
-    x = -42,
-    y = 3.35,
-    label = "◯",
-    size = 9,
-    colour = "#DC2626"
-  ) +
-  
-  annotate(
-    "text",
-    x = -42,
-    y = 3.35,
-    label = "S",
-    size = 3.2,
-    fontface = "bold",
-    colour = "#DC2626"
-  ) +
-  
-  annotate(
-    "text",
-    x = -38,
-    y = 3.25,
-    label = "Southampton were expelled from the Championship",
-    hjust = 0,
-    vjust = 0.5,
-    fontface = "bold",
-    size = 3.4,
-    lineheight = 1.1,
-    colour = "#DC2626"
-  ) +
+  # annotate(
+  #   "text",
+  #   x = -48,
+  #   y = 5.25,
+  #   label = "Kieran Mckenna won Ipswich back to back promotions",
+  #   hjust = 0,
+  #   vjust = 0,
+  #   fontface = "bold",
+  #   size = 3.4,
+  #   lineheight = 1.1,
+  #   colour = col_text_dark
+  # )+
+  # annotate(
+  #   "text",
+  #   x = -42,
+  #   y = 3.35,
+  #   label = "◯",
+  #   size = 9,
+  #   colour = "#DC2626"
+  # ) +
+  # 
+  # annotate(
+  #   "text",
+  #   x = -42,
+  #   y = 3.35,
+  #   label = "S",
+  #   size = 3.2,
+  #   fontface = "bold",
+  #   colour = "#DC2626"
+  # ) +
+  # 
+  # annotate(
+  #   "text",
+  #   x = -38,
+  #   y = 3.25,
+  #   label = "Southampton were expelled from the Championship",
+  #   hjust = 0,
+  #   vjust = 0.5,
+  #   fontface = "bold",
+  #   size = 3.4,
+  #   lineheight = 1.1,
+  #   colour = "#DC2626"
+  # ) +
   scale_x_continuous(
     limits = c(-70, 70),
     breaks = seq(-60, 60, 20),
@@ -211,7 +210,7 @@ chart<-ggplot(plot_df) +
   coord_cartesian(clip = "off") +
   
   labs(
-    title = NULL,
+    title=NULL,
     subtitle = NULL,
     x = NULL,
     y = NULL
@@ -749,7 +748,47 @@ make_card <- function(t, t_names) {
       expand = FALSE,
       clip = "off"
     ) +
-    
+    labs(
+      title = if (t$team == "Coventry City")
+        "EFL CHAMPIONSHIP 2025/26 ANALYSIS POINTS WON BY TEAM VS HT/FT STATS IMPROVED PERFORMANCE"
+      else NULL,
+      
+      subtitle = if (t$team == "Coventry City")
+        paste0(
+          "<span style='color:#EF4444; font-weight:700;'>Southampton</span> were removed from the Play-Offs following the ",
+          "<span style='color:#EF4444; font-weight:700;'>Spygate controversy</span>",
+          
+          "<br>",
+          
+          "<span style='color:#22C55E; font-weight:700;'>Coventry City</span> and ",
+          "<span style='color:#22C55E; font-weight:700;'>Ipswich Town</span> secured ",
+          "<span style='color:#D4A72C; font-weight:700;'>automatic promotion</span>",
+          
+          "<br>",
+          
+          "Strong ",
+          "<span style='color:#2F80ED; font-weight:700;'>HT and FT performances</span>",
+          " helped the promotion contenders",
+          
+          "<br>",
+          
+          "<span style='color:#D4A72C; font-weight:700;'>Middlesbrough</span> and ",
+          "<span style='color:#D4A72C; font-weight:700;'>Millwall</span> impressed but ",
+          "<span style='color:#EF4444; font-weight:700;'>missed the Play-Offs</span>",
+          
+          "<br>",
+          
+          "Comebacks, ",
+          "<span style='color:#22C55E; font-weight:700;'>points gained</span> and ",
+          "<span style='color:#EF4444; font-weight:700;'>points surrendered</span> shaped the final table"
+        )          
+      else NULL,
+      x = NULL,
+      y = NULL,
+      
+      caption =  if (t$team == "Hull City")"Data:{engsoccerdata/soccerplotR},Design: Hari Krishna" else NULL
+    ) +
+    theme_void()+
     theme(
       text = element_text(
         family = "Inter",
@@ -759,10 +798,26 @@ make_card <- function(t, t_names) {
       plot.background = element_rect(
         fill = "#FFFDF5",
         colour = NA
+      ),
+      plot.title = element_text(
+        face = "bold",
+        size = 20
+      ),
+      
+      plot.subtitle = ggtext::element_markdown(
+        family = "Inter",
+        size = 11,
+        face = "bold",
+        colour = col_text_mid,
+        lineheight = 1.2,
+        hjust = 0
+      ),
+      
+      plot.caption = element_text(
+        face = "bold",
+        size = 11
       )
-    ) +
-    
-    theme_void()
+    )
 }
 
 
@@ -868,4 +923,5 @@ final <- plot_grid(
   axis = "tb",
   greedy = FALSE
 )
+
 
