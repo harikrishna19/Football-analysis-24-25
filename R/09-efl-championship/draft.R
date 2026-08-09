@@ -6,8 +6,13 @@ library(cowplot)
 library(ggtext)
 library(soccerplotR)
 library(showtext)
+library(ggimage)
+library(glue)
+library(patchwork)
 
 
+font_add_google("Manrope", "Manrope")
+showtext::showtext_auto()
 
 efl_logo <- "images/efl.png"
 # Load engsoccerdata from devtools ----------------------------------------
@@ -92,7 +97,7 @@ chart<-ggplot(plot_df) +
     label = "Home",
     colour = home_col,
     fontface = "bold",
-    size = 4.5
+    size = 8.5
   ) +
   
   annotate(
@@ -102,7 +107,7 @@ chart<-ggplot(plot_df) +
     label = "Away",
     colour = away_col,
     fontface = "bold",
-    size = 4.5
+    size = 8.5
   ) +
   scale_fill_manual(
     values = c(
@@ -134,7 +139,7 @@ chart<-ggplot(plot_df) +
         label = abs(Home)),
     colour = text_col,
     fontface = "bold",
-    size = 4.5
+    size = 8.5
   ) +
   
   ## Away labels
@@ -143,7 +148,7 @@ chart<-ggplot(plot_df) +
         label = Away),
     colour = text_col,
     fontface = "bold",
-    size = 4.5
+    size = 8.5
   ) +
   annotate(
     "text",
@@ -153,7 +158,7 @@ chart<-ggplot(plot_df) +
     hjust = 0,
     vjust = 0,
     fontface = "bold",
-    size = 4.0,
+    size = 8.0,
     lineheight = 1.1,
     colour = col_text_dark
   )+
@@ -221,7 +226,7 @@ chart<-ggplot(plot_df) +
   
   theme(
     legend.position ="none",
-    text = element_text(family = "Inter"),
+    text = element_text(family = "Manrope"),
     plot.background = element_rect(
       fill = bg_col,
       colour = NA
@@ -306,8 +311,8 @@ col_shadow     <- "#94A3B8"
 
 sz_title    <- 12
 sz_subtitle <- 5
-sz_section  <- 4.2
-sz_value    <- 4.3
+sz_section  <- 6.2
+sz_value    <- 6
 sz_footer   <- 4.9
 
 #===================================================
@@ -364,7 +369,7 @@ make_card <- function(t, t_names) {
   ga_end <- 5 - t$ga * goal_scale
   
   gd_label  <- paste0(ifelse(t$gd >= 0, "+", ""), t$gd, " GD")
-  gd_colour <- if (t$gd >= 0) "pink" else col_red
+  gd_colour <- if (t$gd >= 0) "black" else col_red
   
   
   # -------------------------------------------------------
@@ -471,7 +476,7 @@ make_card <- function(t, t_names) {
       vjust = 0.4,
       colour = "black",
       fontface = "bold",
-      size = 4.2
+      size = 6.2
     ) +
     
     # Team name
@@ -488,7 +493,7 @@ make_card <- function(t, t_names) {
       hjust = 0,
       vjust = 1.5,
       fontface = "bold",
-      size = 5,
+      size = 6,
       colour = col_text_dark
     ) +
     
@@ -510,8 +515,8 @@ make_card <- function(t, t_names) {
         x = 5,
         y = 10.9,
         label = paste0(
-          "<span style='color:#22C55E'><b>", t$W, "W</b></span> - ",
-          "<span style='color:#CBD5E1'><b>", t$D, "D</b></span> - ",
+          "<span style='color:#22C55E'><b>", t$W, "W</b></span>  ",
+          "<span style='color:#CBD5E1'><b>", t$D, "D</b></span>  ",
           "<span style='color:#EF4444'><b>", t$L, "L</b></span>"
         )
       ),
@@ -634,16 +639,16 @@ make_card <- function(t, t_names) {
   # D/E. HALF-TIME STATE -> % PTS WON (COMBINED DUMBBELL)
   # -------------------------------------------------------
   
-  geom_richtext(
+  geom_text(
     aes(
       x = 0.6,
-      y = 5.15,
-      label = "HT STATE \u2192 % PTS WON"
+      y = 5.35,
+      label = "HALF-TIME STATE vs FULL-TIME POINTS",
     ),
     hjust = 0,
     fontface="bold",
     vjust = 0.5,
-    size = 3.2,
+    size = 6.2,
     fill = NA,
     label.color = NA,
     colour = col_text_mid
@@ -674,7 +679,7 @@ make_card <- function(t, t_names) {
       ),
       hjust = 0,
       fontface = "bold",
-      size = 3.2
+      size = 5.2
     ) +
     
     # Dumbbell body: connects games% dot to pts% dot
@@ -699,7 +704,7 @@ make_card <- function(t, t_names) {
         colour = colour
       ),
       shape = 17,
-      size = 3.4
+      size = 5.4
     ) +
     
     # Points % dot (filled circle)
@@ -711,7 +716,7 @@ make_card <- function(t, t_names) {
         colour = colour
       ),
       shape = 19,
-      size = 4.6
+      size = 5.6
     ) +
     
     # Games % label (above)
@@ -723,7 +728,7 @@ make_card <- function(t, t_names) {
         label = games_label,
         colour = colour
       ),
-      size = 2.5,
+      size = 5.5,
       fontface = "bold"
     ) +
     
@@ -736,7 +741,7 @@ make_card <- function(t, t_names) {
         label = pts_label,
         colour = colour
       ),
-      size = 2.5,
+      size = 5.5,
       fontface = "bold"
     ) +
     
@@ -750,49 +755,15 @@ make_card <- function(t, t_names) {
     ) +
     labs(
       title = if (t$team == "Coventry City")
-        "EFL CHAMPIONSHIP 2025/26 ANALYSIS POINTS WON BY TEAM VS HT/FT STATS IMPROVED PERFORMANCE"
+        "EFL CHAMPIONSHIP 2025/26 SEASON SUMMARY"
       else NULL,
-      
-      subtitle = if (t$team == "Coventry City")
-        paste0(
-          "<span style='color:#EF4444; font-weight:700;'>Southampton</span> were removed from the Play-Offs following the ",
-          "<span style='color:#EF4444; font-weight:700;'>Spygate controversy</span>",
-          
-          "<br>",
-          
-          "<span style='color:#22C55E; font-weight:700;'>Coventry City</span> and ",
-          "<span style='color:#22C55E; font-weight:700;'>Ipswich Town</span> secured ",
-          "<span style='color:#D4A72C; font-weight:700;'>automatic promotion</span>",
-          
-          "<br>",
-          
-          "Strong ",
-          "<span style='color:#2F80ED; font-weight:700;'>HT and FT performances</span>",
-          " helped the promotion contenders",
-          
-          "<br>",
-          
-          "<span style='color:#D4A72C; font-weight:700;'>Middlesbrough</span> and ",
-          "<span style='color:#D4A72C; font-weight:700;'>Millwall</span> impressed but ",
-          "<span style='color:#EF4444; font-weight:700;'>missed the Play-Offs</span>",
-          
-          "<br>",
-          
-          "Comebacks, ",
-          "<span style='color:#22C55E; font-weight:700;'>points gained</span> and ",
-          "<span style='color:#EF4444; font-weight:700;'>points surrendered</span> shaped the final table"
-        )          
-      else NULL,
-      x = NULL,
-      y = NULL,
-      
-      caption =  if (t$team == "Hull City")"Data:{engsoccerdata/soccerplotR},Design: Hari Krishna" else NULL
+      caption =  if (t$team == "Hull City")"Data:engsoccerdata,club-logos:soccerplotR,Design: Hari Krishna" else NULL
     ) +
     theme_void()+
     theme(
       text = element_text(
-        family = "Inter",
-        size = 30
+        family = "Manrope",
+        size = 35
       ),
       plot.margin = margin(0, 0, 0, 0),
       plot.background = element_rect(
@@ -801,21 +772,13 @@ make_card <- function(t, t_names) {
       ),
       plot.title = element_text(
         face = "bold",
-        size = 20
-      ),
-      
-      plot.subtitle = ggtext::element_markdown(
-        family = "Inter",
-        size = 11,
-        face = "bold",
-        colour = col_text_mid,
-        lineheight = 1.2,
-        hjust = 0
+        size = 30
       ),
       
       plot.caption = element_text(
-        face = "bold",
-        size = 11
+        fontface = "italic",
+        family="Manrope",
+        size = 25
       )
     )
 }
@@ -827,22 +790,16 @@ make_card <- function(t, t_names) {
 #===================================================
 
 
-sysfonts::font_add_google("Plex","Plex")
-font_add_google("IBM Plex Sans", "Plex")
-font_add_google("Font Name", "Alias")
-showtext::showtext_auto()
-showtext_auto()
-
 update_geom_defaults("text", list(
-  family = "Inter"
+  family = "Manrope"
 ))
 
 update_geom_defaults("label", list(
-  family = "Inter"
+  family = "Manrope"
 ))
 
 update_geom_defaults("richtext", list(
-  family = "Inter"
+  family = "Manrope"
 ))
 
 
@@ -861,15 +818,21 @@ state_legend <- ggplot() +
       x = 0.5,
       y = 0.5,
       label = paste0(
-        
-        "<span style='color:", col_green,"; font-size:30px;'>●Leading/Wins</span> ",
-        "<span style='color:", col_grey_state, "; font-size:30px;'>●Drawing/Draws</span> ",
-        "<span style='color:", col_red, "; font-size:30px;'>●Trailing/Losses</span> "      )
+        "<span style='color:", col_green,
+        "; font-size:30px;'>● Leading/Wins</span>",
+
+        "<span style='color:", col_grey_state,
+        "; font-size:30px;'> &nbsp;&nbsp; ● Drawing/Draw</span>",
+
+        "<span style='color:", col_red,
+        "; font-size:30px;'> &nbsp;&nbsp; ● Trailing/Losses</span>"
+      )
     ),
     hjust = 0.5,
     vjust = 0.5,
     fill = NA,
-    label.color = NA
+    label.color = NA,
+    lineheight = 1
   ) +
   
   coord_cartesian(
@@ -883,12 +846,13 @@ state_legend <- ggplot() +
   
   theme(
     plot.margin = margin(
-      t = 2,
-      r = 0,
-      b = 2,
-      l = 0
+      t = 5,
+      r = 5,
+      b = 5,
+      l = 5
     )
   )
+
 
 # -------------------------------------------------------
 # CARDS + LEGEND
@@ -898,10 +862,7 @@ cards_with_legend <- plot_grid(
   cards_grid,
   state_legend,
   ncol = 1,
-  
-  # Give legend enough vertical room
-  rel_heights = c(1, 0.06),
-  
+  rel_heights = c(1, 0.08),
   align = "v"
 )
 
@@ -913,15 +874,8 @@ cards_with_legend <- plot_grid(
 final <- plot_grid(
   cards_with_legend,
   chart,
-  
   ncol = 2,
-  
-  # More space for cards, but still enough for chart
   rel_widths = c(2, 1),
-  
-  align = "h",
-  axis = "tb",
-  greedy = FALSE
+  align = "h"
 )
-
 
