@@ -12,6 +12,7 @@ library(patchwork)
 
 
 font_add_google("Manrope", "Manrope")
+font_add_google("Manrope", "Manrope")
 showtext::showtext_auto()
 
 efl_logo <- "images/efl.png"
@@ -152,13 +153,13 @@ chart<-ggplot(plot_df) +
   ) +
   annotate(
     "text",
-    x = -60,
-    y = 6.25,
-    label = "Home or Away: Where Did Teams Win Their Points?",
+    x = -35,
+    y = 6.45,
+    label="Home vs Away: Points Won",
     hjust = 0,
     vjust = 0,
     fontface = "bold",
-    size = 8.0,
+    size =8.5 ,
     lineheight = 1.1,
     colour = col_text_dark
   )+
@@ -493,7 +494,7 @@ make_card <- function(t, t_names) {
       hjust = 0,
       vjust = 1.5,
       fontface = "bold",
-      size = 6,
+      size = 9,
       colour = col_text_dark
     ) +
     
@@ -649,8 +650,6 @@ make_card <- function(t, t_names) {
     fontface="bold",
     vjust = 0.5,
     size = 6.2,
-    fill = NA,
-    label.color = NA,
     colour = col_text_mid
   ) +
     
@@ -776,9 +775,12 @@ make_card <- function(t, t_names) {
       ),
       
       plot.caption = element_text(
-        fontface = "italic",
-        family="Manrope",
-        size = 25
+        family = "Manrope",
+        size = 16,
+        face = "bold",
+        colour = col_text_mid,
+        hjust = 1,
+        margin = margin(t = 8)
       )
     )
 }
