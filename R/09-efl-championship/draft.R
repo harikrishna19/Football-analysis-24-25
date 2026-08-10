@@ -77,6 +77,20 @@ team_names<-c("Hull","Middlesbrough","Millwall","Southampton","Ipswich","Coventr
 plot_df[['team_name']]<-team_names
 plot_df$pts<-abs(plot_df$Home)+abs(plot_df$Away)
 plot_df<-plot_df %>% arrange(pts)
+plot_df<-plot_df[c(1, 2, 4, 3, 5:nrow(plot_df)), ]
+plot_df <- plot_df %>%
+  arrange(match(team_name, c(
+    "Coventry",
+    "Ipswich",
+    "Millwall",
+    "Southampton",
+    "Middlesbrough",
+    "Hull"
+  )))
+plot_df$team <- factor(
+  plot_df$team,
+  levels = rev(plot_df$team)
+)
 chart<-ggplot(plot_df) +
 
   ## Home bars
@@ -121,7 +135,7 @@ chart<-ggplot(plot_df) +
     aes(
       x = -68,
       y = team,
-      team_name = team_names
+      team_name = plot_df$team_name
     ),
     width = 0.09
   ) +
@@ -162,49 +176,6 @@ chart<-ggplot(plot_df) +
     lineheight = 1.1,
     colour = col_text_dark
   )+
-  # annotate(
-  #   "text",
-  #   x = -48,
-  #   y = 5.25,
-  #   label = "Kieran Mckenna won Ipswich back to back promotions",
-  #   hjust = 0,
-  #   vjust = 0,
-  #   fontface = "bold",
-  #   size = 3.4,
-  #   lineheight = 1.1,
-  #   colour = col_text_dark
-  # )+
-  # annotate(
-  #   "text",
-  #   x = -42,
-  #   y = 3.35,
-  #   label = "◯",
-  #   size = 9,
-  #   colour = "#DC2626"
-  # ) +
-  # 
-  # annotate(
-  #   "text",
-  #   x = -42,
-  #   y = 3.35,
-  #   label = "S",
-  #   size = 3.2,
-  #   fontface = "bold",
-  #   colour = "#DC2626"
-  # ) +
-  # 
-  # annotate(
-  #   "text",
-  #   x = -38,
-  #   y = 3.25,
-  #   label = "Southampton were expelled from the Championship",
-  #   hjust = 0,
-  #   vjust = 0.5,
-  #   fontface = "bold",
-  #   size = 3.4,
-  #   lineheight = 1.1,
-  #   colour = "#DC2626"
-  # ) +
   scale_x_continuous(
     limits = c(-70, 70),
     breaks = seq(-60, 60, 20),
@@ -218,8 +189,8 @@ chart<-ggplot(plot_df) +
     title=NULL,
     subtitle = NULL,
     x = NULL,
-    y = NULL
-    # caption = "Design:Hari Krishna"
+    y = NULL,
+    # caption = "Playoffs Data not included in the analysis"
   ) +
   
   theme_minimal(base_size = 15) +
@@ -235,8 +206,6 @@ chart<-ggplot(plot_df) +
     panel.background = element_rect(
       fill = bg_col,
       colour = NA
-    ),
-    plot.caption = element_text(hjust = 0.5
     ),
     panel.grid.major.y = element_blank(),
     
@@ -520,7 +489,7 @@ make_card <- function(t, t_names) {
           "<span style='color:#EF4444'><b>", t$L, "L</b></span>"
         )
       ),
-      size = 5.9,
+      size = 7.5,
       fill = NA,
       label.color = NA,
       colour = col_text_mid
@@ -753,7 +722,7 @@ make_card <- function(t, t_names) {
     ) +
     labs(
       title = if (t$team == "Ipswich Town")
-        "EFL CHAMPIONSHIP 2025/26 SEASON SUMMARY"
+        "EFL CHAMPIONSHIP 2025/26 Season Summary-Top 6 Teams"
       else NULL,
       caption =  if (t$team == "Hull City")"Data:engsoccerdata,club-logos:soccerplotR,Design: Hari Krishna" else NULL
     ) +
@@ -770,7 +739,7 @@ make_card <- function(t, t_names) {
       ),
       plot.title = element_text(
         face = "bold",
-        size = 30
+        size = 25
       ),
       
       plot.caption = element_text(
