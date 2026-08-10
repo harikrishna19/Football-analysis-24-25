@@ -1,0 +1,64 @@
+# EFL Championship Viz
+
+# Update PR to the master branch
+
+
+
+# Analysis of EFL championship
+1.League tables preview
+2. Half and full time analysis of teams
+3. Home/Away wins ,percentage etc
+4.Attck vs Defence
+
+# Story of halves / summary of halves
+1. When do teams win most of the points: First half ,second half or both
+  a) Points won by trailing and points lost while trailing in a championship game
+2. Which team had the best scoring or the defence season in 2025/26 championship
+3. % of wins Home and way in the championship
+4. Points won by trailing vs points lost by leading in a championship game
+5. Top stories of the season
+  a) Quick insights in numbers
+  
+  
+  ┌──────────────────────────────────────────────────────────────┐
+│               EFL CHAMPIONSHIP 2025/26 REVIEW                │
+│         Champions • Promotion • Relegation • KPIs           │
+├───────────────────────────┬──────────────────────────────────┤
+│ League Table              │ Attack vs Defence Quadrant       │
+│ • Final Standings         │ Goals Scored vs Goals Allowed    │
+│ • Promotion               │ Team logos                       │
+│ • Playoffs                │ Highlight promoted clubs         │
+├───────────────────────────┼──────────────────────────────────┤
+│ Story of the Halves       │ Home vs Away Identity            │
+│ First-half vs Second-half │ Wins • Goals • Points            │
+│ Points won                │ Home Fortress Index              │
+│ Comebacks                 │ Away Specialists                 │
+├───────────────────────────┼──────────────────────────────────┤
+│ Comeback Kings            │ League Journey                   │
+│ Points won trailing       │ Position bump chart              │
+│ Points lost leading       │ Key turning points               │
+├───────────────────────────┴──────────────────────────────────┤
+│                     QUICK FACTS OF THE SEASON                │
+│ Highest scorers • Best defence • Longest streak • Clean sheets│
+└──────────────────────────────────────────────────────────────┘
+
+
+
+# Design
+
+Team logo
+
+# Total Points
+# Goals scored /Goals conceded
+# HT Points
+# FT Points
+
+# Leads lost/comeback wins
+# 2nd half points
+
+
+
+
+
+
+
