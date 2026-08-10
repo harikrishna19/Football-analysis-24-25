@@ -12,7 +12,6 @@ library(patchwork)
 
 
 font_add_google("Manrope", "Manrope")
-font_add_google("Manrope", "Manrope")
 showtext::showtext_auto()
 
 efl_logo <- "images/efl.png"
@@ -571,7 +570,7 @@ make_card <- function(t, t_names) {
     fontface = "bold",
     size = sz_section,
     colour = col_text_mid,
-    label = "GOALS (FOR / AGAINST)"
+    label = "GOALS (AGAINST / FOR)"
   ) +
     
     annotate(
@@ -753,7 +752,7 @@ make_card <- function(t, t_names) {
       clip = "off"
     ) +
     labs(
-      title = if (t$team == "Coventry City")
+      title = if (t$team == "Ipswich Town")
         "EFL CHAMPIONSHIP 2025/26 SEASON SUMMARY"
       else NULL,
       caption =  if (t$team == "Hull City")"Data:engsoccerdata,club-logos:soccerplotR,Design: Hari Krishna" else NULL
