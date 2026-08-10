@@ -56,4 +56,4 @@ Refer the following repo for this project: [Posit Table Submission](https://gith
 
 # 9. EFL Championship 2025/26 Top 6 Teams Summary
 
-![](images/efl_final_viz.png)
+![](images/efl_final.png)
