@@ -11,9 +11,7 @@ library(patchwork)
 
 
 get_pl_matchweeks <- function(season = 2026,   # 2026 = the 2026/27 season
-                              teams = c("Manchester United",
-                                        "Tottenham Hotspur",
-                                        "Chelsea")) {
+                             teams=NULL) {
   
   # 1. Try engsoccerdata (it uses the start year in Season, tier 1 = Premier League)
   raw <- NULL
@@ -21,6 +19,9 @@ get_pl_matchweeks <- function(season = 2026,   # 2026 = the 2026/27 season
     raw <- engsoccerdata::england_current(Season = season) %>% filter(tier==1) %>% 
       transmute(date = as.Date(Date), home, away = visitor,
                 hg = hgoal, ag = vgoal)
+    if(is.null(teams)){
+      teams<-unique(raw$home)
+    }
   }
   
   # 2. Fall back to football-data.co.uk if engsoccerdata has nothing for the season
@@ -61,7 +62,9 @@ get_pl_matchweeks <- function(season = 2026,   # 2026 = the 2026/27 season
 }
 
 # Usage
-pl <- get_pl_matchweeks()
+pl <- get_pl_matchweeks(teams = c("Manchester United",
+                                   "Tottenham Hotspur",
+                                   "Chelsea"))
 pl
 team_cols  <- c(Chelsea = blue, "Manchester United" = red, "Tottenham Hotspur" = navy)
 end_labels <- pl |> filter(matchweek == 10)
@@ -103,4 +106,49 @@ c1_cards <- ggplot(cards) +
 
 panel1 <- h1 / tag_label("Points Progression") / c1 / c1_cards +
   plot_layout(heights = c(1.5, 0.5, 3.6, 1.3))
+
+panel1
+
+
+# code panel 2 Arsenal and brighton
+pl_ <- get_pl_matchweeks()
+pl_agg<-pl_ %>% group_by(team) %>% summarise("gf"=sum(gf),"ga"=sum(ga),gd=gf-ga,pts=sum(points))
+pl_agg$hl <- ifelse(pl_agg$team %in% c("Arsenal", "Brighton & Hove Albion"), pl_agg$team, "Other")
+
+
+# ---- Panel 2 ------------------------------------------------
+h2 <- panel_heading("2", "Brighton: Genuine Contenders?",
+                    "Brighton are second in the table, with a remarkable +19 goal difference.\nTheir underlying numbers suggest this isn't a fluke.")
+
+c2 <- ggplot(pl_agg, aes(gf, pts)) +
+  annotate("rect", xmin = 20, xmax = 28, ymin = 20, ymax = 28, fill = pale, alpha = 0.55) +
+  geom_vline(xintercept = 20, linetype = "dashed", colour = "#666666", linewidth = 0.3) +
+  geom_hline(yintercept = 20, linetype = "dashed", colour = "#666666", linewidth = 0.3) +
+  # annotate("text", x = 27.8, y = 12.6, label = "Underperforming", hjust = 1, size = 2.9, colour = grey, fontface = "italic") +
+  # annotate("text", x = 12.2, y = 27.5, label = "Overperforming", hjust = 0, size = 2.9, colour = grey, fontface = "italic") +
+  # annotate("text", x = 27.8, y = 20.7, label = "Elite and deserved", hjust = 1, size = 2.9, colour = blue, fontface = "bold.italic") +
+  geom_point(data = filter(pl_agg, hl == "Other"), colour = "#aaaaaa", size = 2.2) +
+  geom_point(data = filter(pl_agg, hl != "Other"), aes(fill = hl), shape = 21,
+             colour = "white", stroke = 1, size = 4.2) +
+  geom_label_repel(data = filter(pl_agg, hl != "Other"), aes(label = hl, fill = hl),
+                   colour = "white", fontface = "bold", size = 3.5, label.size = 0,
+                   nudge_x = -3.2, nudge_y = -1.2, segment.colour = "#777777") +
+  scale_fill_manual(values = c(Arsenal = red, "Brighton & Hove Albion" = blue)) +
+  scale_x_continuous(breaks = seq(12, 28, 4)) + scale_y_continuous(breaks = seq(12, 28, 4)) +
+  coord_cartesian(xlim = c(12, 28), ylim = c(12, 28)) +
+  labs(x = "Goals Scored", y = "Actual Points") +
+  theme_chart() + theme(legend.position = "none")
+
+side2 <- stat_block("26", "Goals Scored", "(most in PL)") /
+  stat_block("7", "Goals Conceded", "(2nd best)") /
+  stat_block("+19", "Goal Difference", "(+2.5 above xG)") /
+  callout("Are they the real deal?\nTheir numbers say yes.") +
+  plot_layout(heights = c(1, 1, 1, 1.1))
+panel2 <- h2 / tag_label("Contender Credibility Matrix") / (c2 + side2 + plot_layout(widths = c(2.6, 1.4))) +
+  plot_layout(heights = c(1.5, 0.5, 5.0))
+
+
+
+
+
 
