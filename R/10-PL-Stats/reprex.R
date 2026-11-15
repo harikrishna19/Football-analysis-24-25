@@ -507,3 +507,370 @@ View(ht_summary %>% group_by(team) %>% summarise("Points Won at HT"=sum(pts_won_
 
 
 
+# Chart reprex for HT vs FT Summary
+
+library(tidyverse)
+
+# 1. Illustrative Premier League data
+df <- tribble(
+  ~team, ~ht_points, ~ft_points,
+  "Arsenal",          16, 14,
+  "Man City",         14, 13,
+  "Aston Villa",      15, 18,
+  "Bournemouth",      13, 20,
+  "Brighton",         12, 19,
+  "Brentford",         9, 17,
+  "Chelsea",          11, 12,
+  "Liverpool",        10, 11,
+  "Man United",        8,  9,
+  "Tottenham",         7,  8,
+  "Newcastle",         6, 10,
+  "Fulham",            9,  7,
+  "Crystal Palace",    8,  6,
+  "Everton",           5,  5,
+  "West Ham",          6,  4,
+  "Wolves",            4,  3,
+  "Leeds",             3,  2,
+  "Burnley",           2,  1,
+  "Sunderland",        1,  0,
+  "Nottingham Forest", 0,  0
+)
+
+# 2. Calculate league positions
+df <- df %>%
+  mutate(
+    ht_rank = rank(-ht_points, ties.method = "first"),
+    ft_rank = rank(-ft_points, ties.method = "first"),
+    movement = ht_rank - ft_rank,
+    highlight = team %in% c(
+      "Bournemouth", "Brighton",
+      "Aston Villa", "Brentford"
+    )
+  )
+
+# 3. Club colours for the top four
+club_cols <- c(
+  "Bournemouth" = "#C8102E",
+  "Brighton"    = "#0057B8",
+  "Aston Villa" = "#670E36",
+  "Brentford"   = "#D71920"
+)
+
+# 4. Build the graphic
+ggplot() +
+  
+  # Background connections
+  geom_curve(
+    data = filter(df, !highlight),
+    aes(
+      x = 1, y = ht_rank,
+      xend = 2, yend = ft_rank
+    ),
+    curvature = 0.20,
+    colour = "#C9C9C9",
+    linewidth = 0.7,
+    alpha = 0.8
+  ) +
+  
+  # Highlighted top four
+  geom_curve(
+    data = filter(df, highlight),
+    aes(
+      x = 1, y = ht_rank,
+      xend = 2, yend = ft_rank,
+      colour = team
+    ),
+    curvature = 0.20,
+    linewidth = 1.5
+  ) +
+  
+  # HT and FT endpoints
+  geom_point(
+    data = df,
+    aes(x = 1, y = ht_rank),
+    size = 2,
+    colour = "#777777"
+  ) +
+  
+  geom_point(
+    data = df,
+    aes(x = 2, y = ft_rank,
+        colour = if_else(highlight, team, "Other")),
+    size = 2.5
+  ) +
+  
+  # Left-side labels
+  geom_text(
+    data = df,
+    aes(x = 0.91, y = ht_rank,
+        label = paste0(ht_rank, "  ", team),
+        fontface = if_else(highlight, "bold", "plain")),
+    hjust = 1,
+    size = 3.1,
+    colour = "#353535"
+  ) +
+  
+  # Right-side labels
+  geom_text(
+    data = df,
+    aes(x = 2.09, y = ft_rank,
+        label = paste0(team, "  ", ft_rank),
+        fontface = if_else(highlight, "bold", "plain")),
+    hjust = 0,
+    size = 3.1,
+    colour = "#353535"
+  ) +
+  
+  scale_colour_manual(
+    values = c(club_cols, "Other" = "#777777"),
+    guide = "none"
+  ) +
+  
+  scale_y_reverse(
+    breaks = 1:20,
+    limits = c(20.5, 0.5)
+  ) +
+  
+  scale_x_continuous(
+    breaks = c(1, 2),
+    labels = c("HALF-TIME", "FULL-TIME"),
+    limits = c(0.25, 2.75)
+  ) +
+  
+  labs(
+    title = "TWO TABLES. ONE LEAGUE.",
+    subtitle = "How the Premier League standings transform after the break",
+    caption = "Illustrative data | Rank 1 = top of the table"
+  ) +
+  
+  theme_minimal(base_family = "sans") +
+  theme(
+    plot.background = element_rect(
+      fill = "#F8F7F3", colour = NA
+    ),
+    panel.background = element_rect(
+      fill = "#F8F7F3", colour = NA
+    ),
+    panel.grid = element_blank(),
+    axis.title = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text.x = element_text(
+      face = "bold", size = 11,
+      colour = "#222222"
+    ),
+    plot.title = element_text(
+      face = "bold", size = 22
+    ),
+    plot.subtitle = element_text(
+      size = 11, colour = "#666666"
+    ),
+    plot.caption = element_text(
+      colour = "#888888"
+    ),
+    plot.margin = margin(20, 65, 20, 65)
+  ) +
+  coord_cartesian(clip = "off")
+
+# Reprex 2
+
+
+
+library(tidyverse)
+
+# 1. Illustrative data from our previous example
+df <- tribble(
+  ~team, ~ht_points, ~ft_points,
+  "Arsenal",          16, 14,
+  "Aston Villa",      15, 18,
+  "Man City",         14, 13,
+  "Bournemouth",      13, 20,
+  "Brighton",         12, 19,
+  "Chelsea",          11, 12,
+  "Liverpool",        10, 11,
+  "Brentford",         9, 17,
+  "Fulham",            9,  7,
+  "Man United",        8,  9,
+  "Crystal Palace",    8,  6,
+  "Tottenham",         7,  8,
+  "Newcastle",         6, 10,
+  "West Ham",          6,  4,
+  "Everton",           5,  5,
+  "Wolves",            4,  3,
+  "Leeds",             3,  2,
+  "Burnley",           2,  1,
+  "Sunderland",        1,  0,
+  "Nottingham Forest", 0,  0
+)
+
+# 2. Calculate second-half impact
+top_four <- c(
+  "Bournemouth", "Brighton",
+  "Aston Villa", "Brentford"
+)
+
+df <- df %>%
+  mutate(
+    impact = ft_points - ht_points,
+    
+    group = case_when(
+      team %in% top_four ~ team,
+      impact > 0 ~ "Other positive",
+      impact < 0 ~ "Other negative",
+      TRUE ~ "No change"
+    ),
+    
+    impact_label = sprintf("%+d", impact),
+    
+    team = fct_reorder(team, impact)
+  )
+
+# 3. Club colour palette
+club_cols <- c(
+  "Bournemouth" = "#C8102E",
+  "Brighton" = "#0057B8",
+  "Aston Villa" = "#670E36",
+  "Brentford" = "#D71920",
+  "Other positive" = "#328B78",
+  "Other negative" = "#CE7770",
+  "No change" = "#A0A0A0"
+)
+
+# 4. Plot
+ggplot(df, aes(y = team)) +
+  
+  # Positive impact background
+  annotate(
+    "rect",
+    xmin = 0, xmax = 9,
+    ymin = -Inf, ymax = Inf,
+    fill = "#E7F0EA",
+    alpha = 0.45
+  ) +
+  
+  # Negative impact background
+  annotate(
+    "rect",
+    xmin = -3, xmax = 0,
+    ymin = -Inf, ymax = Inf,
+    fill = "#F5E9E6",
+    alpha = 0.45
+  ) +
+  
+  # Zero reference
+  geom_vline(
+    xintercept = 0,
+    colour = "#333333",
+    linewidth = 0.7
+  ) +
+  
+  # Lollipop stems
+  geom_segment(
+    aes(
+      x = 0,
+      xend = impact,
+      yend = team,
+      colour = group
+    ),
+    linewidth = 1.4,
+    lineend = "round"
+  ) +
+  
+  # Impact points
+  geom_point(
+    aes(
+      x = impact,
+      colour = group
+    ),
+    size = 4
+  ) +
+  
+  # Values at endpoints
+  geom_text(
+    aes(
+      x = impact,
+      label = impact_label,
+      hjust = if_else(impact >= 0, -0.65, 1.65),
+      colour = group
+    ),
+    fontface = "bold",
+    size = 3.5
+  ) +
+  
+  scale_colour_manual(values = club_cols) +
+  
+  scale_x_continuous(
+    breaks = seq(-2, 8, 2),
+    limits = c(-3, 10),
+    expand = expansion(mult = 0)
+  ) +
+  
+  labs(
+    title = "WHO OWNS THE SECOND HALF?",
+    subtitle = paste(
+      "Net change in league points",
+      "between half-time and full-time"
+    ),
+    x = "Net points swing",
+    y = NULL,
+    caption = paste(
+      "Illustrative data | Positive = gained table points",
+      "| Negative = lost table points"
+    )
+  ) +
+  
+  theme_minimal(base_size = 12) +
+  
+  theme(
+    plot.background = element_rect(
+      fill = "#F8F7F3",
+      colour = NA
+    ),
+    
+    panel.background = element_rect(
+      fill = "#F8F7F3",
+      colour = NA
+    ),
+    
+    panel.grid = element_blank(),
+    
+    axis.text.y = element_text(
+      size = 10,
+      colour = "#292929",
+      face = "bold"
+    ),
+    
+    axis.text.x = element_text(
+      colour = "#555555"
+    ),
+    
+    axis.title.x = element_text(
+      face = "bold",
+      margin = margin(t = 12)
+    ),
+    
+    plot.title = element_text(
+      size = 23,
+      face = "bold",
+      colour = "#171717",
+      margin = margin(b = 8)
+    ),
+    
+    plot.subtitle = element_text(
+      size = 11,
+      colour = "#666666"
+    ),
+    
+    plot.caption = element_text(
+      size = 9,
+      colour = "#888888"
+    ),
+    
+    legend.position = "none",
+    
+    plot.margin = margin(20, 35, 20, 20)
+  ) +
+  
+  coord_cartesian(clip = "off")
+
+
