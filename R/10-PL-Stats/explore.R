@@ -120,35 +120,32 @@ pl_agg$hl <- ifelse(pl_agg$team %in% c("Arsenal", "Brighton & Hove Albion"), pl_
 h2 <- panel_heading("2", "Brighton: Genuine Contenders?",
                     "Brighton are second in the table, with a remarkable +19 goal difference.\nTheir underlying numbers suggest this isn't a fluke.")
 
-c2 <- ggplot(pl_agg, aes(gf, pts)) +
-  annotate("rect", xmin = 20, xmax = 28, ymin = 20, ymax = 28, fill = pale, alpha = 0.55) +
-  geom_vline(xintercept = 20, linetype = "dashed", colour = "#666666", linewidth = 0.3) +
-  geom_hline(yintercept = 20, linetype = "dashed", colour = "#666666", linewidth = 0.3) +
-  # annotate("text", x = 27.8, y = 12.6, label = "Underperforming", hjust = 1, size = 2.9, colour = grey, fontface = "italic") +
-  # annotate("text", x = 12.2, y = 27.5, label = "Overperforming", hjust = 0, size = 2.9, colour = grey, fontface = "italic") +
-  # annotate("text", x = 27.8, y = 20.7, label = "Elite and deserved", hjust = 1, size = 2.9, colour = blue, fontface = "bold.italic") +
-  geom_point(data = filter(pl_agg, hl == "Other"), colour = "#aaaaaa", size = 2.2) +
-  geom_point(data = filter(pl_agg, hl != "Other"), aes(fill = hl), shape = 21,
-             colour = "white", stroke = 1, size = 4.2) +
-  geom_label_repel(data = filter(pl_agg, hl != "Other"), aes(label = hl, fill = hl),
-                   colour = "white", fontface = "bold", size = 3.5, label.size = 0,
-                   nudge_x = -3.2, nudge_y = -1.2, segment.colour = "#777777") +
-  scale_fill_manual(values = c(Arsenal = red, "Brighton & Hove Albion" = blue)) +
-  scale_x_continuous(breaks = seq(12, 28, 4)) + scale_y_continuous(breaks = seq(12, 28, 4)) +
-  coord_cartesian(xlim = c(12, 28), ylim = c(12, 28)) +
-  labs(x = "Goals Scored", y = "Actual Points") +
+c2 <- ggplot(pl_agg, aes(gf, ga)) +
+  annotate("rect", xmin = med_gf, xmax = Inf, ymin = -Inf, ymax = med_ga,
+           fill = "#C5D0EE", alpha = .4) +
+  geom_vline(xintercept = med_gf, linetype = "dashed", colour = "grey40") +
+  geom_hline(yintercept = med_ga, linetype = "dashed", colour = "grey40") +
+  geom_point(aes(size = pts, fill = hl), shape = 21, colour = "white", stroke = 1) +
+  geom_label_repel(data = filter(pl_agg, hl != "Other"),
+                   aes(label = team, fill = hl), colour = "white", fontface = "bold") +
+  scale_y_reverse() +
+  scale_fill_manual(values = c(hl_cols, other = "grey65"), guide = "none") +
+  scale_size_continuous(range = c(3, 10), name = "Points") +
+  labs(x = "Goals scored (better attack →)", y = "Goals conceded (↑ better defence)")+
   theme_chart() + theme(legend.position = "none")
 
-side2 <- stat_block("26", "Goals Scored", "(most in PL)") /
-  stat_block("7", "Goals Conceded", "(2nd best)") /
-  stat_block("+19", "Goal Difference", "(+2.5 above xG)") /
+side2 <- stat_block(max(pl_agg$gf), "Goals Scored", "(most in PL)") /
+  stat_block(min(pl_agg$ga), "Goals Conceded", "(2nd best)") /
+  stat_block(max(pl_agg$gd), "Goal Difference", "(+2.5 above xG)") /
   callout("Are they the real deal?\nTheir numbers say yes.") +
-  plot_layout(heights = c(1, 1, 1, 1.1))
+   plot_layout(heights = c(1, 1, 1, 1.1))
 panel2 <- h2 / tag_label("Contender Credibility Matrix") / (c2 + side2 + plot_layout(widths = c(2.6, 1.4))) +
   plot_layout(heights = c(1.5, 0.5, 5.0))
 
 
-
+final <- (panel1 | panel2) +
+  plot_layout(heights = c(5, 5.3)) +
+  plot_annotation(theme = theme(plot.background = element_rect(fill = paper, colour = NA)))
 
 
 

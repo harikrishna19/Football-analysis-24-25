@@ -66,7 +66,7 @@ callout <- function(txt, fill = pale, col = navy) {
   void_plot() +
     annotate("label", x = 5, y = 0.5, label = txt, fill = fill, colour = col,
              fontface = "italic", size = 3.7, lineheight = 1.1,
-             label.r = unit(0.4, "lines"), label.padding = unit(0.7, "lines"), label.size = 0)
+             label.r = unit(0.4, "lines"), label.padding = unit(0.7, "lines"))
 }
 
 # KPI tile row: tibble(big, small, fill, col)
