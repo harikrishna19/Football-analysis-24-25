@@ -737,7 +737,7 @@ club_cols <- c(
 )
 
 # 4. Plot
-ggplot(df, aes(y = team)) +
+panel3<-ggplot(df, aes(y = team)) +
   
   # Positive impact background
   annotate(
@@ -874,3 +874,109 @@ ggplot(df, aes(y = team)) +
   coord_cartesian(clip = "off")
 
 
+
+
+
+
+
+
+
+library(ggplot2)
+library(scales)
+
+NAVY <- "#14112e"; RED <- "#d0101b"; BLUE <- "#0a44a0"
+BG   <- "#f4f1ec"; GRID <- "#dcd8d0"; GREY <- "#6b6b6b"
+
+# ---- 1. P(new run of 3 straight losses within n remaining games) ----------
+# State machine: "old" = still inside the current losing run (does not count),
+# f0/f1/f2 = 0/1/2 fresh consecutive losses. Reaching 3 fresh losses = success.
+p_new <- function(p, n = 28) {
+  old <- 1; f0 <- 0; f1 <- 0; f2 <- 0; succ <- 0
+  for (i in seq_len(n)) {
+    q    <- 1 - p
+    succ <- succ + f2 * p
+    o <- old * p
+    a0 <- (old + f0 + f1 + f2) * q
+    a1 <- f0 * p
+    a2 <- f1 * p
+    old <- o; f0 <- a0; f1 <- a1; f2 <- a2
+  }
+  succ
+}
+p_new_v <- Vectorize(p_new, "p")
+
+# ---- 2. Loss-rate uncertainty: Beta prior updated with 3 losses in 10 -----
+a <- 4.5 + 3          # prior Beta(4.5, 25.5), mean 15%
+b <- 25.5 + 7         # 3 losses, 7 non-losses so far
+ps <- seq(0.0005, 0.9995, length.out = 3000)
+w  <- dbeta(ps, a, b); w <- w / sum(w)
+headline <- sum(w * p_new_v(ps))          # ~0.149
+band     <- qbeta(c(0.1, 0.9), a, b)      # 80% credible range
+cat(sprintf("P(again) = %.1f%%, loss-rate mean = %.1f%%\n",
+            100 * headline, 100 * a / (a + b)))
+
+# ---- 3. Data for plot ------------------------------------------------------
+curve_df <- data.frame(p = seq(0, 0.5, length.out = 300))
+curve_df$prob <- p_new_v(curve_df$p)
+
+pts <- data.frame(
+  p     = c(0.10, 0.15, 0.30),
+  label = c("2% if loss rate is 10%", "7% if loss rate is 15%",
+            "40% if loss rate is 30%\n(this season's 3 in 10)"),
+  lx    = c(0.012, 0.17, 0.335),
+  ly    = c(0.20, 0.30, 0.22)
+)
+pts$prob <- p_new_v(pts$p)
+
+# ---- 4. Plot ---------------------------------------------------------------
+g <- ggplot() +
+  annotate("rect", xmin = band[1], xmax = band[2], ymin = 0, ymax = 0.62,
+           fill = "#c9cfe6", alpha = 0.6) +
+  annotate("text", x = mean(band), y = 0.55, colour = BLUE, fontface = "italic",
+           size = 3.4, lineheight = 0.95,
+           label = "80% credible range\nfor City's loss rate") +
+  geom_line(data = curve_df, aes(p, prob), colour = NAVY, linewidth = 1.3) +
+  geom_segment(data = pts, aes(x = p, y = prob, xend = lx, yend = ly),
+               colour = "#888888", linewidth = 0.4) +
+  geom_point(data = pts, aes(p, prob), colour = RED, size = 3.5) +
+  geom_text(data = pts, aes(lx, ly, label = label), hjust = 0, colour = NAVY,
+            size = 3.4, lineheight = 0.95) +
+  annotate("text", x = 0.01, y = 0.84, label = percent(headline, accuracy = 1),
+           colour = RED, fontface = "bold", size = 16, hjust = 0) +
+  annotate("text", x = 0.115, y = 0.88, hjust = 0, colour = NAVY, fontface = "bold",
+           size = 4, label = "best estimate that it happens again") +
+  annotate("text", x = 0.115, y = 0.80, hjust = 0, colour = GREY, size = 3.3,
+           label = sprintf("averaged over loss-rate uncertainty (mean %s)",
+                           percent(a / (a + b), accuracy = 1))) +
+  scale_x_continuous(labels = percent_format(accuracy = 1), expand = c(0, 0)) +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1),
+                     expand = c(0, 0)) +
+  labs(
+    title    = "Will City lose three in a row again?",
+    subtitle = paste0("City won their first 7, then lost at Villa, Brighton and Forest (GW8-10).\n",
+                      "Chance of a new run of 3+ straight league defeats in the remaining 28 games."),
+    x = "City's per-game loss probability",
+    y = "P(new 3-game losing run)",
+    caption = paste0("Assumes independent league games, 28 remaining; prior Beta(4.5, 25.5) on loss rate ",
+                     "updated with 3 losses in 10.\n'New run' = 3 straight losses after at least one non-loss.")
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.background  = element_rect(fill = BG, colour = NA),
+    panel.background = element_rect(fill = BG, colour = NA),
+    panel.grid.major = element_line(colour = GRID, linewidth = 0.4),
+    panel.grid.minor = element_blank(),
+    plot.title       = element_text(face = "bold.italic", colour = NAVY, size = 17),
+    plot.subtitle    = element_text(colour = "#333333", size = 10.5, lineheight = 1.2),
+    plot.caption     = element_text(colour = GREY, size = 8, hjust = 0),
+    axis.title       = element_text(colour = NAVY),
+    axis.text        = element_text(colour = NAVY),
+    plot.margin      = margin(12, 16, 10, 12)
+  )
+
+print(g)
+# ggsave("panel4_streak.png", g, width = 8, height = 5.5, dpi = 200)
+
+# ---- 5. To combine with your other 3 ggplots in one shot -------------------
+# library(patchwork)
+# (p1 | p2) / (p3 | g) + plot_annotation(theme = theme(plot.background = element_rect(fill = BG, colour = NA)))

@@ -143,7 +143,7 @@ panel2 <- h2 / tag_label("Contender Credibility Matrix") / (c2 + side2 + plot_la
   plot_layout(heights = c(1.5, 0.5, 5.0))
 
 
-final <- (panel1 | panel2) +
+final <- (panel1 | panel2|panel3) +
   plot_layout(heights = c(5, 5.3)) +
   plot_annotation(theme = theme(plot.background = element_rect(fill = paper, colour = NA)))
 
