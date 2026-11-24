@@ -274,3 +274,77 @@ panel1 <- full(h1) / full(tag_label("Points progression and what's gone wrong"))
   plot_layout(heights = c(1.45, 0.35, 3.4, 3.6))
 
 
+
+# Panel 2 code
+
+# ---------------------------------------------------------------------
+# 3. Panel 2 - Brighton credibility matrix
+# ---------------------------------------------------------------------
+pl_agg <- pl_all %>%
+  group_by(team) %>%
+  summarise(gf = sum(gf), ga = sum(ga), gd = gf - ga, pts = sum(points), .groups = "drop") %>%
+  mutate(hl = ifelse(team %in% c("Arsenal", "Brighton & Hove Albion","Leeds United"), team, "Other"),
+         rank_pts = min_rank(-pts))
+med_gf <- median(pl_agg$gf); med_ga <- median(pl_agg$ga)
+hl_cols <- c("Arsenal" = RED, "Brighton & Hove Albion" = BLUE, "Other" = "grey65","Leeds United"="#FFFFC5")
+bri <- filter(pl_agg, team == "Brighton & Hove Albion")
+ord <- function(n) paste0(n, ifelse(n %% 100 %in% 11:13, "th",
+                                    c("th","st","nd","rd","th","th","th","th","th","th")[n %% 10 + 1]))
+
+h2 <- panel_heading(
+  "2",
+  "Brighton: Genuine Title Contenders?",
+  paste(
+    "Can Brighton pull off a Leicester?",
+    "Only Arsenal, Leeds and Brighton have conceded fewer than 10 goals.",
+    "Hull remain unbeaten at home, while Brighton recorded the highest",
+    "first-half xG by any PL team this season.",
+    "Meanwhile, Arsenal dropped points at St James' Park.",
+    "The managerial sack race adds another storyline. (TBD)",
+    sep = "\n"
+  )
+)
+
+c2 <- ggplot(pl_agg, aes(gf, ga)) +
+  annotate("rect", xmin = med_gf, xmax = Inf, ymin = -Inf, ymax = med_ga,
+           fill = "#C5D0EE", alpha = .45) +
+  annotate("text", x = Inf, y = med_ga, label = "Strong attack,\nstrong defence",
+           hjust = 1.08, vjust = -0.4, colour = BLUE, fontface = "italic",
+           size = mm(SZ$label - 1), lineheight = 1, family = fam) +
+  geom_vline(xintercept = med_gf, linetype = "dashed", colour = "grey45") +
+  geom_hline(yintercept = med_ga, linetype = "dashed", colour = "grey45") +
+  geom_point(aes(size = pts, fill = hl), shape = 21, colour = "white", stroke = 1) +
+  geom_label_repel(data = filter(pl_agg, hl != "Other"),
+                   aes(label = team, fill = hl), colour = "black", fontface = "bold",
+                   size = mm(SZ$label), family = fam, label.size = 0,
+                   box.padding = 0.8, min.segment.length = 0, seed = 7) +
+  scale_y_reverse() +
+  scale_x_continuous(expand = expansion(mult = c(0.05, 0.10))) +
+  scale_fill_manual(values = hl_cols, guide = "none") +
+  scale_size_continuous(range = c(3.5, 11)) +
+  labs(x = "Goals scored  (more = better attack)",
+       y = "Goals conceded  (top = better defence)") +
+  theme_chart()
+
+side2 <- stat_block(bri$gf, "Goals scored",
+                    sprintf("%s in the league", ord(min_rank(-pl_agg$gf)[pl_agg$team == bri$team]))) /
+  stat_block(bri$ga, "Goals conceded",
+             sprintf("%s best", ord(min_rank(pl_agg$ga)[pl_agg$team == bri$team]))) /
+  stat_block(sprintf("%+d", bri$gd), "Goal difference",
+             sprintf("%s in the league", ord(min_rank(-pl_agg$gd)[pl_agg$team == bri$team]))) /
+  callout("Are they the real deal?\nTheir numbers say yes.") +
+  plot_layout(heights = c(1, 1, 1, 0.9))
+
+panel2 <- full(h2) / full(tag_label("Contender credibility matrix")) /
+  (c2 + side2 + plot_layout(widths = c(2.7, 1.1))) +
+  plot_layout(heights = c(1.45, 0.35, 5.9))
+panel2
+
+#FFFFC5 
+# (panel1 | spacer() | panel2 | plot_layout(widths = c(1, 0.06, 1))) 
+
+
+
+
+
+
