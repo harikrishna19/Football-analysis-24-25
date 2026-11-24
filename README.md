@@ -57,3 +57,7 @@ Refer the following repo for this project: [Posit Table Submission](https://gith
 # 9. EFL Championship 2025/26 Top 6 Teams Summary
 
 ![](images/efl_final.png)
+
+# 10. The State of the Premier League:2026/27
+
+![](images/pl_stats.png)
