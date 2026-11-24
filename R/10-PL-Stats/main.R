@@ -343,6 +343,170 @@ panel2
 #FFFFC5 
 # (panel1 | spacer() | panel2 | plot_layout(widths = c(1, 0.06, 1))) 
 
+# panel 3
+
+
+
+a=ht_summary %>% group_by(team) %>% summarise("Points Won at HT"=sum(pts_won_ht))
+b=ft_summary %>% group_by(team) %>% summarise("Points Won at HT"=sum(pts_won_ft)) %>% select(-team)
+
+df<-cbind(as.data.frame(a),as.data.frame(b))
+colnames(df)<-c("team","ht_points","ft_points")
+
+
+
+# ── 3. CALCULATE THE SECOND-HALF SHIFT ────────────────────
+
+df_shift <- df %>%
+  mutate(
+    shift = ft_points - ht_points,
+    
+    group = case_when(
+      team %in% top_four ~ team,
+      shift > 0 ~ "Other positive",
+      shift < 0 ~ "Other negative",
+      TRUE ~ "No change"
+    ),
+    
+    shift_label = case_when(
+      shift > 0 ~ paste0("+", shift),
+      shift < 0 ~ as.character(shift),
+      TRUE ~ "0"
+    )
+  ) %>%
+  arrange(shift) %>%
+  mutate(
+    team = factor(team, levels = team)
+  )
+
+# ── 4. THE SECOND-HALF SHIFT ──────────────────────────────
+
+max_shift <- max(abs(df_shift$shift), na.rm = TRUE)
+
+c3 <- ggplot(
+  df_shift,
+  aes(x = shift, y = team)
+) +
+  
+  # Zero line
+  geom_vline(
+    xintercept = 0,
+    linewidth = 0.8,
+    colour = "#333333"
+  ) +
+  
+  # Bars
+  geom_col(
+    aes(fill = group),
+    width = 0.62
+  ) +
+  
+  # Values at bar ends
+  geom_text(
+    aes(
+      x = shift + if_else(shift >= 0, 0.35, -0.35),
+      label = shift_label,
+      hjust = if_else(shift >= 0, 0, 1)
+    ),
+    colour = "#292929",
+    size = 3.3,
+    fontface = "bold"
+  ) +
+  
+  scale_fill_manual(values = club_cols) +
+  
+  scale_x_continuous(
+    limits = c(-max_shift - 2, max_shift + 2),
+    breaks = pretty_breaks(n = 5),
+    expand = c(0, 0)
+  ) +
+  
+  labs(
+    x = "Difference in points: full-time minus half-time",
+    y = NULL
+  ) +
+  
+  theme_minimal(base_size = 11) +
+  
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    
+    panel.grid.major.x = element_line(
+      colour = "#E8E8E8",
+      linewidth = 0.45
+    ),
+    
+    axis.text.y = element_text(
+      size = 9.5,
+      face = "bold",
+      colour = "#333333"
+    ),
+    
+    axis.text.x = element_text(
+      size = 9,
+      colour = "#888888"
+    ),
+    
+    axis.title.x = element_text(
+      size = 8.5,
+      face = "bold",
+      colour = "#777777",
+      margin = margin(t = 12)
+    ),
+    
+    axis.ticks = element_blank(),
+    legend.position = "none",
+    
+    plot.margin = margin(8, 22, 8, 8)
+  )
+
+# ── 5. HEADING ────────────────────────────────────────────
+
+h3 <- panel_heading(
+  "3",
+  "THE SECOND-HALF SHIFT",
+  paste(
+    "Which teams change the story after the break?",
+    "Compare points from half-time results with the final table."
+    , sep = "\n")
+)
+
+# ── 6. ANNOTATION ─────────────────────────────────────────
+
+tag <- ggplot() +
+  annotate(
+    "text",
+    x = 1, y = 1,
+    label = "← Fewer points at full-time",
+    colour = "#CE7770",
+    size = 3.1,
+    fontface = "bold"
+  ) +
+  annotate(
+    "text",
+    x = 4.1, y = 1,
+    label = "More points at full-time →",
+    colour = "#328B78",
+    size = 3.1,
+    fontface = "bold"
+  ) +
+  coord_cartesian(
+    xlim = c(0, 5.2),
+    ylim = c(0.8, 1.2)
+  ) +
+  theme_void()
+
+# ── 7. FINAL PANEL ────────────────────────────────────────
+
+panel3 <- full(h3) /
+  full(tag) /
+  c3 +
+  plot_layout(
+    heights = c(1.35, 0.35, 6)
+  )
+
+panel3
 
 
 

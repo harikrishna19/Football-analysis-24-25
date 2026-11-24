@@ -422,3 +422,113 @@ ggsave("pl_infographic.png", final, width = W, height = H, dpi = 300,
        device = ragg::agg_png, bg = BG)
 ggsave("pl_infographic.pdf", final, width = W, height = H,
        device = cairo_pdf, bg = BG)
+
+
+
+
+# Half Time Analysis Break Up ---------------------------------------------
+
+pl_data=engsoccerdata::england_current(Season = 2026) %>% dplyr::filter(tier==1)
+
+pl_data_h <- pl_data %>% filter(home %in% pl_data$home %>% unique())
+pl_data_v <- pl_data %>% filter(visitor %in% pl_data$visitor %>% unique())
+all_data<-bind_rows(pl_data_h,pl_data_v)
+all_data<-all_data %>% distinct()
+library(dplyr)
+
+team_match <- bind_rows(
+  
+  # Home team
+  all_data %>%
+    mutate(
+      team = home,
+      opponent = visitor,
+      
+      ht_state = case_when(
+        ht_hgoal > ht_vgoal ~ "Leading",
+        ht_hgoal == ht_vgoal ~ "Drawing",
+        TRUE ~ "Trailing"
+      ),
+      
+      ft_state = case_when(
+        hgoal > vgoal ~ "Win",
+        hgoal == vgoal ~ "Draw",
+        TRUE ~ "Loss"
+      ),
+      
+      pts = case_when(
+        ft_state == "Win" ~ 3,
+        ft_state == "Draw" ~ 1,
+        TRUE ~ 0
+      )
+    ) %>%
+    select(team, opponent, ht_state, ft_state, pts),
+  
+  # Away team
+  all_data %>%
+    mutate(
+      team = visitor,
+      opponent = home,
+      
+      ht_state = case_when(
+        ht_vgoal > ht_hgoal ~ "Leading",
+        ht_vgoal == ht_hgoal ~ "Drawing",
+        TRUE ~ "Trailing"
+      ),
+      
+      ft_state = case_when(
+        vgoal > hgoal ~ "Win",
+        vgoal == hgoal ~ "Draw",
+        TRUE ~ "Loss"
+      ),
+      
+      pts = case_when(
+        ft_state == "Win" ~ 3,
+        ft_state == "Draw" ~ 1,
+        TRUE ~ 0
+      )
+    ) %>%
+    select(team, opponent, ht_state, ft_state, pts)
+)
+
+
+
+ht_summary <- team_match %>%
+  group_by(team, ht_state) %>%
+  summarise(
+    games = n(),
+    pts_won = sum(pts),
+    max_pts = games * 3,
+    pts_won_ht = case_when(
+      first(ht_state) == "Drawing"  ~ games,
+      first(ht_state) == "Leading"  ~ games * 3,
+      first(ht_state) == "Trailing"   ~ games * 0,
+      # TRUE                          ~ NA_real_
+    ),
+    pct_pts = round(100 * pts_won / max_pts, 1),
+    .groups = "drop"
+  )
+
+ft_summary <- team_match %>%
+  group_by(team, ft_state) %>%
+  summarise(
+    games = n(),
+    pts_won = sum(pts),
+    max_pts = games * 3,
+    pts_won_ft = case_when(
+      first(ft_state) == "Draw"  ~ games,
+      first(ft_state) == "Win"  ~ games * 3,
+      first(ft_state) == "Loss"   ~ games * 0,
+      # TRUE                          ~ NA_real_
+    ),
+    pct_pts = round(100 * pts_won / max_pts, 1),
+    .groups = "drop"
+  )
+
+ht_summary %>% group_by(team) %>% summarise("Points Won at HT"=sum(pts_won_ht))
+
+
+
+
+
+
