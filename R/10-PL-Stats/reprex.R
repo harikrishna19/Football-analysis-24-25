@@ -401,7 +401,7 @@ panel4 <- full(h4) / full(tag_label("Streak risk model")) / c4 +
 # 6. Assemble + export
 # ---------------------------------------------------------------------
 final <- (panel1 | spacer() | panel2 | plot_layout(widths = c(1, 0.06, 1))) /
-  (panel3 | spacer() | panel4 | plot_layout(widths = c(1, 0.06, 1))) +
+  (panel3 | spacer() | p1 | plot_layout(widths = c(1, 0.06, 1))) +
   plot_layout(heights = c(1, 1)) +
   plot_annotation(
     title    = "Premier League 2026/27: Four Stories After the First Ten Gameweeks",
@@ -527,6 +527,403 @@ ft_summary <- team_match %>%
 
 ht_summary %>% group_by(team) %>% summarise("Points Won at HT"=sum(pts_won_ht))
 
+# # ============================================================
+# # MANCHESTER CITY: WILL THEY LOSE 3 GAMES IN A ROW AGAIN?
+# # Bayesian Monte Carlo Simulation
+# # ============================================================
+# 
+# library(tidyverse)
+# library(scales)
+# 
+# set.seed(123)
+# 
+# # ------------------------------------------------------------
+# # 1. GENERATE DUMMY DATA
+# # ------------------------------------------------------------
+# 
+# generate_season <- function(season, n = 38) {
+#   
+#   tibble(
+#     season = season,
+#     matchweek = 1:n,
+#     result = sample(
+#       c("W", "D", "L"),
+#       size = n,
+#       replace = TRUE,
+#       prob = c(0.62, 0.20, 0.18)
+#     )
+#   )
+# }
+# 
+# # Previous two seasons
+# season_2425 <- generate_season("2024/25")
+# season_2526 <- generate_season("2025/26")
+# 
+# # Current season: first 7 matches
+# set.seed(456)
+# 
+# current_first7 <- tibble(
+#   season = "2026/27",
+#   matchweek = 1:7,
+#   result = sample(
+#     c("W", "D", "L"),
+#     size = 7,
+#     replace = TRUE,
+#     prob = c(0.62, 0.20, 0.18)
+#   )
+# )
+# 
+# # Actual sequence supplied for current season
+# current_last4 <- tibble(
+#   season = "2026/27",
+#   matchweek = 8:11,
+#   result = c("L", "L", "L", "D")
+# )
+# 
+# # Combine historical data
+# matches <- bind_rows(
+#   season_2425,
+#   season_2526,
+#   current_first7,
+#   current_last4
+# ) %>%
+#   arrange(season, matchweek)
+# 
+# # Check data
+# print(matches)
+# 
+# # ------------------------------------------------------------
+# # 2. HISTORICAL SUMMARY
+# # ------------------------------------------------------------
+# 
+# summary_data <- matches %>%
+#   count(result) %>%
+#   complete(
+#     result = c("W", "D", "L"),
+#     fill = list(n = 0)
+#   ) %>%
+#   mutate(
+#     percentage = n / sum(n) * 100
+#   )
+# 
+# print(summary_data)
+# 
+# total_matches <- nrow(matches)
+# total_losses <- sum(matches$result == "L")
+# total_nonlosses <- total_matches - total_losses
+# 
+# historical_loss_rate <- total_losses / total_matches
+# 
+# cat("\nTotal matches:", total_matches)
+# cat("\nTotal losses:", total_losses)
+# cat("\nHistorical loss rate:",
+#     round(historical_loss_rate * 100, 2), "%")
+# 
+# # ------------------------------------------------------------
+# # 3. BAYESIAN ESTIMATION
+# # ------------------------------------------------------------
+# 
+# # Beta(1,1) prior
+# prior_alpha <- 1
+# prior_beta <- 1
+# 
+# # Posterior parameters
+# alpha <- prior_alpha + total_losses
+# beta <- prior_beta + total_nonlosses
+# 
+# # Posterior expected probability
+# posterior_mean <- alpha / (alpha + beta)
+# 
+# cat("\n\nPosterior distribution: Beta(",
+#     alpha, ",", beta, ")")
+# 
+# cat("\nExpected loss probability:",
+#     round(posterior_mean * 100, 2), "%")
+# 
+# # ------------------------------------------------------------
+# # 4. MONTE CARLO SIMULATION
+# # ------------------------------------------------------------
+# 
+# n_sims <- 100000
+# remaining_matches <- 27
+# 
+# set.seed(789)
+# 
+# simulation <- replicate(n_sims, {
+#   
+#   # Draw uncertain loss probability
+#   p_loss <- rbeta(
+#     n = 1,
+#     shape1 = alpha,
+#     shape2 = beta
+#   )
+#   
+#   # Simulate 27 future matches
+#   future_results <- rbinom(
+#     n = remaining_matches,
+#     size = 1,
+#     prob = p_loss
+#   )
+#   
+#   # 1 = loss, 0 = non-loss
+#   # Identify consecutive loss sequences
+#   streaks <- rle(future_results)
+#   
+#   max_streak <- max(
+#     c(
+#       streaks$lengths[streaks$values == 1],
+#       0
+#     )
+#   )
+#   
+#   # Check if any 3 consecutive losses occur
+#   max_streak >= 3
+# })
+# 
+# # ------------------------------------------------------------
+# # 5. FINAL PROBABILITY
+# # ------------------------------------------------------------
+# 
+# streak_count <- sum(simulation)
+# 
+# probability <- mean(simulation)
+# 
+# no_streak_probability <- 1 - probability
+# 
+# cat("\n\n====================================")
+# cat("\nMONTE CARLO RESULTS")
+# cat("\n====================================")
+# 
+# cat("\nSimulations:", n_sims)
+# 
+# cat("\nSimulations with another 3-game streak:",
+#     streak_count)
+# 
+# cat("\nSimulations without another 3-game streak:",
+#     n_sims - streak_count)
+# 
+# cat("\n\nProbability of another 3-game streak:",
+#     round(probability * 100, 2), "%")
+# 
+# cat("\nProbability of no 3-game streak:",
+#     round(no_streak_probability * 100, 2), "%")
+# 
+# # ------------------------------------------------------------
+# # 6. MONTE CARLO STANDARD ERROR
+# # ------------------------------------------------------------
+# 
+# mc_se <- sqrt(
+#   probability * (1 - probability) / n_sims
+# )
+# 
+# ci_lower <- max(0, probability - 1.96 * mc_se)
+# ci_upper <- min(1, probability + 1.96 * mc_se)
+# 
+# cat("\n\nMonte Carlo standard error:",
+#     round(mc_se * 100, 3), "percentage points")
+# 
+# cat("\nApproximate 95% simulation interval:",
+#     round(ci_lower * 100, 2), "% -",
+#     round(ci_upper * 100, 2), "%")
+# 
+# # ------------------------------------------------------------
+# # 7. RESULTS TABLE
+# # ------------------------------------------------------------
+# 
+# final_results <- tibble(
+#   outcome = c(
+#     "Another 3-game losing streak",
+#     "No 3-game losing streak"
+#   ),
+#   simulations = c(
+#     streak_count,
+#     n_sims - streak_count
+#   ),
+#   probability = c(
+#     probability,
+#     no_streak_probability
+#   )
+# ) %>%
+#   mutate(
+#     percentage = percent(probability, accuracy = 0.01)
+#   )
+# 
+# print(final_results)
+# 
+# # ------------------------------------------------------------
+# # 8. VISUALIZATION 1: PROBABILITY OUTCOME
+# # ------------------------------------------------------------
+# 
+# # ---------------------------------------------------------------------
+# # Panel 4 - Manchester City losing-streak probability
+# # Requires final_results, alpha, beta, and n_sims from the model above.
+# # ---------------------------------------------------------------------
+# 
+# plot_data <- final_results %>%
+#   mutate(
+#     outcome = factor(
+#       outcome,
+#       levels = c(
+#         "No 3-game losing streak",
+#         "Another 3-game losing streak"
+#       )
+#     )
+#   )
+# 
+# outcome_cols <- c(
+#   "Another 3-game losing streak" = RED,
+#   "No 3-game losing streak" = "#9AA7B5"
+# )
+# 
+# h4 <- panel_heading(
+#   "4",
+#   "Will Man City lose three in a row again?",
+#   "Probability of at least one further three-match losing streak\nin the remaining 27 matches."
+# )
+# 
+# c4 <- ggplot(plot_data, aes(y = outcome, x = probability, fill = outcome)) +
+#   geom_col(width = 0.58, show.legend = FALSE) +
+#   geom_text(
+#     aes(
+#       x = probability + 0.025,
+#       label = percent(probability, accuracy = 0.1)
+#     ),
+#     hjust = 0,
+#     colour = NAVY,
+#     size = mm(SZ$label),
+#     fontface = "bold",
+#     family = fam
+#   ) +
+#   scale_fill_manual(values = outcome_cols) +
+#   scale_x_continuous(
+#     breaks = seq(0, 1, by = 0.25),
+#     labels = label_percent(accuracy = 1),
+#     expand = expansion(mult = c(0, 0))
+#   ) +
+#   coord_cartesian(xlim = c(0, 1.17), clip = "off") +
+#   labs(
+#     x = "Probability",
+#     y = NULL,
+#     caption = sprintf(
+#       "Beta(%d, %d) posterior; %s simulations. Historical outcomes are synthetic.",
+#       alpha, beta, format(n_sims, big.mark = ",")
+#     )
+#   ) +
+#   theme_chart() +
+#   theme(
+#     panel.grid.major.y = element_blank(),
+#     panel.grid.major.x = element_line(colour = GRID, linewidth = 0.4),
+#     axis.text.y = element_text(
+#       size = SZ$axis,
+#       face = "bold",
+#       colour = NAVY,
+#       family = fam
+#     ),
+#     axis.text.x = element_text(
+#       size = SZ$axis,
+#       colour = NAVY,
+#       family = fam
+#     ),
+#     axis.title.x = element_text(
+#       size = SZ$axis,
+#       face = "bold",
+#       colour = NAVY,
+#       family = fam,
+#       margin = margin(t = 8)
+#     ),
+#     plot.caption = element_text(
+#       size = SZ$cap,
+#       colour = GREY,
+#       family = fam,
+#       hjust = 0,
+#       margin = margin(t = 10)
+#     ),
+#     plot.margin = margin(6, 24, 6, 6)
+#   )
+# 
+# panel4 <- full(h4) /
+#   full(tag_label("Modelled outcome")) /
+#   c4 +
+#   plot_layout(heights = c(1.45, 0.35, 4.2))
+# 
+# # # ------------------------------------------------------------
+# # # 9. VISUALIZATION 2: POSTERIOR LOSS PROBABILITY
+# # # ------------------------------------------------------------
+# # 
+# # posterior_data <- tibble(
+# #   p_loss = rbeta(
+# #     100000,
+# #     alpha,
+# #     beta
+# #   )
+# # )
+# # 
+# # p2 <- ggplot(
+# #   posterior_data,
+# #   aes(x = p_loss)
+# # ) +
+# #   geom_density(
+# #     fill = "#63A5C9",
+# #     alpha = 0.65,
+# #     colour = "#24658C",
+# #     linewidth = 1
+# #   ) +
+# #   geom_vline(
+# #     xintercept = posterior_mean,
+# #     colour = "#D94F45",
+# #     linewidth = 1,
+# #     linetype = "dashed"
+# #   ) +
+# #   annotate(
+# #     "text",
+# #     x = posterior_mean,
+# #     y = Inf,
+# #     label = paste0(
+# #       "Mean = ",
+# #       percent(posterior_mean, accuracy = 0.1)
+# #     ),
+# #     vjust = 1.5,
+# #     hjust = -0.05,
+# #     colour = "#D94F45",
+# #     fontface = "bold"
+# #   ) +
+# #   scale_x_continuous(
+# #     labels = percent
+# #   ) +
+# #   labs(
+# #     title = "How uncertain is City's loss probability?",
+# #     subtitle = "Posterior distribution from historical match outcomes",
+# #     x = "Probability of losing an individual match",
+# #     y = "Posterior density"
+# #   ) +
+# #   theme_minimal(base_size = 13) +
+# #   theme(
+# #     plot.title = element_text(face = "bold"),
+# #     panel.grid.minor = element_blank()
+# #   )
+# # 
+# # print(p2)
+# # 
+# # # ------------------------------------------------------------
+# # # 10. FINAL MODEL SUMMARY
+# # # ------------------------------------------------------------
+# # 
+# # cat("\n\n========== FINAL MODEL SUMMARY ==========")
+# # 
+# # cat("\nHistorical matches:", total_matches)
+# # cat("\nHistorical losses:", total_losses)
+# # 
+# # cat("\nPosterior mean loss probability:",
+# #     percent(posterior_mean, accuracy = 0.01))
+# # 
+# # cat("\nFuture matches:", remaining_matches)
+# # 
+# # cat("\nMonte Carlo simulations:", n_sims)
+# # 
+# # cat("\nProbability of another losing streak:",
+# #     percent(probability, accuracy = 0.01))
+# # 
+# # cat("\n=========================================\n")
 
 
 

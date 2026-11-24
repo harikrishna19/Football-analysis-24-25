@@ -39,17 +39,19 @@ full   <- function(p) wrap_elements(full = p)
 theme_chart <- function() {
   theme_minimal(base_size = SZ$axis, base_family = fam) +
     theme(
+      text              = element_text(family = fam, colour = NAVY),
       plot.background   = element_rect(fill = BG, colour = NA),
       panel.background  = element_rect(fill = BG, colour = NA),
       panel.grid.major  = element_line(colour = GRID, linewidth = 0.4),
       panel.grid.minor  = element_blank(),
       axis.text         = element_text(colour = NAVY, size = SZ$axis),
-      axis.title        = element_text(colour = NAVY, size = SZ$axis + 0.5,
-                                       face = "bold"),
+      axis.title        = element_text(
+        colour = NAVY, size = SZ$axis, face = "bold"
+      ),
       axis.title.x      = element_text(margin = margin(t = 8)),
       axis.title.y      = element_text(margin = margin(r = 8)),
       legend.position   = "none",
-      plot.margin       = margin(4, 14, 4, 6)
+      plot.margin       = margin(6, 14, 6, 6)
     )
 }
 
@@ -67,14 +69,43 @@ panel_heading <- function(num, title, sub) {
     theme_void() + bg
 }
 
-tag_label <- function(txt) {
+tag_label <- function(txt, x = 0.05) {
+  
+  is_shift <- txt == "Second-half points shift"
+  
+  y_txt  <- if (is_shift) 0.50 else 0.58
+  y_line <- if (is_shift) 0.49 else 0.08
+  
   ggplot() +
-    annotate("text", x = 0, y = 0.55, label = toupper(txt), hjust = 0,
-             fontface = "bold", size = mm(SZ$tag), colour = BLUE, family = fam) +
-    annotate("segment", x = 0, xend = 1, y = 0.08, yend = 0.08,
-             colour = NAVY, linewidth = 0.5) +
-    coord_cartesian(xlim = c(0, 1), ylim = c(0, 1), expand = FALSE) +
-    theme_void() + bg
+    annotate(
+      "text",
+      x = x, y = y_txt,
+      label = toupper(txt),
+      hjust = 0, vjust = 0.5,
+      fontface = "bold",
+      size = mm(SZ$tag),
+      colour = BLUE,
+      family = fam
+    ) +
+    annotate(
+      "segment",
+      x = 0, xend = 1,
+      y = y_line, yend = y_line,
+      colour = NAVY,
+      linewidth = 0.5
+    ) +
+    coord_cartesian(
+      xlim = c(0, 1),
+      ylim = c(0, 1),
+      expand = FALSE
+    ) +
+    theme_void() +
+    theme(
+      plot.margin = margin(2, 0, 2, 0),
+      plot.background = element_rect(
+        fill = BG, colour = NA
+      )
+    )
 }
 
 stat_block <- function(value, label, sub) {
@@ -260,12 +291,28 @@ c1_ins <- ggplot(ins) +
             fill = CARD, colour = NA) +
   geom_rect(aes(xmin = 0, xmax = 0.16, ymin = y - 0.082, ymax = y + 0.082, fill = col),
             colour = NA) +
-  geom_text(aes(0.55, y + 0.025, label = stat, colour = col), hjust = 0,
-            fontface = "bold", size = mm(22), family = fam) +
-  geom_text(aes(0.55, y - 0.052, label = sub), hjust = 0, colour = GREY,
-            size = mm(SZ$label - 2), family = fam) +
-  geom_text(aes(3.55, y, label = txt), hjust = 0, vjust = 0.5, colour = NAVY,
-            lineheight = 1.1, size = mm(SZ$label), family = fam) +
+  geom_richtext(
+    aes(
+      x = 0.55,
+      y = y,
+      label = paste0(
+        "<b><span style='color:", col, "'>",
+        stat, " ", sub,
+        "</span></b>",
+        "<span style='color:", NAVY, "'>  ",
+        txt,
+        "</span>"
+      )
+    ),
+    hjust = 0,
+    vjust = 0.5,
+    size =5,
+    family = fam,
+    lineheight = 1,
+    fill = NA,
+    label.color = NA,
+    label.padding = unit(0, "lines")
+  ) +
   scale_fill_identity() + scale_colour_identity() +
   coord_cartesian(xlim = c(0, 14), ylim = c(0, 1), expand = FALSE) +
   theme_void() + bg
@@ -295,12 +342,7 @@ h2 <- panel_heading(
   "2",
   "Brighton: Genuine Title Contenders?",
   paste(
-    "Can Brighton pull off a Leicester?",
     "Only Arsenal, Leeds and Brighton have conceded fewer than 10 goals.",
-    "Hull remain unbeaten at home, while Brighton recorded the highest",
-    "first-half xG by any PL team this season.",
-    "Meanwhile, Arsenal dropped points at St James' Park.",
-    "The managerial sack race adds another storyline. (TBD)",
     sep = "\n"
   )
 )
@@ -335,8 +377,7 @@ side2 <- stat_block(bri$gf, "Goals scored",
   callout("Are they the real deal?\nTheir numbers say yes.") +
   plot_layout(heights = c(1, 1, 1, 0.9))
 
-panel2 <- full(h2) / full(tag_label("Contender credibility matrix")) /
-  (c2 + side2 + plot_layout(widths = c(2.7, 1.1))) +
+panel2 <- full(h2) / full(tag_label("Contender credibility matrix")) /(c2 + side2 + plot_layout(widths = c(2.7, 1.1))) +
   plot_layout(heights = c(1.45, 0.35, 5.9))
 panel2
 
@@ -347,168 +388,229 @@ panel2
 
 
 
-a=ht_summary %>% group_by(team) %>% summarise("Points Won at HT"=sum(pts_won_ht))
-b=ft_summary %>% group_by(team) %>% summarise("Points Won at HT"=sum(pts_won_ft)) %>% select(-team)
+# ---------------------------------------------------------------------
+# Panel 3 - second-half shift
+# Requires ht_summary and ft_summary with team and points columns.
+# ---------------------------------------------------------------------
 
-df<-cbind(as.data.frame(a),as.data.frame(b))
-colnames(df)<-c("team","ht_points","ft_points")
+ht_points <- ht_summary %>%
+  group_by(team) %>%
+  summarise(ht_points = sum(pts_won_ht, na.rm = TRUE), .groups = "drop")
 
+ft_points <- ft_summary %>%
+  group_by(team) %>%
+  summarise(ft_points = sum(pts_won_ft, na.rm = TRUE), .groups = "drop")
 
-
-# ── 3. CALCULATE THE SECOND-HALF SHIFT ────────────────────
-
-df_shift <- df %>%
+df_shift <- full_join(ht_points, ft_points, by = "team") %>%
   mutate(
-    shift = ft_points - ht_points,
-    
+    across(c(ht_points, ft_points), ~ tidyr::replace_na(.x, 0)),
+    shift = ft_points - ht_points
+  )
+
+# Highlight the top four teams by points in the available league data.
+top_four <- pl_agg %>%
+  arrange(desc(pts), team) %>%
+  slice_head(n = 4) %>%
+  pull(team)
+
+top_four_cols <- setNames(
+  c(BLUE, RED, NAVY, MAROON),
+  top_four
+)
+
+club_cols <- c(
+  top_four_cols,
+  "Other positive" = "#328B78",
+  "Other negative" = "#CE7770",
+  "No change" = "#9AA7B5"
+)
+
+df_shift <- df_shift %>%
+  mutate(
     group = case_when(
       team %in% top_four ~ team,
       shift > 0 ~ "Other positive",
       shift < 0 ~ "Other negative",
       TRUE ~ "No change"
     ),
-    
     shift_label = case_when(
       shift > 0 ~ paste0("+", shift),
       shift < 0 ~ as.character(shift),
       TRUE ~ "0"
     )
   ) %>%
-  arrange(shift) %>%
-  mutate(
-    team = factor(team, levels = team)
-  )
-
-# ── 4. THE SECOND-HALF SHIFT ──────────────────────────────
+  arrange(shift, team) %>%
+  mutate(team = factor(team, levels = team))
 
 max_shift <- max(abs(df_shift$shift), na.rm = TRUE)
 
-c3 <- ggplot(
-  df_shift,
-  aes(x = shift, y = team)
-) +
-  
-  # Zero line
+h3 <- panel_heading(
+  "3",
+  "The second-half shift",
+  paste(
+    "Which teams change the story after the break?",
+    "Compare points at half-time with points at full-time.",
+    sep = "\n"
+  )
+)
+
+c3 <- ggplot(df_shift, aes(x = shift, y = team)) +
   geom_vline(
     xintercept = 0,
-    linewidth = 0.8,
-    colour = "#333333"
+    linewidth = 0.7,
+    colour = NAVY
   ) +
-  
-  # Bars
   geom_col(
     aes(fill = group),
-    width = 0.62
+    width = 0.62,
+    show.legend = FALSE
   ) +
-  
-  # Values at bar ends
   geom_text(
     aes(
       x = shift + if_else(shift >= 0, 0.35, -0.35),
       label = shift_label,
       hjust = if_else(shift >= 0, 0, 1)
     ),
-    colour = "#292929",
-    size = 3.3,
-    fontface = "bold"
+    colour = NAVY,
+    size = mm(SZ$label),
+    fontface = "bold",
+    family = fam
   ) +
-  
-  scale_fill_manual(values = club_cols) +
-  
+  scale_fill_manual(values = club_cols, drop = FALSE) +
   scale_x_continuous(
     limits = c(-max_shift - 2, max_shift + 2),
     breaks = pretty_breaks(n = 5),
     expand = c(0, 0)
   ) +
-  
   labs(
     x = "Difference in points: full-time minus half-time",
     y = NULL
   ) +
-  
-  theme_minimal(base_size = 11) +
-  
+  theme_chart() +
   theme(
     panel.grid.major.y = element_blank(),
-    panel.grid.minor = element_blank(),
-    
-    panel.grid.major.x = element_line(
-      colour = "#E8E8E8",
-      linewidth = 0.45
-    ),
-    
     axis.text.y = element_text(
-      size = 9.5,
+      size = SZ$axis,
       face = "bold",
-      colour = "#333333"
+      colour = NAVY,
+      family = fam
     ),
-    
     axis.text.x = element_text(
-      size = 9,
-      colour = "#888888"
+      size = SZ$axis,
+      colour = GREY,
+      family = fam
     ),
-    
-    axis.title.x = element_text(
-      size = 8.5,
-      face = "bold",
-      colour = "#777777",
-      margin = margin(t = 12)
-    ),
-    
-    axis.ticks = element_blank(),
-    legend.position = "none",
-    
-    plot.margin = margin(8, 22, 8, 8)
+    plot.margin = margin(6, 22, 6, 8)
   )
 
-# ── 5. HEADING ────────────────────────────────────────────
+tag_label <- function(txt, x = 0.05) {
 
-h3 <- panel_heading(
-  "3",
-  "THE SECOND-HALF SHIFT",
-  paste(
-    "Which teams change the story after the break?",
-    "Compare points from half-time results with the final table."
-    , sep = "\n")
-)
+  is_shift <- txt == "Second-half points shift"
 
-# ── 6. ANNOTATION ─────────────────────────────────────────
+  y_txt  <- if (is_shift) 1.25 else 0.78
+  y_line <- if (is_shift) 0.95 else 0.08
 
-tag <- ggplot() +
-  annotate(
-    "text",
-    x = 1, y = 1,
-    label = "← Fewer points at full-time",
-    colour = "#CE7770",
-    size = 3.1,
-    fontface = "bold"
-  ) +
-  annotate(
-    "text",
-    x = 4.1, y = 1,
-    label = "More points at full-time →",
-    colour = "#328B78",
-    size = 3.1,
-    fontface = "bold"
-  ) +
-  coord_cartesian(
-    xlim = c(0, 5.2),
-    ylim = c(0.8, 1.2)
-  ) +
-  theme_void()
-
-# ── 7. FINAL PANEL ────────────────────────────────────────
+  ggplot() +
+    annotate(
+      "text",
+      x = x, y = y_txt,
+      label = toupper(txt),
+      hjust = 0, vjust = 0.5,
+      fontface = "bold",
+      size = mm(SZ$tag),
+      colour = BLUE,
+      family = fam
+    ) +
+    annotate(
+      "segment",
+      x = 0, xend = 1,
+      y = y_line, yend = y_line,
+      colour = NAVY,
+      linewidth = 0.5
+    ) +
+    coord_cartesian(
+      xlim = c(0, 1),
+      ylim = c(0, 1),
+      expand = FALSE,
+      clip = "off"
+    ) +
+    theme_void() +
+    theme(
+      plot.margin = margin(4, 4, 4, 4),
+      plot.background = element_rect(
+        fill = BG, colour = NA
+      )
+    )
+}
 
 panel3 <- full(h3) /
-  full(tag) /
+  full(tag_label("Second-half points shift")) /
   c3 +
-  plot_layout(
-    heights = c(1.35, 0.35, 6)
+  plot_layout(heights = c(1.45, 0.35, 4.2))
+
+
+library(grid)
+
+grid.newpage()
+
+pushViewport(
+  viewport(
+    layout = grid.layout(
+      nrow = 2,
+      ncol = 2,
+      widths = unit(c(1, 1), "null"),
+      heights = unit(c(1, 1), "null")
+    )
   )
+)
 
-panel3
+# Panel 1: 100% width (spans both columns)
+print(
+  panel1,
+  vp = viewport(
+    layout.pos.row = 1,
+    layout.pos.col = 1:2
+  ),
+  newpage = FALSE
+)
 
+# Panel 2: 50% width
+print(
+  panel2,
+  vp = viewport(
+    layout.pos.row = 2,
+    layout.pos.col = 1
+  ),
+  newpage = FALSE
+)
 
+# Panel 3: 50% width
+print(
+  panel3,
+  vp = viewport(
+    layout.pos.row = 2,
+    layout.pos.col = 2
+  ),
+  newpage = FALSE
+)
 
+ggsave(
+  "pl_infographic.png",
+  plot = final,
+  width = 18,
+  height = 13,
+  units = "in",
+  dpi = 300,
+  bg = BG
+)
 
+ggsave(
+  "pl_infographic.pdf",
+  plot = final,
+  width = 18,
+  height = 13,
+  units = "in",
+  device = cairo_pdf,
+  bg = BG
+)
 
