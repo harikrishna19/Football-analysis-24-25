@@ -247,10 +247,11 @@ pl_plot    <- bind_rows(pl, avg_df) %>% mutate(team = factor(team, levels = name
 end_labels <- pl_plot %>% filter(matchweek == GW) %>%
   mutate(lab = ifelse(team == "League average", sprintf("League avg  %.0f", cum_pts),
                       sprintf("%s  %.0f", short[as.character(team)], cum_pts)))
+end_labels<-end_labels %>% filter(team!="League average")
 
-h1 <- panel_heading("1", "3 out of the Big 6 failing to find consistency",
-                    "Chelsea, Man United and Spurs are all below the league-average pace\nin the new Premier League season.")
-
+h1 <- panel_heading("1", "Three of the Big Six Are Falling Behind:Inconsistency at the start of the season",
+                    "Chelsea, Man United and Tottenham are unable to find consistency in the 2026/27 season")
+pl_plot<-pl_plot %>% filter(team!="League average")
 c1 <- ggplot(pl_plot, aes(matchweek, cum_pts, colour = team, linetype = team)) +
   geom_line(aes(linewidth = team), lineend = "round") +
   geom_point(data = filter(end_labels, team != "League average"), size = 4.2,
@@ -276,11 +277,11 @@ c1 <- ggplot(pl_plot, aes(matchweek, cum_pts, colour = team, linetype = team)) +
 MAROON <- "#7a1f3d"
 ins <- tibble(
   stat = c("8", "1959/60", "0", "0", "1"),
-  sub  = c("pts from 11 games", "last time", "goals in first 5", "clean sheets", "win each"),
+  sub  = c("pts from 11 games", "last time", "goals in first 4", "clean sheets", "win each"),
   col  = c(RED, BLUE, NAVY, RED, MAROON),
   txt  = c("Man United sit in the relegation zone with 8 points from 11 games, after a heavy loss at Anfield to Liverpool in matchweek 11.",
            "Chelsea have lost at home to both Spurs and Leeds in the same season, a first at Stamford Bridge since 1959/60.",
-           "Spurs failed to score in their first 5 league games, despite spending close to 300M on transfers.",
+           "Spurs failed to score in their first 4 league games, despite spending close to 300M on transfers.",
            "Man United have no clean sheets this season and have conceded close to 34 goals in all competitions.",
            "Only Burnley and Man United have just one win from their games in the top flight this season.")
 ) %>% mutate(y = seq(0.90, 0.10, length.out = n()),
@@ -350,9 +351,9 @@ h2 <- panel_heading(
 c2 <- ggplot(pl_agg, aes(gf, ga)) +
   annotate("rect", xmin = med_gf, xmax = Inf, ymin = -Inf, ymax = med_ga,
            fill = "#C5D0EE", alpha = .45) +
-  annotate("text", x = Inf, y = med_ga, label = "Strong attack,\nstrong defence",
+  annotate("text", x = Inf, y = 8.5, label = "Strong attack,\nstrong defence",
            hjust = 1.08, vjust = -0.4, colour = BLUE, fontface = "italic",
-           size = mm(SZ$label - 1), lineheight = 1, family = fam) +
+           size = 3, lineheight = 1, family = fam) +
   geom_vline(xintercept = med_gf, linetype = "dashed", colour = "grey45") +
   geom_hline(yintercept = med_ga, linetype = "dashed", colour = "grey45") +
   geom_point(aes(size = pts, fill = hl), shape = 21, colour = "white", stroke = 1) +
@@ -374,10 +375,10 @@ side2 <- stat_block(bri$gf, "Goals scored",
              sprintf("%s best", ord(min_rank(pl_agg$ga)[pl_agg$team == bri$team]))) /
   stat_block(sprintf("%+d", bri$gd), "Goal difference",
              sprintf("%s in the league", ord(min_rank(-pl_agg$gd)[pl_agg$team == bri$team]))) /
-  callout("Are they the real deal?\nTheir numbers say yes.") +
+  # callout("Are they the real deal?\nTheir numbers say yes.") +
   plot_layout(heights = c(1, 1, 1, 0.9))
 
-panel2 <- full(h2) / full(tag_label("Contender credibility matrix")) /(c2 + side2 + plot_layout(widths = c(2.7, 1.1))) +
+panel2 <- full(h2) / full(tag_label("EYE CATCHING STATS")) /(c2 + side2 + plot_layout(widths = c(2.7, 1.1))) +
   plot_layout(heights = c(1.45, 0.35, 5.9))
 panel2
 
@@ -393,160 +394,206 @@ panel2
 # Requires ht_summary and ft_summary with team and points columns.
 # ---------------------------------------------------------------------
 
-ht_points <- ht_summary %>%
-  group_by(team) %>%
-  summarise(ht_points = sum(pts_won_ht, na.rm = TRUE), .groups = "drop")
-
-ft_points <- ft_summary %>%
-  group_by(team) %>%
-  summarise(ft_points = sum(pts_won_ft, na.rm = TRUE), .groups = "drop")
-
-df_shift <- full_join(ht_points, ft_points, by = "team") %>%
-  mutate(
-    across(c(ht_points, ft_points), ~ tidyr::replace_na(.x, 0)),
-    shift = ft_points - ht_points
-  )
-
-# Highlight the top four teams by points in the available league data.
-top_four <- pl_agg %>%
-  arrange(desc(pts), team) %>%
-  slice_head(n = 4) %>%
-  pull(team)
-
-top_four_cols <- setNames(
-  c(BLUE, RED, NAVY, MAROON),
-  top_four
-)
-
-club_cols <- c(
-  top_four_cols,
-  "Other positive" = "#328B78",
-  "Other negative" = "#CE7770",
-  "No change" = "#9AA7B5"
-)
-
-df_shift <- df_shift %>%
-  mutate(
-    group = case_when(
-      team %in% top_four ~ team,
-      shift > 0 ~ "Other positive",
-      shift < 0 ~ "Other negative",
-      TRUE ~ "No change"
-    ),
-    shift_label = case_when(
-      shift > 0 ~ paste0("+", shift),
-      shift < 0 ~ as.character(shift),
-      TRUE ~ "0"
+  ht_points <- ht_summary %>%
+    group_by(team) %>%
+    summarise(ht_points = sum(pts_won_ht, na.rm = TRUE), .groups = "drop")
+  
+  ft_points <- ft_summary %>%
+    group_by(team) %>%
+    summarise(ft_points = sum(pts_won_ft, na.rm = TRUE), .groups = "drop")
+  
+  df_shift <- full_join(ht_points, ft_points, by = "team") %>%
+    mutate(
+      across(c(ht_points, ft_points), ~ tidyr::replace_na(.x, 0)),
+      shift = ft_points - ht_points
     )
-  ) %>%
-  arrange(shift, team) %>%
-  mutate(team = factor(team, levels = team))
-
-max_shift <- max(abs(df_shift$shift), na.rm = TRUE)
-
-h3 <- panel_heading(
-  "3",
-  "The second-half shift",
-  paste(
-    "Which teams change the story after the break?",
-    "Compare points at half-time with points at full-time.",
-    sep = "\n"
+  
+  # Highlight the top four teams by points in the available league data.
+  top_four <- pl_agg %>%
+    arrange(desc(pts), team) %>%
+    slice_head(n = 4) %>%
+    pull(team)
+  
+  top_four_cols <- setNames(
+    c(BLUE, RED, NAVY, MAROON),
+    top_four
   )
-)
-
-c3 <- ggplot(df_shift, aes(x = shift, y = team)) +
-  geom_vline(
-    xintercept = 0,
-    linewidth = 0.7,
-    colour = NAVY
-  ) +
-  geom_col(
-    aes(fill = group),
-    width = 0.62,
-    show.legend = FALSE
-  ) +
-  geom_text(
-    aes(
-      x = shift + if_else(shift >= 0, 0.35, -0.35),
-      label = shift_label,
-      hjust = if_else(shift >= 0, 0, 1)
-    ),
-    colour = NAVY,
-    size = mm(SZ$label),
-    fontface = "bold",
-    family = fam
-  ) +
-  scale_fill_manual(values = club_cols, drop = FALSE) +
-  scale_x_continuous(
-    limits = c(-max_shift - 2, max_shift + 2),
-    breaks = pretty_breaks(n = 5),
-    expand = c(0, 0)
-  ) +
-  labs(
-    x = "Difference in points: full-time minus half-time",
-    y = NULL
-  ) +
-  theme_chart() +
-  theme(
-    panel.grid.major.y = element_blank(),
-    axis.text.y = element_text(
-      size = SZ$axis,
-      face = "bold",
-      colour = NAVY,
-      family = fam
-    ),
-    axis.text.x = element_text(
-      size = SZ$axis,
-      colour = GREY,
-      family = fam
-    ),
-    plot.margin = margin(6, 22, 6, 8)
+  
+  club_cols <- c(
+    top_four_cols,
+    "Other positive" = "#328B78",
+    "Other negative" = "#CE7770",
+    "No change" = "#9AA7B5"
   )
-
-tag_label <- function(txt, x = 0.05) {
-
-  is_shift <- txt == "Second-half points shift"
-
-  y_txt  <- if (is_shift) 1.25 else 0.78
-  y_line <- if (is_shift) 0.95 else 0.08
-
-  ggplot() +
-    annotate(
-      "text",
-      x = x, y = y_txt,
-      label = toupper(txt),
-      hjust = 0, vjust = 0.5,
-      fontface = "bold",
-      size = mm(SZ$tag),
-      colour = BLUE,
-      family = fam
-    ) +
-    annotate(
-      "segment",
-      x = 0, xend = 1,
-      y = y_line, yend = y_line,
-      colour = NAVY,
-      linewidth = 0.5
-    ) +
-    coord_cartesian(
-      xlim = c(0, 1),
-      ylim = c(0, 1),
-      expand = FALSE,
-      clip = "off"
-    ) +
-    theme_void() +
-    theme(
-      plot.margin = margin(4, 4, 4, 4),
-      plot.background = element_rect(
-        fill = BG, colour = NA
+  
+  df_shift <- full_join(ht_points, ft_points, by = "team") %>%
+    mutate(
+      across(
+        c(ht_points, ft_points),
+        ~ tidyr::replace_na(.x, 0)
+      ),
+      shift = ft_points - ht_points,
+      
+      group = case_when(
+        shift > 0 ~ "Positive",
+        shift < 0 ~ "Negative",
+        TRUE ~ "No change"
+      ),
+      
+      shift_label = case_when(
+        shift > 0 ~ paste0("+", shift),
+        shift < 0 ~ as.character(shift),
+        TRUE ~ "0"
+      ),
+      
+      points_label = paste0(
+        "HT ", ht_points,
+        "  |  FT ", ft_points
       )
+    ) %>%
+    arrange(shift, team) %>%
+    mutate(team = factor(team, levels = team))
+  
+  club_cols <- c(
+    "Positive" = "#328B78",
+    "Negative" = "#CE7770",
+    "No change" = "#9AA7B5"
+  )
+  
+  max_shift <- max(abs(df_shift$shift), na.rm = TRUE)
+  
+  c3 <- ggplot(df_shift, aes(x = shift, y = team)) +
+    
+    geom_vline(
+      xintercept = 0,
+      linewidth = 0.7,
+      colour = NAVY
+    ) +
+    
+    geom_col(
+      aes(fill = group),
+      width = 0.62,
+      show.legend = FALSE
+    ) +
+    
+    # Shift labels
+    geom_text(
+      aes(
+        x = shift + if_else(shift >= 0, 0.35, -0.35),
+        label = shift_label,
+        hjust = if_else(shift >= 0, 0, 1)
+      ),
+      colour = NAVY,
+      size = mm(SZ$label),
+      fontface = "bold",
+      family = fam
+    ) +
+    
+    # HT and FT points
+    # geom_text(
+    #   aes(
+    #     x = max_shift + 2,
+    #     label = points_label
+    #   ),
+    #   hjust = 0,
+    #   colour = GREY,
+    #   size = mm(SZ$label),
+    #   family = fam
+    # ) +
+    
+    scale_fill_manual(values = club_cols) +
+    
+    scale_x_continuous(
+      limits = c(-max_shift - 2, max_shift + 9),
+      breaks = pretty_breaks(n = 5),
+      expand = c(0, 0)
+    ) +
+    
+    labs(
+      x = "Difference in points: full-time minus half-time",
+      y = NULL,
+      caption = "Viz:Hari Krishna-Data:{engsoccerdata-football-data.co.uk}"
+    ) +
+    
+    theme_chart() +
+    
+    theme(
+      panel.grid.major.y = element_blank(),
+      plot.caption = element_text(
+        face = "bold",
+        size = 10,
+        colour = "black"
+      ),
+      axis.text.y = element_text(
+        size = SZ$axis,
+        face = "bold",
+        colour = NAVY,
+        family = fam
+      ),
+      
+      axis.text.x = element_text(
+        size = SZ$axis,
+        colour = GREY,
+        family = fam
+      ),
+      
+      plot.margin = margin(6, 22, 6, 8)
     )
-}
-
-panel3 <- full(h3) /
-  full(tag_label("Second-half points shift")) /
-  c3 +
-  plot_layout(heights = c(1.45, 0.35, 4.2))
+  
+  
+  tag_label <- function(txt, x = 0.05) {
+  
+    is_shift <- txt == "Second-half points shift"
+  
+    y_txt  <- if (is_shift) 1.25 else 0.78
+    y_line <- if (is_shift) 0.95 else 0.08
+  
+    ggplot() +
+      annotate(
+        "text",
+        x = x, y = y_txt,
+        label = toupper(txt),
+        hjust = 0, vjust = 0.5,
+        fontface = "bold",
+        size = mm(SZ$tag),
+        colour = BLUE,
+        family = fam
+      ) +
+      annotate(
+        "segment",
+        x = 0, xend = 1,
+        y = y_line, yend = y_line,
+        colour = NAVY,
+        linewidth = 0.5
+      ) +
+      coord_cartesian(
+        xlim = c(0, 1),
+        ylim = c(0, 1),
+        expand = FALSE,
+        clip = "off"
+      ) +
+      theme_void() +
+      theme(
+        plot.margin = margin(4, 4, 4, 4),
+        plot.background = element_rect(
+          fill = BG, colour = NA
+        )
+      )
+  }
+  
+  h3 <- panel_heading(
+    "3",
+    "The second-half shift",
+    paste(
+      "Who gained points and who let them slip?",
+      "Bournemouth top of the league if matches finished at HT",
+      sep = "\n"
+    )
+  )
+  panel3 <- full(h3) /
+    full(tag_label("Second-half points shift")) /
+    c3 +
+    plot_layout(heights = c(1.45, 0.35, 4.2))
 
 
 library(grid)
@@ -594,23 +641,4 @@ print(
   newpage = FALSE
 )
 
-ggsave(
-  "pl_infographic.png",
-  plot = final,
-  width = 18,
-  height = 13,
-  units = "in",
-  dpi = 300,
-  bg = BG
-)
-
-ggsave(
-  "pl_infographic.pdf",
-  plot = final,
-  width = 18,
-  height = 13,
-  units = "in",
-  device = cairo_pdf,
-  bg = BG
-)
 
